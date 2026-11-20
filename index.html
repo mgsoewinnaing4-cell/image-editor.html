@@ -186,11 +186,38 @@
       gap: 10px;
     }
     .sync-box.show { display: flex; }
+    .sync-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
     .sync-title {
       font-size: 13px;
       font-weight: 700;
       color: #38bdf8;
     }
+    .ocr-mode-group {
+      display: flex;
+      gap: 4px;
+    }
+    .ocr-mode-btn {
+      padding: 4px 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 6px;
+      border: 1px solid var(--input-border);
+      background: var(--card-2);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .ocr-mode-btn.active {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: #fff;
+    }
+
     .sync-input {
       width: 100%;
       padding: 10px 12px;
@@ -309,9 +336,15 @@
 
     <!-- Live Sync Box -->
     <div class="sync-box" id="syncBox">
-      <div class="sync-title" id="syncTitle">တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (မူလနေရာအတိုင်း အော်တိုညှိမည်)</div>
+      <div class="sync-header">
+        <div class="sync-title" id="syncTitle">ပြုပြင်ကွက်လပ် (မူလ ဂဏန်း/သင်္ကေတနှင့် နေရာအတိုင်း ပေါ်မည်)</div>
+        <div class="ocr-mode-group">
+          <button type="button" class="ocr-mode-btn active" id="modeNumSymBtn">123 / Symbol</button>
+          <button type="button" class="ocr-mode-btn" id="modeAllBtn">Auto All</button>
+        </div>
+      </div>
 
-      <input type="text" class="sync-input" id="syncTextInput" placeholder="နှိပ်လိုက်သော စာသား အော်တိုပေါ်လာမည်..." />
+      <input type="text" class="sync-input" id="syncTextInput" placeholder="မူလပါ ဂဏန်းနှင့် သင်္ကေတများ ပေါ်လာမည်..." />
 
       <div class="meta-row">
         <div>
@@ -319,7 +352,7 @@
           <input type="number" id="sizeInput" value="20" min="8" max="200" />
         </div>
         <div>
-          <span class="mini-lbl" id="lblWeight">Weight</span>
+          <span class="mini-lbl" id="lblWeight">စာလုံးအထူ</span>
           <select id="weightInput">
             <option value="400">Normal (400)</option>
             <option value="600">Semi-Bold (600)</option>
@@ -359,17 +392,17 @@
         uploadLabel: "ပုံတင်ရန် (Upload Image)",
         placeholderCanvas: "ပုံတစ်ပုံ ရွေးချယ်ပါ",
         hintInitial: "ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (မူလနေရာနှင့် Size အတိုင်း အော်တိုညှိပေးမည်)",
-        hintActive: "စာကြောင်းပေါ် Tap/Click လုပ်ပြီး ပြင်ပါ — မူလနေရာနှင့် Size အတိုင်း အော်တိုညှိပေးမည်",
-        syncTitle: "တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (မူလနေရာအတိုင်း အော်တိုညှိမည်)",
-        syncPlaceholder: "နှိပ်လိုက်သော စာသား အော်တိုပေါ်လာမည်...",
+        hintActive: "စာကြောင်းတစ်ကြောင်းချင်းပေါ် Tap/Click လုပ်ပြီး ပြင်ပါ — မူလနေရာနှင့် Size အတိုင်း ထိုင်ပေးမည်",
+        syncTitle: "ပြုပြင်ကွက်လပ် (မူလ ဂဏန်း/သင်္ကေတနှင့် နေရာအတိုင်း ပေါ်မည်)",
+        syncPlaceholder: "မူလပါ ဂဏန်းနှင့် သင်္ကေတများ ပေါ်လာမည်...",
         lblOrigSize: "Size (Auto)",
         lblWeight: "စာလုံးအထူ",
         lblTextColor: "စာသားအရောင်",
         lblBgColor: "နောက်ခံဖုံးအရောင်",
         undoBtn: "↩ Undo",
         deleteEditBtn: "Delete Edit",
-        readingOcr: "စာကြောင်းကို ဖတ်နေပါသည်...",
-        ocrDone: "စာပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
+        readingOcr: "ဂဏန်းနှင့် သင်္ကေတများကို တိတိကျကျ ဖတ်နေပါသည်...",
+        ocrDone: "မူလစာသား ပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်ပါ",
         confirmed: "မူလနေရာအတိုင်း အတည်ပြုပြီးပါပြီ",
         reverted: "မူရင်းစာ ပြန်ပေါ်လာပါပြီ",
         deletedEdit: "ပြင်ထားသော စာသားကို ဖျက်လိုက်ပါပြီ",
@@ -389,16 +422,16 @@
         uploadLabel: "Upload Image",
         placeholderCanvas: "Choose an image",
         hintInitial: "Upload an image and tap/hover text to auto-align & edit",
-        hintActive: "Tap/click text to edit — locks to original left edge & size automatically",
-        syncTitle: "Live Sync Input (Auto-aligns to original position)",
-        syncPlaceholder: "Tapped text auto-appears here...",
+        hintActive: "Tap/click a single text line — locks exact digits, symbols & original alignment",
+        syncTitle: "Live Sync Input (Exact digits, symbols & alignment)",
+        syncPlaceholder: "Original digits & symbols appear here...",
         lblOrigSize: "Size (Auto)",
         lblWeight: "Weight",
         lblTextColor: "Text Color",
         lblBgColor: "Cover Color",
         undoBtn: "↩ Undo",
         deleteEditBtn: "Delete Edit",
-        readingOcr: "Reading text line...",
+        readingOcr: "Reading exact digits & symbols...",
         ocrDone: "Text loaded — edit and tap Save to confirm",
         confirmed: "Confirmed at original position",
         reverted: "Restored original text in box",
@@ -414,9 +447,12 @@
 
     let lang = "my";
     let theme = "dark";
+    let ocrMode = "num_sym"; // "num_sym" (default strict digits/symbols/currency) or "all"
 
     const themeToggleBtn = document.getElementById("themeToggleBtn");
     const langToggleBtn = document.getElementById("langToggleBtn");
+    const modeNumSymBtn = document.getElementById("modeNumSymBtn");
+    const modeAllBtn = document.getElementById("modeAllBtn");
     const fileInput = document.getElementById("fileInput");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
     const undoLastBtn = document.getElementById("undoLastBtn");
@@ -443,7 +479,7 @@
 
     let confirmedEdits = [];
     let hoverBox = null;
-    let liveEdit = null; // { id, x, y, w, h, text, originalText, fontSize, fontWeight, textColor, bgColor, isDirty }
+    let liveEdit = null;
     let ocrToken = 0;
 
     function t(k, ...a) {
@@ -484,6 +520,19 @@
       applyLang();
     });
 
+    function setOcrMode(mode) {
+      ocrMode = mode;
+      modeNumSymBtn.classList.toggle("active", mode === "num_sym");
+      modeAllBtn.classList.toggle("active", mode === "all");
+      if (liveEdit && !liveEdit.isDirty) {
+        const token = ++ocrToken;
+        runAutoOcr({ ...liveEdit }, token);
+      }
+    }
+
+    modeNumSymBtn.addEventListener("click", () => setOcrMode("num_sym"));
+    modeAllBtn.addEventListener("click", () => setOcrMode("all"));
+
     function showToast(msg) {
       toastMsg.textContent = msg;
       setTimeout(() => {
@@ -499,34 +548,35 @@
       return (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2;
     }
 
-    // Inspect line around (cx, cy): captures original left edge, line height -> font size, and font weight
+    // Strict single-line inspection around (cx, cy) so adjacent lines are never merged
     function inspectLineAt(cx, cy) {
       const scaleFactor = baseImg ? Math.max(1, baseImg.width / 540) : 1;
-      const defaultSize = Math.max(14, Math.round(18 * scaleFactor));
+      const defaultSize = Math.max(13, Math.round(17 * scaleFactor));
       const fallback = {
         bgColor: "#ffffff",
         textColor: "#111827",
         fontSize: defaultSize,
         fontWeight: "700",
-        x: Math.max(0, Math.round(cx - 90 * scaleFactor)),
-        y: Math.max(0, Math.round(cy - defaultSize * 0.7)),
-        w: Math.min(mainCanvas.width, Math.round(180 * scaleFactor)),
-        h: Math.round(defaultSize * 1.35)
+        x: Math.max(0, Math.round(cx - 80 * scaleFactor)),
+        y: Math.max(0, Math.round(cy - defaultSize * 0.65)),
+        w: Math.min(mainCanvas.width, Math.round(160 * scaleFactor)),
+        h: Math.round(defaultSize * 1.25)
       };
       if (!baseImg) return fallback;
 
-      const scanW = Math.min(sampleCanvas.width, Math.max(180, Math.round(sampleCanvas.width * 0.75)));
-      const scanH = Math.min(sampleCanvas.height, Math.max(28, Math.round(sampleCanvas.height * 0.04)));
+      const scanW = Math.min(sampleCanvas.width, Math.max(180, Math.round(sampleCanvas.width * 0.78)));
+      // Keep vertical search tight around tapped line so neighboring rows aren't grabbed
+      const maxLineSearchH = Math.max(22, Math.min(56, Math.round(sampleCanvas.height * 0.028)));
+      const scanH = Math.min(sampleCanvas.height, maxLineSearchH);
       const sx0 = Math.max(0, Math.min(sampleCanvas.width - scanW, Math.round(cx - scanW * 0.35)));
       const sy0 = Math.max(0, Math.min(sampleCanvas.height - scanH, Math.round(cy - scanH / 2)));
 
       try {
         const imgData = sampleCtx.getImageData(sx0, sy0, scanW, scanH).data;
 
-        // Sample background color from top/bottom edges of scan strip
         const edgeColors = [];
         for (let x = 0; x < scanW; x += 2) {
-          for (const y of [0, 1, scanH - 2, scanH - 1]) {
+          for (const y of [0, scanH - 1]) {
             const idx = (y * scanW + x) * 4;
             edgeColors.push([imgData[idx], imgData[idx + 1], imgData[idx + 2]]);
           }
@@ -534,7 +584,6 @@
         edgeColors.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
         const bgRgb = edgeColors[Math.floor(edgeColors.length * 0.65)] || [255, 255, 255];
 
-        // Vertical bounds of text line around cy
         const midY = Math.max(0, Math.min(scanH - 1, Math.round(cy - sy0)));
         let topY = midY;
         let botY = midY;
@@ -544,38 +593,36 @@
           for (let x = 0; x < scanW; x += 2) {
             const idx = (y * scanW + x) * 4;
             const px = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
-            if (colorDistSq(px, bgRgb) > 2800) hits++;
+            if (colorDistSq(px, bgRgb) > 3000) hits++;
           }
           return hits >= 2;
         };
 
+        // Stop immediately on 1-2 empty rows to keep single-line accuracy
         let gapUp = 0;
         for (let y = midY; y >= 0; y--) {
           if (rowHasFg(y)) { topY = y; gapUp = 0; }
-          else { gapUp++; if (gapUp > 2 && y < midY - 3) break; }
+          else { gapUp++; if (gapUp > 1 && y < midY - 2) break; }
         }
         let gapDn = 0;
         for (let y = midY; y < scanH; y++) {
           if (rowHasFg(y)) { botY = y; gapDn = 0; }
-          else { gapDn++; if (gapDn > 2 && y > midY + 3) break; }
+          else { gapDn++; if (gapDn > 1 && y > midY + 2) break; }
         }
 
         const linePixelH = Math.max(10, botY - topY + 1);
-        const estimatedFontSize = Math.max(10, Math.min(180, Math.round(linePixelH * 0.92)));
+        const estimatedFontSize = Math.max(10, Math.min(180, Math.round(linePixelH * 0.90)));
 
-        // Horizontal bounds of text line
         const colHits = new Array(scanW).fill(false);
         let fgSum = [0, 0, 0];
         let fgCount = 0;
         let activePixels = 0;
-        let totalBandPixels = 0;
 
         for (let x = 0; x < scanW; x++) {
           for (let y = topY; y <= botY; y++) {
             const idx = (y * scanW + x) * 4;
             const px = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
-            totalBandPixels++;
-            if (colorDistSq(px, bgRgb) > 2800) {
+            if (colorDistSq(px, bgRgb) > 3000) {
               colHits[x] = true;
               activePixels++;
               fgSum[0] += px[0];
@@ -593,23 +640,22 @@
         let gap = 0;
         for (let x = tapLocalX; x >= 0; x--) {
           if (colHits[x]) { leftX = x; gap = 0; }
-          else { gap++; if (gap > Math.max(5, Math.round(estimatedFontSize * 0.45))) break; }
+          else { gap++; if (gap > Math.max(4, Math.round(estimatedFontSize * 0.4))) break; }
         }
         gap = 0;
         for (let x = tapLocalX; x < scanW; x++) {
           if (colHits[x]) { rightX = x; gap = 0; }
-          else { gap++; if (gap > Math.max(5, Math.round(estimatedFontSize * 0.45))) break; }
+          else { gap++; if (gap > Math.max(4, Math.round(estimatedFontSize * 0.4))) break; }
         }
 
-        // Preserve original left start with slight clean margin
-        const padX = Math.max(2, Math.round(estimatedFontSize * 0.18));
-        const padY = Math.max(2, Math.round(estimatedFontSize * 0.22));
+        const padX = Math.max(2, Math.round(estimatedFontSize * 0.16));
+        const padY = Math.max(1, Math.round(estimatedFontSize * 0.14));
 
         let x = sx0 + Math.max(0, leftX - padX);
-        let w = Math.max(60, Math.min(sampleCanvas.width - x, (rightX - leftX) + padX * 2));
-        if (rightX - leftX < 6) {
-          x = Math.max(0, Math.min(sampleCanvas.width - 140, Math.round(cx - 40)));
-          w = Math.min(sampleCanvas.width - x, 140);
+        let w = Math.max(50, Math.min(sampleCanvas.width - x, (rightX - leftX) + padX * 2));
+        if (rightX - leftX < 5) {
+          x = Math.max(0, Math.min(sampleCanvas.width - 130, Math.round(cx - 35)));
+          w = Math.min(sampleCanvas.width - x, 130);
         }
 
         const absTop = sy0 + topY;
@@ -622,7 +668,6 @@
           fgRgb = [fgSum[0] / fgCount, fgSum[1] / fgCount, fgSum[2] / fgCount];
         }
 
-        // Estimate font weight by stroke density inside detected line box
         const spanW = Math.max(1, rightX - leftX + 1);
         const density = activePixels / Math.max(1, spanW * linePixelH);
         const fontWeight = density > 0.36 ? "700" : (density > 0.24 ? "600" : "400");
@@ -642,23 +687,21 @@
       }
     }
 
-    // Auto-aligns cleanly to original left edge & vertical center, expanding cover to the right if text is longer
     function drawAutoAlignedEdit(item, showOutline, isLive) {
-      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.32));
+      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.24));
       const boxY = item.y;
       const textX = item.x + Math.max(2, Math.round(item.fontSize * 0.12));
       const centerY = boxY + boxH / 2;
 
       ctx.font = `${item.fontWeight || "700"} ${item.fontSize}px system-ui, -apple-system, sans-serif`;
       const textW = (item.text && item.text.length > 0) ? ctx.measureText(item.text).width : 0;
-      const rightPad = Math.max(6, Math.round(item.fontSize * 0.35));
+      const rightPad = Math.max(6, Math.round(item.fontSize * 0.32));
       const coverW = Math.min(
         mainCanvas.width - item.x,
         Math.max(item.w, Math.ceil((textX - item.x) + textW + rightPad))
       );
 
       if (!isLive || item.isDirty) {
-        // Clean cover box over old text & extended right side without touching adjacent rows
         ctx.fillStyle = item.bgColor;
         ctx.fillRect(item.x, boxY, coverW, boxH);
 
@@ -712,34 +755,51 @@
       }
     }
 
+    function cleanOcrOutput(rawText, mode) {
+      let s = (rawText || "").replace(/\s+/g, " ").trim();
+      // Normalize common OCR symbol confusions on receipts/numbers
+      s = s.replace(/[—–−]/g, "-").replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+      if (mode === "num_sym") {
+        // Keep digits, currency letters (Ks/MMK/USD/THB/etc.), and exact symbols (- + ~ , . : / ( ) % $)
+        s = s.replace(/[^\dA-Za-z\-+~,.:/()%$ ]+/g, "").replace(/\s+/g, " ").trim();
+      }
+      return s;
+    }
+
     async function runAutoOcr(item, token) {
       if (!window.Tesseract || !item) return;
-      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.32));
+      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.24));
       const boxY = Math.max(0, Math.round(item.y));
 
+      // Upscale 3x with generous white margin so digits & symbols (-, +, ~, (, ), :, /, Ks, .) read crisply
+      const pad = 24;
+      const scale = 3;
       const cropCanvas = document.createElement("canvas");
-      cropCanvas.width = Math.max(140, Math.round(item.w * 2));
-      cropCanvas.height = Math.max(44, Math.round(boxH * 2));
+      cropCanvas.width = Math.max(240, Math.round(item.w * scale) + pad * 2);
+      cropCanvas.height = Math.max(72, Math.round(boxH * scale) + pad * 2);
       const cCtx = cropCanvas.getContext("2d");
       cCtx.fillStyle = "#ffffff";
       cCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+      cCtx.imageSmoothingEnabled = false;
       cCtx.drawImage(
         sampleCanvas,
         Math.max(0, Math.round(item.x)),
         boxY,
-        Math.max(10, Math.round(item.w)),
-        Math.max(10, Math.round(boxH)),
-        0,
-        0,
-        cropCanvas.width,
-        cropCanvas.height
+        Math.max(8, Math.round(item.w)),
+        Math.max(8, Math.round(boxH)),
+        pad,
+        pad,
+        Math.round(item.w * scale),
+        Math.round(boxH * scale)
       );
 
       showToast(t("readingOcr"));
       try {
-        const res = await Tesseract.recognize(cropCanvas.toDataURL("image/png"), "eng+mya");
+        // Use English engine for crisp digits & symbols so Burmese script never corrupts numbers/symbols
+        const langCode = ocrMode === "num_sym" ? "eng" : "eng+mya";
+        const res = await Tesseract.recognize(cropCanvas.toDataURL("image/png"), langCode);
         if (token !== ocrToken || !liveEdit || liveEdit.isDirty) return;
-        const detected = (res?.data?.text || "").replace(/\s+/g, " ").trim();
+        const detected = cleanOcrOutput(res?.data?.text || "", ocrMode);
         if (detected) {
           liveEdit.originalText = detected;
           liveEdit.text = detected;
@@ -890,7 +950,7 @@
     function findExistingEditAt(px, py) {
       for (let i = confirmedEdits.length - 1; i >= 0; i--) {
         const ed = confirmedEdits[i];
-        const boxH = Math.max(ed.h, Math.round(ed.fontSize * 1.32));
+        const boxH = Math.max(ed.h, Math.round(ed.fontSize * 1.24));
         if (px >= ed.x && px <= ed.x + ed.w && py >= ed.y && py <= ed.y + boxH) {
           return ed;
         }
@@ -916,7 +976,6 @@
       if (!baseImg) return;
       const pt = getCoords(clientX, clientY);
 
-      // Re-open existing edit if tapped again
       const existing = findExistingEditAt(pt.x, pt.y);
       if (existing) {
         ocrToken++;
