@@ -99,10 +99,15 @@
       font-size: 13px;
     }
 
+    .action-bar {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
     .btn-save-main {
       width: 100%;
-      padding: 15px;
-      font-size: 18px;
+      padding: 14px;
+      font-size: 17px;
       font-weight: 800;
       border: none;
       border-radius: 12px;
@@ -112,6 +117,18 @@
     }
     .btn-save-main:disabled { opacity: 0.4; cursor: not-allowed; }
     .btn-save-main:active { transform: scale(0.99); }
+
+    .btn-undo-top {
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .btn-undo-top:disabled { opacity: 0.4; cursor: not-allowed; }
 
     .export-choices {
       display: none;
@@ -186,8 +203,11 @@
     }
     .meta-row {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
+    }
+    @media (max-width: 520px) {
+      .meta-row { grid-template-columns: repeat(2, 1fr); }
     }
     .mini-lbl {
       display: block;
@@ -195,23 +215,30 @@
       color: var(--muted);
       margin-bottom: 3px;
     }
-    input[type="number"], input[type="color"] {
+    input[type="number"], input[type="color"], select {
       width: 100%;
       height: 36px;
       border-radius: 8px;
       border: 1px solid var(--input-border);
       background: var(--card-2);
       color: var(--text);
-      padding: 4px;
+      padding: 4px 6px;
+      font-size: 13px;
     }
 
     .small-actions {
       display: flex;
       gap: 8px;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .right-mini-btns {
+      display: flex;
+      gap: 8px;
     }
     .btn-mini-save {
-      padding: 6px 14px;
+      padding: 7px 14px;
       font-size: 12px;
       font-weight: 700;
       border: none;
@@ -221,12 +248,22 @@
       cursor: pointer;
     }
     .btn-mini-reset {
-      padding: 6px 14px;
+      padding: 7px 14px;
       font-size: 12px;
       font-weight: 700;
       border: none;
       border-radius: 6px;
       background: #475569;
+      color: #fff;
+      cursor: pointer;
+    }
+    .btn-mini-delete {
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      background: #dc2626;
       color: #fff;
       cursor: pointer;
     }
@@ -255,7 +292,10 @@
       <input type="file" id="fileInput" accept="image/*" />
     </div>
 
-    <button class="btn-save-main" id="mainSaveBtn" disabled>SAVE</button>
+    <div class="action-bar">
+      <button class="btn-save-main" id="mainSaveBtn" disabled>SAVE</button>
+      <button class="btn-undo-top" id="undoLastBtn" disabled>↩ Undo</button>
+    </div>
 
     <div class="export-choices" id="exportChoices">
       <button class="sub-export-btn btn-copy" id="copyImgBtn">Copy</button>
@@ -264,19 +304,27 @@
 
     <div class="canvas-wrap">
       <canvas id="mainCanvas" width="500" height="500"></canvas>
-      <div class="hint" id="hintText">ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (နေရာအော်တိုညှိပြီး ပြောင်းပေးပါမည်)</div>
+      <div class="hint" id="hintText">ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (မူလနေရာနှင့် Size အတိုင်း အော်တိုညှိပေးမည်)</div>
     </div>
 
     <!-- Live Sync Box -->
     <div class="sync-box" id="syncBox">
-      <div class="sync-title" id="syncTitle">တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (နေရာအော်တိုညှိမည်)</div>
+      <div class="sync-title" id="syncTitle">တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (မူလနေရာအတိုင်း အော်တိုညှိမည်)</div>
 
       <input type="text" class="sync-input" id="syncTextInput" placeholder="နှိပ်လိုက်သော စာသား အော်တိုပေါ်လာမည်..." />
 
       <div class="meta-row">
         <div>
-          <span class="mini-lbl" id="lblOrigSize">Size (Default 20)</span>
+          <span class="mini-lbl" id="lblOrigSize">Size (Auto)</span>
           <input type="number" id="sizeInput" value="20" min="8" max="200" />
+        </div>
+        <div>
+          <span class="mini-lbl" id="lblWeight">Weight</span>
+          <select id="weightInput">
+            <option value="400">Normal (400)</option>
+            <option value="600">Semi-Bold (600)</option>
+            <option value="700" selected>Bold (700)</option>
+          </select>
         </div>
         <div>
           <span class="mini-lbl" id="lblTextColor">စာသားအရောင်</span>
@@ -289,8 +337,11 @@
       </div>
 
       <div class="small-actions">
-        <button class="btn-mini-save" id="miniSaveBtn">Save</button>
-        <button class="btn-mini-reset" id="miniResetBtn">Reset</button>
+        <button class="btn-mini-delete" id="miniDeleteBtn">Delete Edit</button>
+        <div class="right-mini-btns">
+          <button class="btn-mini-reset" id="miniResetBtn">Reset</button>
+          <button class="btn-mini-save" id="miniSaveBtn">Save</button>
+        </div>
       </div>
     </div>
 
@@ -307,17 +358,22 @@
         toMy: "🌐 မြန်မာ",
         uploadLabel: "ပုံတင်ရန် (Upload Image)",
         placeholderCanvas: "ပုံတစ်ပုံ ရွေးချယ်ပါ",
-        hintInitial: "ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (နေရာအော်တိုညှိပြီး ပြောင်းပေးပါမည်)",
-        hintActive: "စာကြောင်းပေါ် Hover / Tap လုပ်ပြီး နှိပ်ပါ — နေရာကို အော်တိုညှိပြီး တိုက်ရိုက်ပြောင်းပေးမည်",
-        syncTitle: "တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (နေရာအော်တိုညှိမည်)",
+        hintInitial: "ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (မူလနေရာနှင့် Size အတိုင်း အော်တိုညှိပေးမည်)",
+        hintActive: "စာကြောင်းပေါ် Tap/Click လုပ်ပြီး ပြင်ပါ — မူလနေရာနှင့် Size အတိုင်း အော်တိုညှိပေးမည်",
+        syncTitle: "တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (မူလနေရာအတိုင်း အော်တိုညှိမည်)",
         syncPlaceholder: "နှိပ်လိုက်သော စာသား အော်တိုပေါ်လာမည်...",
-        lblOrigSize: "Size (Default 20)",
+        lblOrigSize: "Size (Auto)",
+        lblWeight: "စာလုံးအထူ",
         lblTextColor: "စာသားအရောင်",
         lblBgColor: "နောက်ခံဖုံးအရောင်",
+        undoBtn: "↩ Undo",
+        deleteEditBtn: "Delete Edit",
         readingOcr: "စာကြောင်းကို ဖတ်နေပါသည်...",
-        ocrDone: "စာပေါ်လာပါပြီ — ရိုက်/ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
-        confirmed: "ပုံပေါ်တွင် အတည်ပြုပြီးပါပြီ",
+        ocrDone: "စာပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
+        confirmed: "မူလနေရာအတိုင်း အတည်ပြုပြီးပါပြီ",
         reverted: "မူရင်းစာ ပြန်ပေါ်လာပါပြီ",
+        deletedEdit: "ပြင်ထားသော စာသားကို ဖျက်လိုက်ပါပြီ",
+        undoneEdit: "နောက်ဆုံး ပြင်ဆင်ချက်ကို ပြန်ဖျက်လိုက်ပါပြီ",
         chooseExport: "အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
         copied: "ပုံကို Copy ကူးပြီးပါပြီ",
         copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်ပါ",
@@ -333,16 +389,21 @@
         uploadLabel: "Upload Image",
         placeholderCanvas: "Choose an image",
         hintInitial: "Upload an image and tap/hover text to auto-align & edit",
-        hintActive: "Hover/tap a text line and click to lock — auto-aligns position live",
+        hintActive: "Tap/click text to edit — locks to original left edge & size automatically",
         syncTitle: "Live Sync Input (Auto-aligns to original position)",
         syncPlaceholder: "Tapped text auto-appears here...",
-        lblOrigSize: "Size (Default 20)",
+        lblOrigSize: "Size (Auto)",
+        lblWeight: "Weight",
         lblTextColor: "Text Color",
         lblBgColor: "Cover Color",
+        undoBtn: "↩ Undo",
+        deleteEditBtn: "Delete Edit",
         readingOcr: "Reading text line...",
         ocrDone: "Text loaded — edit and tap Save to confirm",
-        confirmed: "Confirmed on the image",
+        confirmed: "Confirmed at original position",
         reverted: "Restored original text in box",
+        deletedEdit: "Deleted edited text",
+        undoneEdit: "Undid last confirmed edit",
         chooseExport: "Choose Copy or Save below",
         copied: "Image copied to clipboard",
         copyUnsupported: "Copy not supported here; use Save",
@@ -358,6 +419,7 @@
     const langToggleBtn = document.getElementById("langToggleBtn");
     const fileInput = document.getElementById("fileInput");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
+    const undoLastBtn = document.getElementById("undoLastBtn");
     const exportChoices = document.getElementById("exportChoices");
     const copyImgBtn = document.getElementById("copyImgBtn");
     const downloadNewBtn = document.getElementById("downloadNewBtn");
@@ -366,10 +428,12 @@
     const syncBox = document.getElementById("syncBox");
     const syncTextInput = document.getElementById("syncTextInput");
     const sizeInput = document.getElementById("sizeInput");
+    const weightInput = document.getElementById("weightInput");
     const textColorInput = document.getElementById("textColorInput");
     const bgColorInput = document.getElementById("bgColorInput");
     const miniSaveBtn = document.getElementById("miniSaveBtn");
     const miniResetBtn = document.getElementById("miniResetBtn");
+    const miniDeleteBtn = document.getElementById("miniDeleteBtn");
     const hintText = document.getElementById("hintText");
     const toastMsg = document.getElementById("toastMsg");
 
@@ -378,13 +442,17 @@
     let sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
 
     let confirmedEdits = [];
-    let hoverBox = null; // { x, y, w, h, textColor, bgColor, fontSize }
-    let liveEdit = null; // { x, y, w, h, centerX, centerY, text, originalText, fontSize, textColor, bgColor, isDirty }
+    let hoverBox = null;
+    let liveEdit = null; // { id, x, y, w, h, text, originalText, fontSize, fontWeight, textColor, bgColor, isDirty }
     let ocrToken = 0;
 
     function t(k, ...a) {
       const v = i18n[lang][k];
       return typeof v === "function" ? v(...a) : v;
+    }
+
+    function updateButtonsState() {
+      undoLastBtn.disabled = confirmedEdits.length === 0;
     }
 
     function applyLang() {
@@ -393,8 +461,11 @@
       document.getElementById("syncTitle").textContent = t("syncTitle");
       syncTextInput.placeholder = t("syncPlaceholder");
       document.getElementById("lblOrigSize").textContent = t("lblOrigSize");
+      document.getElementById("lblWeight").textContent = t("lblWeight");
       document.getElementById("lblTextColor").textContent = t("lblTextColor");
       document.getElementById("lblBgColor").textContent = t("lblBgColor");
+      undoLastBtn.textContent = t("undoBtn");
+      miniDeleteBtn.textContent = t("deleteEditBtn");
       themeToggleBtn.textContent = theme === "dark" ? t("toLight") : t("toDark");
       langToggleBtn.textContent = lang === "my" ? t("toEn") : t("toMy");
       hintText.textContent = baseImg ? t("hintActive") : t("hintInitial");
@@ -428,55 +499,85 @@
       return (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2;
     }
 
-    // Inspect target line/group around (cx, cy) like F12 Inspect highlight
+    // Inspect line around (cx, cy): captures original left edge, line height -> font size, and font weight
     function inspectLineAt(cx, cy) {
-      const defaultSize = 20;
+      const scaleFactor = baseImg ? Math.max(1, baseImg.width / 540) : 1;
+      const defaultSize = Math.max(14, Math.round(18 * scaleFactor));
       const fallback = {
         bgColor: "#ffffff",
         textColor: "#111827",
         fontSize: defaultSize,
-        x: Math.max(0, Math.round(cx - 90)),
-        y: Math.max(0, Math.round(cy - 14)),
-        w: Math.min(mainCanvas.width, 180),
-        h: Math.round(defaultSize * 1.4)
+        fontWeight: "700",
+        x: Math.max(0, Math.round(cx - 90 * scaleFactor)),
+        y: Math.max(0, Math.round(cy - defaultSize * 0.7)),
+        w: Math.min(mainCanvas.width, Math.round(180 * scaleFactor)),
+        h: Math.round(defaultSize * 1.35)
       };
       if (!baseImg) return fallback;
 
-      const scanW = Math.min(sampleCanvas.width, Math.max(180, Math.round(sampleCanvas.width * 0.72)));
-      const scanH = Math.min(sampleCanvas.height, Math.max(24, Math.round(sampleCanvas.height * 0.036)));
-      const sx0 = Math.max(0, Math.min(sampleCanvas.width - scanW, Math.round(cx - scanW / 2)));
+      const scanW = Math.min(sampleCanvas.width, Math.max(180, Math.round(sampleCanvas.width * 0.75)));
+      const scanH = Math.min(sampleCanvas.height, Math.max(28, Math.round(sampleCanvas.height * 0.04)));
+      const sx0 = Math.max(0, Math.min(sampleCanvas.width - scanW, Math.round(cx - scanW * 0.35)));
       const sy0 = Math.max(0, Math.min(sampleCanvas.height - scanH, Math.round(cy - scanH / 2)));
 
       try {
         const imgData = sampleCtx.getImageData(sx0, sy0, scanW, scanH).data;
-        const borderColors = [];
-        for (let x = 0; x < scanW; x += 3) {
-          for (const y of [0, scanH - 1]) {
-            const idx = (y * scanW + x) * 4;
-            borderColors.push([imgData[idx], imgData[idx + 1], imgData[idx + 2]]);
-          }
-        }
-        for (let y = 0; y < scanH; y += 2) {
-          for (const x of [0, scanW - 1]) {
-            const idx = (y * scanW + x) * 4;
-            borderColors.push([imgData[idx], imgData[idx + 1], imgData[idx + 2]]);
-          }
-        }
-        borderColors.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
-        const bgRgb = borderColors[Math.floor(borderColors.length / 2)] || [255, 255, 255];
 
-        const midY = Math.floor(scanH / 2);
-        const halfBand = Math.max(4, Math.floor(scanH * 0.36));
+        // Sample background color from top/bottom edges of scan strip
+        const edgeColors = [];
+        for (let x = 0; x < scanW; x += 2) {
+          for (const y of [0, 1, scanH - 2, scanH - 1]) {
+            const idx = (y * scanW + x) * 4;
+            edgeColors.push([imgData[idx], imgData[idx + 1], imgData[idx + 2]]);
+          }
+        }
+        edgeColors.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
+        const bgRgb = edgeColors[Math.floor(edgeColors.length * 0.65)] || [255, 255, 255];
+
+        // Vertical bounds of text line around cy
+        const midY = Math.max(0, Math.min(scanH - 1, Math.round(cy - sy0)));
+        let topY = midY;
+        let botY = midY;
+
+        const rowHasFg = (y) => {
+          let hits = 0;
+          for (let x = 0; x < scanW; x += 2) {
+            const idx = (y * scanW + x) * 4;
+            const px = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
+            if (colorDistSq(px, bgRgb) > 2800) hits++;
+          }
+          return hits >= 2;
+        };
+
+        let gapUp = 0;
+        for (let y = midY; y >= 0; y--) {
+          if (rowHasFg(y)) { topY = y; gapUp = 0; }
+          else { gapUp++; if (gapUp > 2 && y < midY - 3) break; }
+        }
+        let gapDn = 0;
+        for (let y = midY; y < scanH; y++) {
+          if (rowHasFg(y)) { botY = y; gapDn = 0; }
+          else { gapDn++; if (gapDn > 2 && y > midY + 3) break; }
+        }
+
+        const linePixelH = Math.max(10, botY - topY + 1);
+        const estimatedFontSize = Math.max(10, Math.min(180, Math.round(linePixelH * 0.92)));
+
+        // Horizontal bounds of text line
         const colHits = new Array(scanW).fill(false);
         let fgSum = [0, 0, 0];
         let fgCount = 0;
+        let activePixels = 0;
+        let totalBandPixels = 0;
 
         for (let x = 0; x < scanW; x++) {
-          for (let y = Math.max(0, midY - halfBand); y <= Math.min(scanH - 1, midY + halfBand); y++) {
+          for (let y = topY; y <= botY; y++) {
             const idx = (y * scanW + x) * 4;
             const px = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
-            if (colorDistSq(px, bgRgb) > 2500) {
+            totalBandPixels++;
+            if (colorDistSq(px, bgRgb) > 2800) {
               colHits[x] = true;
+              activePixels++;
               fgSum[0] += px[0];
               fgSum[1] += px[1];
               fgSum[2] += px[2];
@@ -491,44 +592,46 @@
 
         let gap = 0;
         for (let x = tapLocalX; x >= 0; x--) {
-          if (colHits[x]) {
-            leftX = x;
-            gap = 0;
-          } else {
-            gap++;
-            if (gap > 6) break;
-          }
+          if (colHits[x]) { leftX = x; gap = 0; }
+          else { gap++; if (gap > Math.max(5, Math.round(estimatedFontSize * 0.45))) break; }
         }
         gap = 0;
         for (let x = tapLocalX; x < scanW; x++) {
-          if (colHits[x]) {
-            rightX = x;
-            gap = 0;
-          } else {
-            gap++;
-            if (gap > 6) break;
-          }
+          if (colHits[x]) { rightX = x; gap = 0; }
+          else { gap++; if (gap > Math.max(5, Math.round(estimatedFontSize * 0.45))) break; }
         }
 
-        let x = sx0 + Math.max(0, leftX - 4);
-        let w = Math.max(80, Math.min(sampleCanvas.width - x, (rightX - leftX) + 12));
-        if (rightX - leftX < 8) {
-          x = Math.max(0, Math.min(sampleCanvas.width - 150, Math.round(cx - 75)));
-          w = Math.min(sampleCanvas.width - x, 150);
+        // Preserve original left start with slight clean margin
+        const padX = Math.max(2, Math.round(estimatedFontSize * 0.18));
+        const padY = Math.max(2, Math.round(estimatedFontSize * 0.22));
+
+        let x = sx0 + Math.max(0, leftX - padX);
+        let w = Math.max(60, Math.min(sampleCanvas.width - x, (rightX - leftX) + padX * 2));
+        if (rightX - leftX < 6) {
+          x = Math.max(0, Math.min(sampleCanvas.width - 140, Math.round(cx - 40)));
+          w = Math.min(sampleCanvas.width - x, 140);
         }
 
-        const h = Math.max(24, Math.round(defaultSize * 1.4));
-        const y = Math.max(0, Math.min(sampleCanvas.height - h, Math.round(cy - h / 2)));
+        const absTop = sy0 + topY;
+        const absBot = sy0 + botY;
+        const y = Math.max(0, absTop - padY);
+        const h = Math.min(sampleCanvas.height - y, (absBot - absTop + 1) + padY * 2);
 
-        let fgRgb = bgRgb[0] + bgRgb[1] + bgRgb[2] > 380 ? [15, 23, 42] : [255, 255, 255];
-        if (fgCount > 4) {
+        let fgRgb = (bgRgb[0] + bgRgb[1] + bgRgb[2]) > 380 ? [15, 23, 42] : [255, 255, 255];
+        if (fgCount > 3) {
           fgRgb = [fgSum[0] / fgCount, fgSum[1] / fgCount, fgSum[2] / fgCount];
         }
+
+        // Estimate font weight by stroke density inside detected line box
+        const spanW = Math.max(1, rightX - leftX + 1);
+        const density = activePixels / Math.max(1, spanW * linePixelH);
+        const fontWeight = density > 0.36 ? "700" : (density > 0.24 ? "600" : "400");
 
         return {
           bgColor: rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]),
           textColor: rgbToHex(fgRgb[0], fgRgb[1], fgRgb[2]),
-          fontSize: defaultSize,
+          fontSize: estimatedFontSize,
+          fontWeight,
           x,
           y,
           w,
@@ -539,26 +642,31 @@
       }
     }
 
-    // Auto-aligns cover & new text automatically to original center/baseline without manual positioning
+    // Auto-aligns cleanly to original left edge & vertical center, expanding cover to the right if text is longer
     function drawAutoAlignedEdit(item, showOutline, isLive) {
-      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.35));
+      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.32));
       const boxY = item.y;
+      const textX = item.x + Math.max(2, Math.round(item.fontSize * 0.12));
+      const centerY = boxY + boxH / 2;
+
+      ctx.font = `${item.fontWeight || "700"} ${item.fontSize}px system-ui, -apple-system, sans-serif`;
+      const textW = (item.text && item.text.length > 0) ? ctx.measureText(item.text).width : 0;
+      const rightPad = Math.max(6, Math.round(item.fontSize * 0.35));
+      const coverW = Math.min(
+        mainCanvas.width - item.x,
+        Math.max(item.w, Math.ceil((textX - item.x) + textW + rightPad))
+      );
 
       if (!isLive || item.isDirty) {
+        // Clean cover box over old text & extended right side without touching adjacent rows
         ctx.fillStyle = item.bgColor;
-        ctx.fillRect(item.x, boxY, item.w, boxH);
+        ctx.fillRect(item.x, boxY, coverW, boxH);
 
         if (item.text && item.text.length > 0) {
-          ctx.font = `${item.fontSize}px sans-serif`;
-          const measuredW = ctx.measureText(item.text).width;
-          // Auto-align horizontally centered within original slot (or left-aligned if wider than slot)
-          const alignedX = measuredW < item.w - 6
-            ? Math.round(item.centerX - measuredW / 2)
-            : item.x + 2;
-
           ctx.fillStyle = item.textColor;
+          ctx.textAlign = "left";
           ctx.textBaseline = "middle";
-          ctx.fillText(item.text, alignedX, boxY + boxH / 2);
+          ctx.fillText(item.text, textX, centerY);
           ctx.textBaseline = "alphabetic";
         }
       }
@@ -567,7 +675,7 @@
         ctx.save();
         ctx.strokeStyle = "#38bdf8";
         ctx.lineWidth = Math.max(1.5, mainCanvas.width / 260);
-        ctx.strokeRect(item.x, boxY, item.w, boxH);
+        ctx.strokeRect(item.x, boxY, coverW, boxH);
         ctx.restore();
       }
     }
@@ -585,7 +693,6 @@
 
       ctx.drawImage(baseImg, 0, 0, mainCanvas.width, mainCanvas.height);
 
-      // F12-style inspect highlight on hover/touch before locking
       if (showOutline && !liveEdit && hoverBox) {
         ctx.save();
         ctx.fillStyle = "rgba(56, 189, 248, 0.14)";
@@ -607,12 +714,12 @@
 
     async function runAutoOcr(item, token) {
       if (!window.Tesseract || !item) return;
-      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.35));
+      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.32));
       const boxY = Math.max(0, Math.round(item.y));
 
       const cropCanvas = document.createElement("canvas");
-      cropCanvas.width = Math.max(120, Math.round(item.w * 2));
-      cropCanvas.height = Math.max(40, Math.round(boxH * 2));
+      cropCanvas.width = Math.max(140, Math.round(item.w * 2));
+      cropCanvas.height = Math.max(44, Math.round(boxH * 2));
       const cCtx = cropCanvas.getContext("2d");
       cCtx.fillStyle = "#ffffff";
       cCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
@@ -651,6 +758,7 @@
       if (!liveEdit) return;
       syncTextInput.value = liveEdit.text;
       sizeInput.value = liveEdit.fontSize;
+      weightInput.value = liveEdit.fontWeight || "700";
       textColorInput.value = liveEdit.textColor;
       bgColorInput.value = liveEdit.bgColor;
     }
@@ -677,6 +785,7 @@
           syncBox.classList.remove("show");
           exportChoices.classList.remove("show");
           mainSaveBtn.disabled = false;
+          updateButtonsState();
           hintText.textContent = t("hintActive");
           render(true);
         };
@@ -695,9 +804,15 @@
 
     sizeInput.addEventListener("input", () => {
       if (!liveEdit) return;
-      const sz = Number(sizeInput.value) || 20;
+      const sz = Number(sizeInput.value) || liveEdit.fontSize;
       liveEdit.fontSize = sz;
-      liveEdit.h = Math.max(liveEdit.h, Math.round(sz * 1.35));
+      liveEdit.isDirty = true;
+      render(true);
+    });
+
+    weightInput.addEventListener("change", () => {
+      if (!liveEdit) return;
+      liveEdit.fontWeight = weightInput.value;
       liveEdit.isDirty = true;
       render(true);
     });
@@ -719,10 +834,15 @@
     miniSaveBtn.addEventListener("click", () => {
       if (!liveEdit) return;
       ocrToken++;
-      confirmedEdits.push({ ...liveEdit, isDirty: true });
+      const idx = confirmedEdits.findIndex((ed) => ed.id === liveEdit.id);
+      const entry = { ...liveEdit, isDirty: true };
+      if (idx >= 0) confirmedEdits[idx] = entry;
+      else confirmedEdits.push(entry);
+
       liveEdit = null;
       hoverBox = null;
       syncBox.classList.remove("show");
+      updateButtonsState();
       render(true);
       showToast(t("confirmed"));
     });
@@ -737,6 +857,28 @@
       showToast(t("reverted"));
     });
 
+    miniDeleteBtn.addEventListener("click", () => {
+      if (!liveEdit) return;
+      ocrToken++;
+      confirmedEdits = confirmedEdits.filter((ed) => ed.id !== liveEdit.id);
+      liveEdit = null;
+      hoverBox = null;
+      syncBox.classList.remove("show");
+      updateButtonsState();
+      render(true);
+      showToast(t("deletedEdit"));
+    });
+
+    undoLastBtn.addEventListener("click", () => {
+      if (confirmedEdits.length === 0) return;
+      confirmedEdits.pop();
+      liveEdit = null;
+      syncBox.classList.remove("show");
+      updateButtonsState();
+      render(true);
+      showToast(t("undoneEdit"));
+    });
+
     function getCoords(clientX, clientY) {
       const rect = mainCanvas.getBoundingClientRect();
       return {
@@ -745,7 +887,17 @@
       };
     }
 
-    // Hover inspect highlight on desktop mouse move
+    function findExistingEditAt(px, py) {
+      for (let i = confirmedEdits.length - 1; i >= 0; i--) {
+        const ed = confirmedEdits[i];
+        const boxH = Math.max(ed.h, Math.round(ed.fontSize * 1.32));
+        if (px >= ed.x && px <= ed.x + ed.w && py >= ed.y && py <= ed.y + boxH) {
+          return ed;
+        }
+      }
+      return null;
+    }
+
     mainCanvas.addEventListener("mousemove", (e) => {
       if (!baseImg || liveEdit) return;
       const pt = getCoords(e.clientX, e.clientY);
@@ -760,22 +912,32 @@
       }
     });
 
-    // Click / Tap to inspect and lock onto text line (auto-aligns position)
     function selectTargetAt(clientX, clientY) {
       if (!baseImg) return;
       const pt = getCoords(clientX, clientY);
-      const info = inspectLineAt(pt.x, pt.y);
 
+      // Re-open existing edit if tapped again
+      const existing = findExistingEditAt(pt.x, pt.y);
+      if (existing) {
+        ocrToken++;
+        liveEdit = { ...existing, isDirty: true };
+        syncInputsFromLive();
+        syncBox.classList.add("show");
+        render(true);
+        return;
+      }
+
+      const info = inspectLineAt(pt.x, pt.y);
       liveEdit = {
+        id: Date.now() + "_" + Math.random().toString(36).slice(2, 6),
         x: info.x,
         y: info.y,
         w: info.w,
         h: info.h,
-        centerX: info.x + info.w / 2,
-        centerY: info.y + info.h / 2,
         text: "",
         originalText: "",
         fontSize: info.fontSize,
+        fontWeight: info.fontWeight,
         textColor: info.textColor,
         bgColor: info.bgColor,
         isDirty: false
@@ -802,11 +964,15 @@
     mainSaveBtn.addEventListener("click", () => {
       if (!baseImg) return;
       if (liveEdit && liveEdit.isDirty) {
-        confirmedEdits.push({ ...liveEdit });
+        const idx = confirmedEdits.findIndex((ed) => ed.id === liveEdit.id);
+        const entry = { ...liveEdit };
+        if (idx >= 0) confirmedEdits[idx] = entry;
+        else confirmedEdits.push(entry);
       }
       liveEdit = null;
       hoverBox = null;
       syncBox.classList.remove("show");
+      updateButtonsState();
       render(false);
       exportChoices.classList.add("show");
       showToast(t("chooseExport"));
@@ -839,6 +1005,7 @@
       showToast(t("savedNew", a.download));
     });
 
+    updateButtonsState();
     applyLang();
   </script>
 </body>
