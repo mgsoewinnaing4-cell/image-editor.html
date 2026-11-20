@@ -41,7 +41,7 @@
     }
     .app {
       width: 100%;
-      max-width: 720px;
+      max-width: 740px;
       display: flex;
       flex-direction: column;
       gap: 12px;
@@ -355,6 +355,74 @@
       cursor: pointer;
     }
 
+    .lines-panel {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .lines-panel.show { display: flex; }
+    .lines-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .lines-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .btn-rescan {
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 7px;
+      border: 1px solid var(--input-border);
+      background: var(--card-2);
+      color: var(--text);
+      cursor: pointer;
+    }
+    .lines-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 210px;
+      overflow-y: auto;
+    }
+    .line-chip {
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .line-chip:hover {
+      border-color: #38bdf8;
+    }
+    .line-chip-text {
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .line-chip-meta {
+      font-size: 11px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
     .toast {
       font-size: 12px;
       color: #10b981;
@@ -437,7 +505,7 @@
         </div>
         <div>
           <span class="mini-lbl" id="lblTextColor">စာသားအရောင်</span>
-          <input type="color" id="textColorInput" value="#111827" />
+          <input type="color" id="textColorInput" value="#000000" />
         </div>
         <div>
           <span class="mini-lbl" id="lblBgColor">နောက်ခံဖုံးအရောင်</span>
@@ -454,6 +522,15 @@
       </div>
     </div>
 
+    <!-- Auto-Scanned Text Lines List -->
+    <div class="lines-panel" id="linesPanel">
+      <div class="lines-header">
+        <span class="lines-title" id="linesTitle">ပုံထဲမှ ဖတ်မိသော စာကြောင်းများ (နှိပ်၍ ပြင်နိုင်သည်)</span>
+        <button type="button" class="btn-rescan" id="rescanBtn">↻ Scan Again</button>
+      </div>
+      <div class="lines-list" id="linesList"></div>
+    </div>
+
     <div class="toast" id="toastMsg"></div>
   </div>
 
@@ -467,8 +544,8 @@
         toMy: "🌐 မြန်မာ",
         uploadLabel: "ပုံတင်ရန် (Upload Image)",
         placeholderCanvas: "ပုံတစ်ပုံ ရွေးချယ်ပါ",
-        hintInitial: "ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (မူလနေရာနှင့် Size အတိုင်း အော်တိုညှိပေးမည်)",
-        hintActive: "စာကြောင်းပေါ် Tap/Click လုပ်ပြီး ပြင်ပါ — Size မခုန်အောင် ထိန်းထားပြီး +/- ဖြင့်လည်း ညှိနိုင်သည်",
+        hintInitial: "ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (စာတွေကိုလည်း တစ်ခါတည်း ဖတ်ပြပေးမည်)",
+        hintActive: "ပုံပေါ် သို့မဟုတ် အောက်စာရင်းထဲက စာကြောင်းကို နှိပ်ပြီး ပြင်နိုင်သည်",
         zoomNote: "Export မှာ မူရင်းပုံအတိုင်း (100%) ထုတ်ပေးပါမည်",
         syncTitle: "ပြုပြင်ကွက်လပ် (မူလ ဂဏန်း/သင်္ကေတနှင့် နေရာအတိုင်း ပေါ်မည်)",
         syncPlaceholder: "မူလပါ ဂဏန်းနှင့် သင်္ကေတများ ပေါ်လာမည်...",
@@ -476,9 +553,13 @@
         lblWeight: "စာလုံးအထူ",
         lblTextColor: "စာသားအရောင်",
         lblBgColor: "နောက်ခံဖုံးအရောင်",
+        linesTitle: "ပုံထဲမှ ဖတ်မိသော စာကြောင်းများ (နှိပ်၍ ပြင်နိုင်သည်)",
+        rescanBtn: "↻ Scan Again",
         undoBtn: "↩ Undo",
         deleteEditBtn: "Delete Edit",
-        readingOcr: "ဂဏန်းနှင့် သင်္ကေတများကို ဖတ်နေပါသည်...",
+        scanningAll: "ပုံထဲမှ စာသားများကို တစ်ခါတည်း ဖတ်နေပါသည်...",
+        scanAllDone: (n) => `စာကြောင်း ${n} ကြောင်း ဖတ်ပြီးပါပြီ — ပြင်လိုရာ နှိပ်ပါ`,
+        readingOcr: "စာကြောင်းကို ဖတ်နေပါသည်...",
         ocrDone: "မူလစာသား ပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်ပါ",
         confirmed: "မူလနေရာအတိုင်း အတည်ပြုပြီးပါပြီ",
         reverted: "မူရင်းစာ ပြန်ပေါ်လာပါပြီ",
@@ -498,8 +579,8 @@
         toMy: "🌐 မြန်မာ",
         uploadLabel: "Upload Image",
         placeholderCanvas: "Choose an image",
-        hintInitial: "Upload an image and tap/hover text to auto-align & edit",
-        hintActive: "Tap/click text to edit — size stays locked while editing; fine-tune with +/-",
+        hintInitial: "Upload an image to auto-scan all lines & tap any text to edit",
+        hintActive: "Tap text on the image or pick a scanned line below to edit",
         zoomNote: "Export always uses original 100% scale",
         syncTitle: "Live Sync Input (Exact digits, symbols & alignment)",
         syncPlaceholder: "Original digits & symbols appear here...",
@@ -507,9 +588,13 @@
         lblWeight: "Weight",
         lblTextColor: "Text Color",
         lblBgColor: "Cover Color",
+        linesTitle: "Auto-Scanned Lines (Tap any line to edit)",
+        rescanBtn: "↻ Scan Again",
         undoBtn: "↩ Undo",
         deleteEditBtn: "Delete Edit",
-        readingOcr: "Reading digits & symbols...",
+        scanningAll: "Scanning text lines across image...",
+        scanAllDone: (n) => `Scanned ${n} lines — tap any line to edit`,
+        readingOcr: "Reading line...",
         ocrDone: "Text loaded — edit and tap Save to confirm",
         confirmed: "Confirmed at original position",
         reverted: "Restored original text in box",
@@ -526,7 +611,7 @@
     let lang = "my";
     let theme = "dark";
     let ocrMode = "num_sym";
-    let viewZoom = 1.0; // View-only zoom; export always uses original image resolution
+    let viewZoom = 1.0;
 
     const themeToggleBtn = document.getElementById("themeToggleBtn");
     const langToggleBtn = document.getElementById("langToggleBtn");
@@ -556,6 +641,10 @@
     const miniSaveBtn = document.getElementById("miniSaveBtn");
     const miniResetBtn = document.getElementById("miniResetBtn");
     const miniDeleteBtn = document.getElementById("miniDeleteBtn");
+    const linesPanel = document.getElementById("linesPanel");
+    const linesTitle = document.getElementById("linesTitle");
+    const rescanBtn = document.getElementById("rescanBtn");
+    const linesList = document.getElementById("linesList");
     const hintText = document.getElementById("hintText");
     const toastMsg = document.getElementById("toastMsg");
 
@@ -563,14 +652,15 @@
     let sampleCanvas = document.createElement("canvas");
     let sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
 
-    // Dedicated export canvas so export is ALWAYS original resolution without view zoom
     let exportCanvas = document.createElement("canvas");
     let exportCtx = exportCanvas.getContext("2d");
 
+    let scannedLines = []; // { x, y, w, h, text, fontSize, fontWeight, textColor, bgColor }
     let confirmedEdits = [];
     let hoverBox = null;
     let liveEdit = null;
     let ocrToken = 0;
+    let scanAllToken = 0;
 
     function t(k, ...a) {
       const v = i18n[lang][k];
@@ -616,6 +706,8 @@
       document.getElementById("lblWeight").textContent = t("lblWeight");
       document.getElementById("lblTextColor").textContent = t("lblTextColor");
       document.getElementById("lblBgColor").textContent = t("lblBgColor");
+      linesTitle.textContent = t("linesTitle");
+      rescanBtn.textContent = t("rescanBtn");
       zoomNote.textContent = t("zoomNote");
       undoLastBtn.textContent = t("undoBtn");
       miniDeleteBtn.textContent = t("deleteEditBtn");
@@ -665,13 +757,37 @@
       return (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2;
     }
 
-    // Strict single-line inspection around (cx, cy)
+    // Snap color toward crisp dark/light ink so anti-aliased edge pixels don't look washed-out grey
+    function sharpenInkColor(fgRgb, bgRgb) {
+      const bgLum = 0.299 * bgRgb[0] + 0.587 * bgRgb[1] + 0.114 * bgRgb[2];
+      const fgLum = 0.299 * fgRgb[0] + 0.587 * fgRgb[1] + 0.114 * fgRgb[2];
+      if (bgLum > 160 && fgLum < 150) {
+        // Dark ink on light background: push toward crisp dark ink
+        const factor = 0.45;
+        return [
+          Math.max(0, fgRgb[0] * factor),
+          Math.max(0, fgRgb[1] * factor),
+          Math.max(0, fgRgb[2] * factor)
+        ];
+      }
+      if (bgLum < 95 && fgLum > 140) {
+        // Light ink on dark background: push toward crisp bright ink
+        const lift = 0.45;
+        return [
+          Math.min(255, fgRgb[0] + (255 - fgRgb[0]) * lift),
+          Math.min(255, fgRgb[1] + (255 - fgRgb[1]) * lift),
+          Math.min(255, fgRgb[2] + (255 - fgRgb[2]) * lift)
+        ];
+      }
+      return fgRgb;
+    }
+
     function inspectLineAt(cx, cy) {
       const scaleFactor = baseImg ? Math.max(1, baseImg.width / 540) : 1;
       const defaultSize = Math.max(11, Math.round(14 * scaleFactor));
       const fallback = {
         bgColor: "#ffffff",
-        textColor: "#111827",
+        textColor: "#000000",
         fontSize: defaultSize,
         fontWeight: "700",
         x: Math.max(0, Math.round(cx - 80 * scaleFactor)),
@@ -726,9 +842,11 @@
         }
 
         const linePixelH = Math.max(9, botY - topY + 1);
-        const estimatedFontSize = Math.max(9, Math.min(180, Math.round(linePixelH * 0.85)));
+        const estimatedFontSize = Math.max(9, Math.min(180, Math.round(linePixelH * 0.92)));
 
         const colHits = new Array(scanW).fill(false);
+        let darkestPx = null;
+        let darkestLum = Infinity;
         let fgSum = [0, 0, 0];
         let fgCount = 0;
         let activePixels = 0;
@@ -744,6 +862,11 @@
               fgSum[1] += px[1];
               fgSum[2] += px[2];
               fgCount++;
+              const lum = 0.299 * px[0] + 0.587 * px[1] + 0.114 * px[2];
+              if (lum < darkestLum) {
+                darkestLum = lum;
+                darkestPx = px;
+              }
             }
           }
         }
@@ -778,9 +901,12 @@
         const y = Math.max(0, absTop - padY);
         const h = Math.min(sampleCanvas.height - y, (absBot - absTop + 1) + padY * 2);
 
-        let fgRgb = (bgRgb[0] + bgRgb[1] + bgRgb[2]) > 380 ? [15, 23, 42] : [255, 255, 255];
+        let fgRgb = (bgRgb[0] + bgRgb[1] + bgRgb[2]) > 380 ? [0, 0, 0] : [255, 255, 255];
         if (fgCount > 3) {
-          fgRgb = [fgSum[0] / fgCount, fgSum[1] / fgCount, fgSum[2] / fgCount];
+          const avgFg = [fgSum[0] / fgCount, fgSum[1] / fgCount, fgSum[2] / fgCount];
+          const bgLum = 0.299 * bgRgb[0] + 0.587 * bgRgb[1] + 0.114 * bgRgb[2];
+          const basePick = (bgLum > 160 && darkestPx) ? darkestPx : avgFg;
+          fgRgb = sharpenInkColor(basePick, bgRgb);
         }
 
         const spanW = Math.max(1, rightX - leftX + 1);
@@ -870,7 +996,6 @@
       }
     }
 
-    // Builds clean original-scale export image (never affected by viewZoom or editor outlines)
     function renderCleanExportCanvas() {
       exportCanvas.width = baseImg.width;
       exportCanvas.height = baseImg.height;
@@ -894,38 +1019,41 @@
       return s;
     }
 
-    async function runAutoOcr(item, token) {
-      if (!window.Tesseract || !item) return;
-      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.2));
-      const boxY = Math.max(0, Math.round(item.y));
-
-      const pad = 24;
-      const scale = 3;
+    async function recognizeBoxText(box, mode) {
+      if (!window.Tesseract) return "";
+      const boxH = Math.max(box.h, Math.round(box.fontSize * 1.2));
+      const boxY = Math.max(0, Math.round(box.y));
+      const pad = 20;
+      const scale = 2.5;
       const cropCanvas = document.createElement("canvas");
-      cropCanvas.width = Math.max(240, Math.round(item.w * scale) + pad * 2);
-      cropCanvas.height = Math.max(72, Math.round(boxH * scale) + pad * 2);
+      cropCanvas.width = Math.max(220, Math.round(box.w * scale) + pad * 2);
+      cropCanvas.height = Math.max(64, Math.round(boxH * scale) + pad * 2);
       const cCtx = cropCanvas.getContext("2d");
       cCtx.fillStyle = "#ffffff";
       cCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
       cCtx.imageSmoothingEnabled = false;
       cCtx.drawImage(
         sampleCanvas,
-        Math.max(0, Math.round(item.x)),
+        Math.max(0, Math.round(box.x)),
         boxY,
-        Math.max(8, Math.round(item.w)),
+        Math.max(8, Math.round(box.w)),
         Math.max(8, Math.round(boxH)),
         pad,
         pad,
-        Math.round(item.w * scale),
+        Math.round(box.w * scale),
         Math.round(boxH * scale)
       );
+      const langCode = mode === "num_sym" ? "eng" : "eng+mya";
+      const res = await Tesseract.recognize(cropCanvas.toDataURL("image/png"), langCode);
+      return cleanOcrOutput(res?.data?.text || "", mode);
+    }
 
+    async function runAutoOcr(item, token) {
+      if (!window.Tesseract || !item) return;
       showToast(t("readingOcr"));
       try {
-        const langCode = ocrMode === "num_sym" ? "eng" : "eng+mya";
-        const res = await Tesseract.recognize(cropCanvas.toDataURL("image/png"), langCode);
+        const detected = await recognizeBoxText(item, ocrMode);
         if (token !== ocrToken || !liveEdit || liveEdit.isDirty) return;
-        const detected = cleanOcrOutput(res?.data?.text || "", ocrMode);
         if (detected) {
           liveEdit.originalText = detected;
           liveEdit.text = detected;
@@ -937,6 +1065,163 @@
         }
       } catch (_) {
         if (token === ocrToken) showToast("");
+      }
+    }
+
+    function renderScannedLinesList() {
+      linesList.innerHTML = "";
+      if (!scannedLines.length) {
+        linesPanel.classList.remove("show");
+        return;
+      }
+      linesPanel.classList.add("show");
+      scannedLines.forEach((ln, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "line-chip";
+
+        const spanText = document.createElement("span");
+        spanText.className = "line-chip-text";
+        spanText.textContent = `${idx + 1}. ${ln.text}`;
+
+        const spanMeta = document.createElement("span");
+        spanMeta.className = "line-chip-meta";
+        spanMeta.textContent = `Size ${ln.fontSize}px`;
+
+        btn.appendChild(spanText);
+        btn.appendChild(spanMeta);
+        btn.addEventListener("click", () => openLineForEdit(ln));
+        linesList.appendChild(btn);
+      });
+    }
+
+    // Auto-detects horizontal text bands across the uploaded image so lines appear immediately
+    async function scanAllLinesOnUpload() {
+      if (!baseImg || !window.Tesseract) return;
+      const myToken = ++scanAllToken;
+      scannedLines = [];
+      renderScannedLinesList();
+      showToast(t("scanningAll"));
+
+      const w = sampleCanvas.width;
+      const h = sampleCanvas.height;
+      const imgData = sampleCtx.getImageData(0, 0, w, h).data;
+
+      // Estimate global background color from corners/edges
+      const bgSamples = [];
+      for (let x = 0; x < w; x += 6) {
+        for (const y of [2, h - 3]) {
+          const i = (y * w + x) * 4;
+          bgSamples.push([imgData[i], imgData[i + 1], imgData[i + 2]]);
+        }
+      }
+      bgSamples.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
+      const globalBg = bgSamples[Math.floor(bgSamples.length * 0.65)] || [255, 255, 255];
+
+      // Find vertical bands with text activity
+      const activeRows = new Array(h).fill(false);
+      for (let y = 0; y < h; y++) {
+        let hits = 0;
+        for (let x = 0; x < w; x += 3) {
+          const i = (y * w + x) * 4;
+          const px = [imgData[i], imgData[i + 1], imgData[i + 2]];
+          if (colorDistSq(px, globalBg) > 3200) hits++;
+        }
+        if (hits >= 3) activeRows[y] = true;
+      }
+
+      const bands = [];
+      let inBand = false;
+      let startY = 0;
+      let gapCount = 0;
+      for (let y = 0; y < h; y++) {
+        if (activeRows[y]) {
+          if (!inBand) {
+            inBand = true;
+            startY = y;
+          }
+          gapCount = 0;
+        } else if (inBand) {
+          gapCount++;
+          if (gapCount > 2) {
+            const endY = y - gapCount;
+            if (endY - startY >= 8) bands.push({ startY, endY });
+            inBand = false;
+            gapCount = 0;
+          }
+        }
+      }
+      if (inBand && h - 1 - startY >= 8) {
+        bands.push({ startY, endY: h - 1 });
+      }
+
+      // Inspect up to 24 bands and OCR readable lines
+      const maxBands = bands.slice(0, 24);
+      const found = [];
+      for (const b of maxBands) {
+        if (myToken !== scanAllToken) return;
+        const midY = Math.round((b.startY + b.endY) / 2);
+        const midX = Math.round(w * 0.45);
+        const info = inspectLineAt(midX, midY);
+        try {
+          const txt = await recognizeBoxText(info, "all");
+          if (myToken !== scanAllToken) return;
+          if (txt && txt.length >= 1) {
+            found.push({ ...info, text: txt });
+          }
+        } catch (_) {
+          // Ignore unreadable noise bands
+        }
+      }
+
+      if (myToken !== scanAllToken) return;
+      scannedLines = found;
+      renderScannedLinesList();
+      if (found.length > 0) {
+        showToast(t("scanAllDone", found.length));
+      } else {
+        showToast("");
+      }
+    }
+
+    function openLineForEdit(infoOrExisting) {
+      if (!baseImg) return;
+      const existing = findExistingEditAt(
+        infoOrExisting.x + infoOrExisting.w / 2,
+        infoOrExisting.y + infoOrExisting.h / 2
+      );
+      if (existing) {
+        ocrToken++;
+        liveEdit = { ...existing, isDirty: true };
+        syncInputsFromLive();
+        syncBox.classList.add("show");
+        render(true);
+        return;
+      }
+
+      const initialText = infoOrExisting.text || "";
+      liveEdit = {
+        id: Date.now() + "_" + Math.random().toString(36).slice(2, 6),
+        x: infoOrExisting.x,
+        y: infoOrExisting.y,
+        w: infoOrExisting.w,
+        h: infoOrExisting.h,
+        text: initialText,
+        originalText: initialText,
+        fontSize: infoOrExisting.fontSize,
+        fontWeight: infoOrExisting.fontWeight,
+        textColor: infoOrExisting.textColor,
+        bgColor: infoOrExisting.bgColor,
+        isDirty: false
+      };
+
+      syncInputsFromLive();
+      syncBox.classList.add("show");
+      render(true);
+
+      if (!initialText) {
+        const token = ++ocrToken;
+        runAutoOcr({ ...liveEdit }, token);
       }
     }
 
@@ -966,6 +1251,8 @@
           sampleCtx.drawImage(img, 0, 0);
 
           confirmedEdits = [];
+          scannedLines = [];
+          renderScannedLinesList();
           hoverBox = null;
           liveEdit = null;
           viewZoom = 1.0;
@@ -976,16 +1263,20 @@
           updateButtonsState();
           hintText.textContent = t("hintActive");
           render(true);
+          scanAllLinesOnUpload();
         };
         img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
 
+    rescanBtn.addEventListener("click", () => {
+      if (baseImg) scanAllLinesOnUpload();
+    });
+
     syncTextInput.addEventListener("input", () => {
       ocrToken++;
       if (!liveEdit) return;
-      // Keep liveEdit.fontSize untouched when typing so size never jumps
       liveEdit.isDirty = true;
       liveEdit.text = syncTextInput.value;
       render(true);
@@ -1092,10 +1383,20 @@
       return null;
     }
 
+    function findScannedLineAt(px, py) {
+      for (const ln of scannedLines) {
+        const boxH = Math.max(ln.h, Math.round(ln.fontSize * 1.2));
+        if (py >= ln.y - 4 && py <= ln.y + boxH + 4) {
+          return ln;
+        }
+      }
+      return null;
+    }
+
     mainCanvas.addEventListener("mousemove", (e) => {
       if (!baseImg || liveEdit) return;
       const pt = getCoords(e.clientX, e.clientY);
-      hoverBox = inspectLineAt(pt.x, pt.y);
+      hoverBox = findScannedLineAt(pt.x, pt.y) || inspectLineAt(pt.x, pt.y);
       render(true);
     });
 
@@ -1109,46 +1410,20 @@
     function selectTargetAt(clientX, clientY) {
       if (!baseImg) return;
       const pt = getCoords(clientX, clientY);
-
-      const existing = findExistingEditAt(pt.x, pt.y);
-      if (existing) {
-        ocrToken++;
-        liveEdit = { ...existing, isDirty: true };
-        syncInputsFromLive();
-        syncBox.classList.add("show");
-        render(true);
+      const matchedLine = findScannedLineAt(pt.x, pt.y);
+      if (matchedLine) {
+        openLineForEdit(matchedLine);
         return;
       }
-
       const info = inspectLineAt(pt.x, pt.y);
-      liveEdit = {
-        id: Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-        x: info.x,
-        y: info.y,
-        w: info.w,
-        h: info.h,
-        text: "",
-        originalText: "",
-        fontSize: info.fontSize,
-        fontWeight: info.fontWeight,
-        textColor: info.textColor,
-        bgColor: info.bgColor,
-        isDirty: false
-      };
-
-      syncInputsFromLive();
-      syncBox.classList.add("show");
-      render(true);
-
-      const token = ++ocrToken;
-      runAutoOcr({ ...liveEdit }, token);
+      openLineForEdit(info);
     }
 
     mainCanvas.addEventListener("click", (e) => selectTargetAt(e.clientX, e.clientY));
     mainCanvas.addEventListener("touchstart", (e) => {
       if (e.touches.length === 1) {
         const pt = getCoords(e.touches[0].clientX, e.touches[0].clientY);
-        hoverBox = inspectLineAt(pt.x, pt.y);
+        hoverBox = findScannedLineAt(pt.x, pt.y) || inspectLineAt(pt.x, pt.y);
         render(true);
         selectTargetAt(e.touches[0].clientX, e.touches[0].clientY);
       }
