@@ -1,20 +1,43 @@
 <!DOCTYPE html>
-<html lang="my">
+<html lang="my" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Quick Image Text Editor</title>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
+    :root[data-theme="dark"] {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --card-2: #0f172a;
+      --canvas-bg: #020617;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --border: #334155;
+      --input-border: #475569;
+    }
+    :root[data-theme="light"] {
+      --bg: #f1f5f9;
+      --card: #ffffff;
+      --card-2: #f8fafc;
+      --canvas-bg: #e2e8f0;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #cbd5e1;
+      --input-border: #94a3b8;
+    }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0;
       font-family: system-ui, -apple-system, sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
+      background: var(--bg);
+      color: var(--text);
       min-height: 100vh;
       display: flex;
       justify-content: center;
       padding: 12px;
+      transition: background 0.2s ease, color 0.2s ease;
     }
     .app {
       width: 100%;
@@ -23,22 +46,41 @@
       flex-direction: column;
       gap: 12px;
     }
+
+    /* Top Bar: Theme & Language */
+    .top-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+    .top-pill-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .top-pill-btn:active { opacity: 0.85; }
+
     .upload-box {
-      background: #1e293b;
-      border: 1px dashed #475569;
+      background: var(--card);
+      border: 1px dashed var(--input-border);
       border-radius: 12px;
       padding: 12px;
     }
     .upload-box label {
       display: block;
       font-size: 13px;
-      color: #cbd5e1;
+      color: var(--text);
       margin-bottom: 6px;
       font-weight: 600;
     }
     input[type="file"] {
       width: 100%;
-      color: #e2e8f0;
+      color: var(--text);
       font-size: 13px;
     }
 
@@ -70,10 +112,10 @@
       display: none;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      background: #1e293b;
+      background: var(--card);
       padding: 10px;
       border-radius: 12px;
-      border: 1px solid #334155;
+      border: 1px solid var(--border);
     }
     .export-choices.show { display: grid; }
     .sub-export-btn {
@@ -90,8 +132,8 @@
 
     /* Main Image Canvas */
     .canvas-wrap {
-      background: #020617;
-      border: 1px solid #334155;
+      background: var(--canvas-bg);
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 10px;
       display: flex;
@@ -102,20 +144,20 @@
       max-width: 100%;
       max-height: 58vh;
       border-radius: 8px;
-      background: #1e293b;
+      background: var(--card);
       touch-action: none;
     }
     .hint {
       margin-top: 8px;
       font-size: 12px;
-      color: #94a3b8;
+      color: var(--muted);
       text-align: center;
     }
 
     /* Selected Area Inspector Box below image */
     .inspector-panel {
       display: none;
-      background: #1e293b;
+      background: var(--card);
       border: 1px solid #3b82f6;
       border-radius: 12px;
       padding: 12px;
@@ -132,7 +174,7 @@
     #zoomCanvas {
       border: 2px solid #38bdf8;
       border-radius: 8px;
-      background: #020617;
+      background: var(--canvas-bg);
       max-width: 100%;
       touch-action: none;
     }
@@ -147,9 +189,9 @@
       width: 100%;
       padding: 9px 10px;
       border-radius: 8px;
-      border: 1px solid #475569;
-      background: #0f172a;
-      color: #fff;
+      border: 1px solid var(--input-border);
+      background: var(--card-2);
+      color: var(--text);
       font-size: 14px;
     }
     .row-3 {
@@ -160,15 +202,15 @@
     .mini-lbl {
       display: block;
       font-size: 11px;
-      color: #94a3b8;
+      color: var(--muted);
       margin-bottom: 3px;
     }
     input[type="color"] {
       width: 100%;
       height: 34px;
-      border: 1px solid #475569;
+      border: 1px solid var(--input-border);
       border-radius: 6px;
-      background: #0f172a;
+      background: var(--card-2);
       padding: 2px;
     }
     .inspector-actions {
@@ -198,7 +240,7 @@
     }
     .toast {
       font-size: 12px;
-      color: #34d399;
+      color: #10b981;
       text-align: center;
       min-height: 18px;
       font-weight: 600;
@@ -207,8 +249,14 @@
 </head>
 <body>
   <div class="app">
+    <!-- Top Theme & Language Controls -->
+    <div class="top-bar">
+      <button class="top-pill-btn" id="themeToggleBtn">☀️ Light</button>
+      <button class="top-pill-btn" id="langToggleBtn">🌐 English</button>
+    </div>
+
     <div class="upload-box">
-      <label>ပုံတင်ရန် (Upload Image)</label>
+      <label id="uploadLabel">ပုံတင်ရန် (Upload Image)</label>
       <input type="file" id="fileInput" accept="image/*" />
     </div>
 
@@ -234,25 +282,25 @@
     <div class="inspector-panel" id="inspectorPanel">
       <div class="inspector-top">
         <div>
-          <span class="mini-lbl">ရွေးထားသော နေရာဘောင်</span>
+          <span class="mini-lbl" id="zoomBoxLabel">ရွေးထားသော နေရာဘောင်</span>
           <canvas id="zoomCanvas" width="220" height="80"></canvas>
         </div>
         <div class="fields">
           <div>
-            <span class="mini-lbl">စာသားအသစ် (မရိုက်လည်း နေရာကို ဖုံးအုပ်နိုင်သည်)</span>
+            <span class="mini-lbl" id="newTextLabel">စာသားအသစ် (နှိပ်လိုက်သော စာသားပေါ်လာမည်၊ စိတ်ကြိုက်ပြင်နိုင်သည်)</span>
             <input type="text" id="replaceText" placeholder="ပြောင်းလဲမည့် စာသားရိုက်ပါ..." />
           </div>
           <div class="row-3">
             <div>
-              <span class="mini-lbl">နောက်ခံအရောင်</span>
+              <span class="mini-lbl" id="bgColorLabel">နောက်ခံအရောင်</span>
               <input type="color" id="bgCoverColor" value="#ffffff" />
             </div>
             <div>
-              <span class="mini-lbl">စာသားအရောင်</span>
+              <span class="mini-lbl" id="textColorLabel">စာသားအရောင်</span>
               <input type="color" id="newTextColor" value="#0f172a" />
             </div>
             <div>
-              <span class="mini-lbl">စာလုံးဆိုဒ်</span>
+              <span class="mini-lbl" id="fontSizeLabel">စာလုံးဆိုဒ်</span>
               <input type="number" id="newFontSize" value="20" min="8" max="150" />
             </div>
           </div>
@@ -269,6 +317,68 @@
   </div>
 
   <script>
+    const i18n = {
+      my: {
+        toLight: "☀️ Light",
+        toDark: "🌙 Dark",
+        toEn: "🌐 English",
+        toMy: "🌐 မြန်မာ",
+        uploadLabel: "ပုံတင်ရန် (Upload Image)",
+        placeholderCanvas: "ပုံတစ်ပုံ ရွေးချယ်ပါ",
+        hintInitial: "ပုံတင်ပြီး EDIT ကိုနှိပ်၍ ပုံပေါ်မှ ပြင်လိုသောစာသားနေရာကို နှိပ်ပါ",
+        hintReady: "EDIT ကိုနှိပ်ပြီး ပုံပေါ်က စာသားတစ်ခုကို နှိပ်ပါ",
+        hintEditActive: "ပုံပေါ်က ပြင်ချင်တဲ့ စာသားနေရာကို နှိပ်ပါ (ဘောင်ကိုလည်း ဆွဲရွှေ့နိုင်သည်)",
+        hintEditOff: "Edit Mode ပိတ်ထားပါသည်",
+        zoomBoxLabel: "ရွေးထားသော နေရာဘောင်",
+        newTextLabel: "စာသားအသစ် (နှိပ်လိုက်သော စာသားပေါ်လာမည်၊ စိတ်ကြိုက်ပြင်နိုင်သည်)",
+        replacePlaceholder: "ပြောင်းလဲမည့် စာသားရိုက်ပါ...",
+        bgColorLabel: "နောက်ခံအရောင်",
+        textColorLabel: "စာသားအရောင်",
+        fontSizeLabel: "စာလုံးဆိုဒ်",
+        readingText: "ရွေးထားသော နေရာမှ စာသားကို ဖတ်နေပါသည်...",
+        textDetected: "စာသားဖတ်ပြီးပါပြီ — လိုသလိုပြင်ပြီး Save နှိပ်ပါ",
+        areaSaved: "ပုံပေါ်က စာသားကို အစားထိုးပြီးပါပြီ",
+        areaReset: "Reset ပြုလုပ်ပြီးပါပြီ",
+        chooseExport: "အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
+        copied: "ပုံကို Copy ကူးပြီးပါပြီ (Paste ချသုံးနိုင်ပါပြီ)",
+        copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်၍ သိမ်းပါ",
+        copyFailed: "Copy ကူးမရပါ၊ Save ကိုနှိပ်၍ ပုံအသစ်သိမ်းပါ",
+        savedNew: (name) => `ပုံအသစ် (${name}) သိမ်းဆည်းပြီးပါပြီ`
+      },
+      en: {
+        toLight: "☀️ Light",
+        toDark: "🌙 Dark",
+        toEn: "🌐 English",
+        toMy: "🌐 မြန်မာ",
+        uploadLabel: "Upload Image",
+        placeholderCanvas: "Choose an image",
+        hintInitial: "Upload an image, tap EDIT, then tap text on the image",
+        hintReady: "Tap EDIT, then tap a text area on the image",
+        hintEditActive: "Tap text on the image to edit (you can drag the box too)",
+        hintEditOff: "Edit Mode is off",
+        zoomBoxLabel: "Selected Area Box",
+        newTextLabel: "New Text (Tapped text appears here; edit freely)",
+        replacePlaceholder: "Type replacement text...",
+        bgColorLabel: "Background",
+        textColorLabel: "Text Color",
+        fontSizeLabel: "Font Size",
+        readingText: "Reading text from selected area...",
+        textDetected: "Text detected — edit as desired and tap Save",
+        areaSaved: "Text replaced on the image",
+        areaReset: "Reset complete",
+        chooseExport: "Choose Copy or Save below",
+        copied: "Image copied to clipboard (ready to paste)",
+        copyUnsupported: "Copy not supported in this browser; use Save",
+        copyFailed: "Could not copy; use Save for a new image",
+        savedNew: (name) => `Saved new image (${name})`
+      }
+    };
+
+    let currentLang = "my";
+    let currentTheme = "dark";
+
+    const themeToggleBtn = document.getElementById("themeToggleBtn");
+    const langToggleBtn = document.getElementById("langToggleBtn");
     const fileInput = document.getElementById("fileInput");
     const editModeBtn = document.getElementById("editModeBtn");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
@@ -292,13 +402,52 @@
     const toastMsg = document.getElementById("toastMsg");
 
     let originalImg = null;
-    // committedPatches: { x, y, w, h, bgColor, text, textColor, fontSize }
     let committedPatches = [];
     let editMode = false;
-    let activeBox = null; // { x, y, w, h }
+    let activeBox = null;
     let isDraggingBox = false;
     let dragDx = 0;
     let dragDy = 0;
+    let ocrRequestId = 0;
+
+    function t(key, ...args) {
+      const val = i18n[currentLang][key];
+      return typeof val === "function" ? val(...args) : val;
+    }
+
+    function applyUILanguage() {
+      document.getElementById("uploadLabel").textContent = t("uploadLabel");
+      document.getElementById("zoomBoxLabel").textContent = t("zoomBoxLabel");
+      document.getElementById("newTextLabel").textContent = t("newTextLabel");
+      replaceText.placeholder = t("replacePlaceholder");
+      document.getElementById("bgColorLabel").textContent = t("bgColorLabel");
+      document.getElementById("textColorLabel").textContent = t("textColorLabel");
+      document.getElementById("fontSizeLabel").textContent = t("fontSizeLabel");
+
+      themeToggleBtn.textContent = currentTheme === "dark" ? t("toLight") : t("toDark");
+      langToggleBtn.textContent = currentLang === "my" ? t("toEn") : t("toMy");
+
+      if (!originalImg) {
+        hintText.textContent = t("hintInitial");
+      } else if (editMode) {
+        hintText.textContent = t("hintEditActive");
+      } else {
+        hintText.textContent = t("hintReady");
+      }
+      renderMain();
+    }
+
+    themeToggleBtn.addEventListener("click", () => {
+      currentTheme = currentTheme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", currentTheme);
+      themeToggleBtn.textContent = currentTheme === "dark" ? t("toLight") : t("toDark");
+    });
+
+    langToggleBtn.addEventListener("click", () => {
+      currentLang = currentLang === "my" ? "en" : "my";
+      document.documentElement.setAttribute("lang", currentLang);
+      applyUILanguage();
+    });
 
     function showToast(msg) {
       toastMsg.textContent = msg;
@@ -310,17 +459,16 @@
     function renderMain(includeSelectionBox = true) {
       ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
       if (!originalImg) {
-        ctx.fillStyle = "#94a3b8";
+        ctx.fillStyle = currentTheme === "dark" ? "#94a3b8" : "#475569";
         ctx.font = "15px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("ပုံတစ်ပုံ ရွေးချယ်ပါ", mainCanvas.width / 2, mainCanvas.height / 2);
+        ctx.fillText(t("placeholderCanvas"), mainCanvas.width / 2, mainCanvas.height / 2);
         ctx.textAlign = "start";
         return;
       }
 
       ctx.drawImage(originalImg, 0, 0, mainCanvas.width, mainCanvas.height);
 
-      // Draw saved replacements
       for (const p of committedPatches) {
         ctx.fillStyle = p.bgColor;
         ctx.fillRect(p.x, p.y, p.w, p.h);
@@ -334,7 +482,6 @@
         }
       }
 
-      // Draw current active selection box while editing
       if (includeSelectionBox && editMode && activeBox) {
         ctx.save();
         ctx.strokeStyle = "#38bdf8";
@@ -345,11 +492,46 @@
       }
     }
 
-    function renderZoomPreview() {
+    async function recognizeSelectedAreaText(box, reqId) {
+      if (!window.Tesseract || !box) return;
+      const cropCanvas = document.createElement("canvas");
+      cropCanvas.width = Math.max(40, Math.round(box.w * 2));
+      cropCanvas.height = Math.max(24, Math.round(box.h * 2));
+      const cCtx = cropCanvas.getContext("2d");
+      cCtx.fillStyle = "#ffffff";
+      cCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
+      cCtx.drawImage(
+        zoomCanvas,
+        0,
+        0,
+        zoomCanvas.width,
+        zoomCanvas.height,
+        0,
+        0,
+        cropCanvas.width,
+        cropCanvas.height
+      );
+
+      showToast(t("readingText"));
+      try {
+        const result = await Tesseract.recognize(cropCanvas.toDataURL("image/png"), "eng+mya");
+        if (reqId !== ocrRequestId) return;
+        const detected = (result?.data?.text || "").replace(/\s+/g, " ").trim();
+        if (detected) {
+          replaceText.value = detected;
+          showToast(t("textDetected"));
+        } else {
+          showToast("");
+        }
+      } catch (_) {
+        if (reqId === ocrRequestId) showToast("");
+      }
+    }
+
+    function renderZoomPreview(runOcr = false) {
       zCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
       if (!originalImg || !activeBox) return;
 
-      // Render current state onto an offscreen canvas to sample exact pixels
       const off = document.createElement("canvas");
       off.width = mainCanvas.width;
       off.height = mainCanvas.height;
@@ -366,7 +548,6 @@
         }
       }
 
-      // Auto-detect average background color around the box edges
       try {
         const sampleX = Math.max(0, Math.floor(activeBox.x));
         const sampleY = Math.max(0, Math.floor(activeBox.y));
@@ -386,6 +567,11 @@
         zoomCanvas.width,
         zoomCanvas.height
       );
+
+      if (runOcr) {
+        const currentReq = ++ocrRequestId;
+        recognizeSelectedAreaText({ ...activeBox }, currentReq);
+      }
     }
 
     function getCoords(clientX, clientY) {
@@ -414,7 +600,7 @@
           mainSaveBtn.disabled = false;
           inspectorPanel.classList.remove("show");
           exportChoices.classList.remove("show");
-          hintText.textContent = "EDIT ကိုနှိပ်ပြီး ပုံပေါ်က စာသားတစ်ခုကို နှိပ်ပါ";
+          hintText.textContent = t("hintReady");
           renderMain();
         };
         img.src = ev.target.result;
@@ -427,11 +613,12 @@
       editMode = !editMode;
       editModeBtn.classList.toggle("active", editMode);
       if (editMode) {
-        hintText.textContent = "ပုံပေါ်က ပြင်ချင်တဲ့ စာသားနေရာကို နှိပ်ပါ (ဘောင်ကိုလည်း ဆွဲရွှေ့နိုင်သည်)";
+        hintText.textContent = t("hintEditActive");
       } else {
+        ocrRequestId++;
         activeBox = null;
         inspectorPanel.classList.remove("show");
-        hintText.textContent = "Edit Mode ပိတ်ထားပါသည်";
+        hintText.textContent = t("hintEditOff");
       }
       renderMain();
     });
@@ -467,7 +654,7 @@
       replaceText.value = "";
       inspectorPanel.classList.add("show");
       renderMain();
-      renderZoomPreview();
+      renderZoomPreview(true);
     }
 
     function onPointerMove(clientX, clientY) {
@@ -476,11 +663,17 @@
       activeBox.x = Math.max(0, Math.min(mainCanvas.width - activeBox.w, Math.round(pt.x - dragDx)));
       activeBox.y = Math.max(0, Math.min(mainCanvas.height - activeBox.h, Math.round(pt.y - dragDy)));
       renderMain();
-      renderZoomPreview();
+      renderZoomPreview(false);
     }
 
     function onPointerUp() {
-      isDraggingBox = false;
+      if (isDraggingBox && activeBox) {
+        isDraggingBox = false;
+        const currentReq = ++ocrRequestId;
+        recognizeSelectedAreaText({ ...activeBox }, currentReq);
+      } else {
+        isDraggingBox = false;
+      }
     }
 
     mainCanvas.addEventListener("mousedown", (e) => onPointerDown(e.clientX, e.clientY));
@@ -500,9 +693,9 @@
 
     mainCanvas.addEventListener("touchend", onPointerUp);
 
-    // Area Save button (replaces text in selected area)
     areaSaveBtn.addEventListener("click", () => {
       if (!activeBox) return;
+      ocrRequestId++;
       committedPatches.push({
         x: activeBox.x,
         y: activeBox.y,
@@ -516,28 +709,28 @@
       activeBox = null;
       inspectorPanel.classList.remove("show");
       renderMain();
-      showToast("ရွေးထားသော နေရာကို ပြောင်းလဲပြီးပါပြီ");
+      showToast(t("areaSaved"));
     });
 
-    // Area Reset button (cancels current selection box)
     areaResetBtn.addEventListener("click", () => {
+      ocrRequestId++;
       activeBox = null;
       replaceText.value = "";
       inspectorPanel.classList.remove("show");
       renderMain();
-      showToast("Reset ပြုလုပ်ပြီးပါပြီ");
+      showToast(t("areaReset"));
     });
 
-    // Main SAVE button spawns Copy & Save buttons
     mainSaveBtn.addEventListener("click", () => {
       if (!originalImg) return;
+      ocrRequestId++;
       editMode = false;
       editModeBtn.classList.remove("active");
       activeBox = null;
       inspectorPanel.classList.remove("show");
       renderMain(false);
       exportChoices.classList.add("show");
-      showToast("အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ");
+      showToast(t("chooseExport"));
     });
 
     function getFinalDataUrl() {
@@ -545,7 +738,6 @@
       return mainCanvas.toDataURL("image/png");
     }
 
-    // Copy image to clipboard
     copyImgBtn.addEventListener("click", async () => {
       if (!originalImg) return;
       try {
@@ -553,16 +745,15 @@
         const blob = await new Promise((resolve) => mainCanvas.toBlob(resolve, "image/png"));
         if (navigator.clipboard && window.ClipboardItem) {
           await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-          showToast("ပုံကို Copy ကူးပြီးပါပြီ (Paste ချသုံးနိုင်ပါပြီ)");
+          showToast(t("copied"));
         } else {
-          showToast("ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်၍ သိမ်းပါ");
+          showToast(t("copyUnsupported"));
         }
       } catch (err) {
-        showToast("Copy ကူးမရပါ၊ Save ကိုနှိပ်၍ ပုံအသစ်သိမ်းပါ");
+        showToast(t("copyFailed"));
       }
     });
 
-    // Save as a new image file on phone/computer
     downloadNewBtn.addEventListener("click", () => {
       if (!originalImg) return;
       const dataUrl = getFinalDataUrl();
@@ -571,10 +762,10 @@
       link.download = `edited-${stamp}.png`;
       link.href = dataUrl;
       link.click();
-      showToast(`ပုံအသစ် (${link.download}) သိမ်းဆည်းပြီးပါပြီ`);
+      showToast(t("savedNew", link.download));
     });
 
-    renderMain();
+    applyUILanguage();
   </script>
 </body>
 </html>
