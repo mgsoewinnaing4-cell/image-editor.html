@@ -186,7 +186,6 @@
       padding: 4px;
     }
 
-    /* Small Save & Reset buttons below edit box */
     .small-actions {
       display: flex;
       gap: 8px;
@@ -212,7 +211,6 @@
       color: #fff;
       cursor: pointer;
     }
-    .btn-mini-save:active, .btn-mini-reset:active { opacity: 0.85; }
 
     .toast {
       font-size: 12px;
@@ -249,14 +247,14 @@
 
     <!-- Live Sync Box -->
     <div class="sync-box" id="syncBox">
-      <div class="sync-title" id="syncTitle">တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (ဖျက်ရင်ပျက်၊ ရိုက်ရင်လိုက်ရိုက်မည်)</div>
+      <div class="sync-title" id="syncTitle">တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (စာကြောင်း/ဂဏန်းတွဲလုံး အော်တိုပေါ်မည်)</div>
 
       <input type="text" class="sync-input" id="syncTextInput" placeholder="နှိပ်လိုက်သော စာသား အော်တိုပေါ်လာမည်..." />
 
       <div class="meta-row">
         <div>
-          <span class="mini-lbl" id="lblOrigSize">မူရင်း Size (px)</span>
-          <input type="number" id="sizeInput" value="16" min="8" max="200" />
+          <span class="mini-lbl" id="lblOrigSize">Size (Default 20)</span>
+          <input type="number" id="sizeInput" value="20" min="8" max="200" />
         </div>
         <div>
           <span class="mini-lbl" id="lblTextColor">စာသားအရောင်</span>
@@ -287,14 +285,14 @@
         uploadLabel: "ပုံတင်ရန် (Upload Image)",
         placeholderCanvas: "ပုံတစ်ပုံ ရွေးချယ်ပါ",
         hintInitial: "ပုံတင်ပြီး ပုံပေါ်က ပြင်ချင်တဲ့ စာသားနေရာကို နှိပ်ပါ",
-        hintActive: "စာနေရာကို နှိပ်ပါ — အောက်ကွက်မှာ စာဖျက်ရင်ပုံမှာလိုက်ပျက်ပြီး ရိုက်ရင်လိုက်ရိုက်မည်",
-        syncTitle: "တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (ဖျက်ရင်ပျက်၊ ရိုက်ရင်လိုက်ရိုက်မည်)",
+        hintActive: "စာ/ဂဏန်းတစ်ခုကို နှိပ်ပါ — စာကြောင်းလုံး အော်တိုပေါ်လာပြီး ရိုက်/ဖျက်တာနဲ့ တိုက်ရိုက်ပြောင်းမည်",
+        syncTitle: "တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (စာကြောင်း/ဂဏန်းတွဲလုံး အော်တိုပေါ်မည်)",
         syncPlaceholder: "နှိပ်လိုက်သော စာသား အော်တိုပေါ်လာမည်...",
-        lblOrigSize: "မူရင်း Size (px)",
+        lblOrigSize: "Size (Default 20)",
         lblTextColor: "စာသားအရောင်",
         lblBgColor: "နောက်ခံဖုံးအရောင်",
-        readingOcr: "နှိပ်လိုက်သော နေရာမှ စာသားကို အော်တိုဖတ်နေပါသည်...",
-        ocrDone: "စာသားပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
+        readingOcr: "စာကြောင်း/ဂဏန်းတွဲလုံးကို ဖတ်နေပါသည်...",
+        ocrDone: "စာပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
         confirmed: "ပုံပေါ်တွင် အတည်ပြုပြီးပါပြီ",
         reverted: "မူရင်းစာ ပြန်ပေါ်လာပါပြီ",
         chooseExport: "အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
@@ -311,13 +309,13 @@
         uploadLabel: "Upload Image",
         placeholderCanvas: "Choose an image",
         hintInitial: "Upload an image and tap a text area on the image",
-        hintActive: "Tap text on image — erasing or typing below updates the image live",
-        syncTitle: "Live Sync Input (Erase or type to sync directly with image)",
+        hintActive: "Tap a character/number — full line/group auto-loads and syncs live as you type or erase",
+        syncTitle: "Live Sync Input (Full line/number group auto-appears)",
         syncPlaceholder: "Tapped text auto-appears here...",
-        lblOrigSize: "Original Size (px)",
+        lblOrigSize: "Size (Default 20)",
         lblTextColor: "Text Color",
         lblBgColor: "Cover Color",
-        readingOcr: "Auto-detecting text from tapped area...",
+        readingOcr: "Reading full text/number group...",
         ocrDone: "Text loaded — edit and tap Save to confirm",
         confirmed: "Confirmed on the image",
         reverted: "Restored original text in box",
@@ -356,7 +354,6 @@
     let sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
 
     let confirmedEdits = [];
-    // liveEdit: { x, y, w, h, text, originalText, fontSize, textColor, bgColor, isDirty }
     let liveEdit = null;
     let isDragging = false;
     let dragDx = 0;
@@ -408,99 +405,115 @@
       return (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2;
     }
 
-    // Estimate original text size (smaller, accurate to actual line/character height)
-    function detectStyleAt(cx, cy) {
-      const baseScaleSize = Math.max(12, Math.min(36, Math.round(mainCanvas.height * 0.018)));
+    // Detect background/text color and expand box horizontally to capture full connected text/number group
+    function detectLineGroupAt(cx, cy) {
+      const defaultSize = 20;
       const fallback = {
         bgColor: "#ffffff",
         textColor: "#111827",
-        fontSize: baseScaleSize,
-        boxW: Math.max(110, Math.round(mainCanvas.width * 0.34)),
-        boxH: Math.max(22, Math.round(baseScaleSize * 1.35))
+        fontSize: defaultSize,
+        boxX: Math.max(0, Math.round(cx - 90)),
+        boxY: Math.max(0, Math.round(cy - 16)),
+        boxW: Math.min(mainCanvas.width, 180),
+        boxH: Math.round(defaultSize * 1.4)
       };
       if (!baseImg) return fallback;
 
-      const patchW = Math.max(80, Math.min(sampleCanvas.width, Math.round(sampleCanvas.width * 0.3)));
-      const patchH = Math.max(22, Math.min(sampleCanvas.height, Math.round(sampleCanvas.height * 0.035)));
-      const x0 = Math.max(0, Math.min(sampleCanvas.width - patchW, Math.round(cx - patchW / 2)));
-      const y0 = Math.max(0, Math.min(sampleCanvas.height - patchH, Math.round(cy - patchH / 2)));
+      const scanW = Math.min(sampleCanvas.width, Math.max(160, Math.round(sampleCanvas.width * 0.65)));
+      const scanH = Math.min(sampleCanvas.height, Math.max(24, Math.round(sampleCanvas.height * 0.035)));
+      const sx0 = Math.max(0, Math.min(sampleCanvas.width - scanW, Math.round(cx - scanW / 2)));
+      const sy0 = Math.max(0, Math.min(sampleCanvas.height - scanH, Math.round(cy - scanH / 2)));
 
       try {
-        const imgData = sampleCtx.getImageData(x0, y0, patchW, patchH).data;
+        const imgData = sampleCtx.getImageData(sx0, sy0, scanW, scanH).data;
         const borderColors = [];
-        for (let x = 0; x < patchW; x += 2) {
-          for (const y of [0, patchH - 1]) {
-            const idx = (y * patchW + x) * 4;
+        for (let x = 0; x < scanW; x += 3) {
+          for (const y of [0, scanH - 1]) {
+            const idx = (y * scanW + x) * 4;
             borderColors.push([imgData[idx], imgData[idx + 1], imgData[idx + 2]]);
           }
         }
-        for (let y = 0; y < patchH; y += 2) {
-          for (const x of [0, patchW - 1]) {
-            const idx = (y * patchW + x) * 4;
+        for (let y = 0; y < scanH; y += 2) {
+          for (const x of [0, scanW - 1]) {
+            const idx = (y * scanW + x) * 4;
             borderColors.push([imgData[idx], imgData[idx + 1], imgData[idx + 2]]);
           }
         }
         borderColors.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
         const bgRgb = borderColors[Math.floor(borderColors.length / 2)] || [255, 255, 255];
 
+        // Build vertical column hit map around vertical center of scanH
+        const midY = Math.floor(scanH / 2);
+        const halfBand = Math.max(4, Math.floor(scanH * 0.35));
+        const colHits = new Array(scanW).fill(false);
         let fgSum = [0, 0, 0];
         let fgCount = 0;
-        const activeRows = [];
 
-        for (let y = 0; y < patchH; y++) {
-          let rowHits = 0;
-          for (let x = 0; x < patchW; x++) {
-            const idx = (y * patchW + x) * 4;
+        for (let x = 0; x < scanW; x++) {
+          for (let y = Math.max(0, midY - halfBand); y <= Math.min(scanH - 1, midY + halfBand); y++) {
+            const idx = (y * scanW + x) * 4;
             const px = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
             if (colorDistSq(px, bgRgb) > 2500) {
+              colHits[x] = true;
               fgSum[0] += px[0];
               fgSum[1] += px[1];
               fgSum[2] += px[2];
               fgCount++;
-              rowHits++;
             }
           }
-          if (rowHits >= 2) activeRows.push(y);
         }
+
+        const tapLocalX = Math.max(0, Math.min(scanW - 1, Math.round(cx - sx0)));
+        let leftX = tapLocalX;
+        let rightX = tapLocalX;
+
+        // Expand left/right across continuous characters (allowing small gaps up to 6px between digits/letters)
+        let gap = 0;
+        for (let x = tapLocalX; x >= 0; x--) {
+          if (colHits[x]) {
+            leftX = x;
+            gap = 0;
+          } else {
+            gap++;
+            if (gap > 6) break;
+          }
+        }
+        gap = 0;
+        for (let x = tapLocalX; x < scanW; x++) {
+          if (colHits[x]) {
+            rightX = x;
+            gap = 0;
+          } else {
+            gap++;
+            if (gap > 6) break;
+          }
+        }
+
+        let boxX = sx0 + Math.max(0, leftX - 4);
+        let boxW = Math.max(80, Math.min(sampleCanvas.width - boxX, (rightX - leftX) + 12));
+
+        // If no foreground pixels were right under tap, fall back to a reasonable line width
+        if (rightX - leftX < 8) {
+          boxX = Math.max(0, Math.min(sampleCanvas.width - 140, Math.round(cx - 70)));
+          boxW = Math.min(sampleCanvas.width - boxX, 140);
+        }
+
+        const boxH = Math.max(24, Math.round(defaultSize * 1.4));
+        const boxY = Math.max(0, Math.min(sampleCanvas.height - boxH, Math.round(cy - boxH / 2)));
 
         let fgRgb = bgRgb[0] + bgRgb[1] + bgRgb[2] > 380 ? [15, 23, 42] : [255, 255, 255];
-        if (fgCount > 5) {
+        if (fgCount > 4) {
           fgRgb = [fgSum[0] / fgCount, fgSum[1] / fgCount, fgSum[2] / fgCount];
-        }
-
-        let detectedSize = baseScaleSize;
-        if (activeRows.length >= 4) {
-          // Find contiguous row cluster near middle of patch
-          const midRow = Math.floor(patchH / 2);
-          let bestCluster = [activeRows[0]];
-          let curCluster = [activeRows[0]];
-          for (let i = 1; i < activeRows.length; i++) {
-            if (activeRows[i] - activeRows[i - 1] <= 2) {
-              curCluster.push(activeRows[i]);
-            } else {
-              if (Math.abs(curCluster[Math.floor(curCluster.length / 2)] - midRow) <
-                  Math.abs(bestCluster[Math.floor(bestCluster.length / 2)] - midRow)) {
-                bestCluster = curCluster;
-              }
-              curCluster = [activeRows[i]];
-            }
-          }
-          if (Math.abs(curCluster[Math.floor(curCluster.length / 2)] - midRow) <
-              Math.abs(bestCluster[Math.floor(bestCluster.length / 2)] - midRow)) {
-            bestCluster = curCluster;
-          }
-          const charHeight = bestCluster[bestCluster.length - 1] - bestCluster[0] + 1;
-          if (charHeight >= 8 && charHeight <= patchH * 0.9) {
-            detectedSize = Math.max(10, Math.min(60, Math.round(charHeight * 1.05)));
-          }
         }
 
         return {
           bgColor: rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]),
           textColor: rgbToHex(fgRgb[0], fgRgb[1], fgRgb[2]),
-          fontSize: detectedSize,
-          boxW: patchW,
-          boxH: Math.max(20, Math.round(detectedSize * 1.35))
+          fontSize: defaultSize,
+          boxX,
+          boxY,
+          boxW,
+          boxH
         };
       } catch (_) {
         return fallback;
@@ -509,9 +522,9 @@
 
     function drawEditItem(item, showBorder, isLive) {
       const boxH = Math.max(item.h, Math.round(item.fontSize * 1.35));
-      const boxY = item.y - boxH * 0.72;
+      const boxY = item.y;
 
-      // Live item only covers/replaces once user types or erases
+      // Once user types or edits (or when confirmed), cover original text and draw new text
       if (!isLive || item.isDirty) {
         ctx.fillStyle = item.bgColor;
         ctx.fillRect(item.x, boxY, item.w, boxH);
@@ -520,7 +533,7 @@
           ctx.fillStyle = item.textColor;
           ctx.font = `${item.fontSize}px sans-serif`;
           ctx.textBaseline = "middle";
-          ctx.fillText(item.text, item.x + 3, boxY + boxH / 2);
+          ctx.fillText(item.text, item.x + 4, boxY + boxH / 2);
           ctx.textBaseline = "alphabetic";
         }
       }
@@ -560,11 +573,11 @@
     async function runAutoOcr(item, token) {
       if (!window.Tesseract || !item) return;
       const boxH = Math.max(item.h, Math.round(item.fontSize * 1.35));
-      const boxY = Math.max(0, Math.round(item.y - boxH * 0.72));
+      const boxY = Math.max(0, Math.round(item.y));
 
       const cropCanvas = document.createElement("canvas");
-      cropCanvas.width = Math.max(80, Math.round(item.w * 2));
-      cropCanvas.height = Math.max(36, Math.round(boxH * 2));
+      cropCanvas.width = Math.max(120, Math.round(item.w * 2));
+      cropCanvas.height = Math.max(40, Math.round(boxH * 2));
       const cCtx = cropCanvas.getContext("2d");
       cCtx.fillStyle = "#ffffff";
       cCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
@@ -636,7 +649,7 @@
       reader.readAsDataURL(file);
     });
 
-    // Live sync as user types or deletes characters
+    // Typing or erasing immediately replaces/removes original text on canvas
     syncTextInput.addEventListener("input", () => {
       ocrToken++;
       if (!liveEdit) return;
@@ -647,9 +660,9 @@
 
     sizeInput.addEventListener("input", () => {
       if (!liveEdit) return;
-      const sz = Number(sizeInput.value) || 16;
+      const sz = Number(sizeInput.value) || 20;
       liveEdit.fontSize = sz;
-      liveEdit.h = Math.round(sz * 1.35);
+      liveEdit.h = Math.max(liveEdit.h, Math.round(sz * 1.35));
       liveEdit.isDirty = true;
       render(true);
     });
@@ -668,7 +681,6 @@
       render(true);
     });
 
-    // Small Save button below edit box: confirm on image
     miniSaveBtn.addEventListener("click", () => {
       if (!liveEdit) return;
       ocrToken++;
@@ -679,7 +691,6 @@
       showToast(t("confirmed"));
     });
 
-    // Small Reset button below edit box: restore original text in input box & clear live replacement
     miniResetBtn.addEventListener("click", () => {
       if (!liveEdit) return;
       ocrToken++;
@@ -704,8 +715,7 @@
 
       if (liveEdit) {
         const boxH = Math.max(liveEdit.h, Math.round(liveEdit.fontSize * 1.35));
-        const boxY = liveEdit.y - boxH * 0.72;
-        if (pt.x >= liveEdit.x && pt.x <= liveEdit.x + liveEdit.w && pt.y >= boxY && pt.y <= boxY + boxH) {
+        if (pt.x >= liveEdit.x && pt.x <= liveEdit.x + liveEdit.w && pt.y >= liveEdit.y && pt.y <= liveEdit.y + boxH) {
           isDragging = true;
           dragDx = pt.x - liveEdit.x;
           dragDy = pt.y - liveEdit.y;
@@ -713,17 +723,17 @@
         }
       }
 
-      const style = detectStyleAt(pt.x, pt.y);
+      const info = detectLineGroupAt(pt.x, pt.y);
       liveEdit = {
-        x: Math.max(0, Math.min(mainCanvas.width - style.boxW, Math.round(pt.x - style.boxW / 2))),
-        y: Math.max(20, Math.min(mainCanvas.height - 10, Math.round(pt.y + style.fontSize * 0.35))),
-        w: style.boxW,
-        h: style.boxH,
+        x: info.boxX,
+        y: info.boxY,
+        w: info.boxW,
+        h: info.boxH,
         text: "",
         originalText: "",
-        fontSize: style.fontSize,
-        textColor: style.textColor,
-        bgColor: style.bgColor,
+        fontSize: info.fontSize,
+        textColor: info.textColor,
+        bgColor: info.bgColor,
         isDirty: false
       };
 
@@ -738,19 +748,19 @@
     function onPointerMove(clientX, clientY) {
       if (!isDragging || !liveEdit) return;
       const pt = getCoords(clientX, clientY);
+      const boxH = Math.max(liveEdit.h, Math.round(liveEdit.fontSize * 1.35));
       liveEdit.x = Math.max(0, Math.min(mainCanvas.width - liveEdit.w, Math.round(pt.x - dragDx)));
-      liveEdit.y = Math.max(20, Math.min(mainCanvas.height - 10, Math.round(pt.y - dragDy)));
+      liveEdit.y = Math.max(0, Math.min(mainCanvas.height - boxH, Math.round(pt.y - dragDy)));
       render(true);
     }
 
     function onPointerUp() {
       if (isDragging && liveEdit) {
         isDragging = false;
-        const style = detectStyleAt(liveEdit.x + liveEdit.w / 2, liveEdit.y - liveEdit.fontSize * 0.2);
-        liveEdit.fontSize = style.fontSize;
-        liveEdit.h = style.boxH;
-        liveEdit.textColor = style.textColor;
-        liveEdit.bgColor = style.bgColor;
+        const boxH = Math.max(liveEdit.h, Math.round(liveEdit.fontSize * 1.35));
+        const info = detectLineGroupAt(liveEdit.x + liveEdit.w / 2, liveEdit.y + boxH / 2);
+        liveEdit.textColor = info.textColor;
+        liveEdit.bgColor = info.bgColor;
         syncInputsFromLive();
         render(true);
         if (!liveEdit.isDirty) {
