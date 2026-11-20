@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Mobile & Desktop Image Text Editor</title>
+  <title>Quick Image Text Editor</title>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
@@ -11,462 +11,570 @@
       font-family: system-ui, -apple-system, sans-serif;
       background: #0f172a;
       color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+    }
+    .app {
+      width: 100%;
+      max-width: 680px;
       display: flex;
       flex-direction: column;
-      min-height: 100vh;
+      gap: 12px;
     }
-    @media (min-width: 820px) {
-      body { flex-direction: row; height: 100vh; overflow: hidden; }
+    .upload-box {
+      background: #1e293b;
+      border: 1px dashed #475569;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .upload-box label {
+      display: block;
+      font-size: 13px;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    input[type="file"] {
+      width: 100%;
+      color: #e2e8f0;
+      font-size: 13px;
     }
 
-    /* Workspace (Canvas Area) */
-    .workspace {
-      flex: 1;
+    /* Main Big Action Buttons */
+    .main-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .big-btn {
+      padding: 15px 12px;
+      font-size: 17px;
+      font-weight: 800;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      color: #fff;
+      letter-spacing: 0.5px;
+      transition: transform 0.08s ease, opacity 0.15s ease;
+    }
+    .big-btn:active { transform: scale(0.98); }
+    .big-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-edit { background: #3b82f6; }
+    .btn-edit.active { background: #2563eb; box-shadow: 0 0 0 3px #93c5fd; }
+    .btn-save-main { background: #10b981; }
+
+    /* Sub Buttons spawned from Main SAVE */
+    .export-choices {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      background: #1e293b;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid #334155;
+    }
+    .export-choices.show { display: grid; }
+    .sub-export-btn {
+      padding: 12px;
+      font-size: 15px;
+      font-weight: 700;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      color: #fff;
+    }
+    .btn-copy { background: #8b5cf6; }
+    .btn-download-new { background: #059669; }
+
+    /* Main Image Canvas */
+    .canvas-wrap {
+      background: #020617;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      padding: 12px;
-      background: #020617;
-      min-height: 48vh;
-      overflow: auto;
-      position: relative;
     }
-    canvas {
+    #mainCanvas {
       max-width: 100%;
-      max-height: 75vh;
+      max-height: 58vh;
       border-radius: 8px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
       background: #1e293b;
-      touch-action: none; /* ဖုန်းနဲ့ဆွဲရွှေ့တဲ့အခါ Screen လိုက်မရွေ့အောင် */
+      touch-action: none;
     }
-    .status-bar {
+    .hint {
       margin-top: 8px;
       font-size: 12px;
       color: #94a3b8;
       text-align: center;
     }
 
-    /* Controls Sidebar / Bottom Panel */
-    .sidebar {
-      width: 100%;
+    /* Selected Area Inspector Box below image */
+    .inspector-panel {
+      display: none;
       background: #1e293b;
-      padding: 14px;
-      border-top: 1px solid #334155;
+      border: 1px solid #3b82f6;
+      border-radius: 12px;
+      padding: 12px;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .inspector-panel.show { display: flex; }
+    .inspector-top {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    #zoomCanvas {
+      border: 2px solid #38bdf8;
+      border-radius: 8px;
+      background: #020617;
+      max-width: 100%;
+      touch-action: none;
+    }
+    .fields {
+      flex: 1;
+      min-width: 220px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      overflow-y: auto;
-    }
-    @media (min-width: 820px) {
-      .sidebar {
-        width: 360px;
-        border-top: none;
-        border-right: 1px solid #334155;
-        order: -1;
-      }
-    }
-
-    .card {
-      background: #0f172a;
-      padding: 12px;
-      border-radius: 10px;
-      border: 1px solid #334155;
-    }
-    .card-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #38bdf8;
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    label {
-      display: block;
-      font-size: 12px;
-      color: #cbd5e1;
-      margin-bottom: 4px;
-    }
-    input[type="text"], input[type="number"], input[type="file"], select {
-      width: 100%;
-      padding: 9px;
-      border-radius: 6px;
-      border: 1px solid #475569;
-      background: #1e293b;
-      color: #fff;
-      font-size: 14px;
-      margin-bottom: 8px;
-    }
-    input[type="color"] {
-      width: 100%;
-      height: 38px;
-      border: 1px solid #475569;
-      border-radius: 6px;
-      background: #1e293b;
-      padding: 2px;
-      cursor: pointer;
-    }
-    .grid-2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
       gap: 8px;
     }
-    .grid-3 {
+    input[type="text"], input[type="number"], select {
+      width: 100%;
+      padding: 9px 10px;
+      border-radius: 8px;
+      border: 1px solid #475569;
+      background: #0f172a;
+      color: #fff;
+      font-size: 14px;
+    }
+    .row-3 {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 8px;
     }
-    button {
+    .mini-lbl {
+      display: block;
+      font-size: 11px;
+      color: #94a3b8;
+      margin-bottom: 3px;
+    }
+    input[type="color"] {
       width: 100%;
+      height: 34px;
+      border: 1px solid #475569;
+      border-radius: 6px;
+      background: #0f172a;
+      padding: 2px;
+    }
+    .inspector-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .btn-area-save {
       padding: 11px;
       border: none;
       border-radius: 8px;
-      font-weight: 600;
+      background: #10b981;
+      color: #fff;
+      font-weight: 700;
       font-size: 14px;
       cursor: pointer;
+    }
+    .btn-area-reset {
+      padding: 11px;
+      border: none;
+      border-radius: 8px;
+      background: #475569;
       color: #fff;
-      background: #3b82f6;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
     }
-    button:active { opacity: 0.85; }
-    button.btn-patch { background: #8b5cf6; }
-    button.btn-update { background: #0284c7; }
-    button.btn-danger { background: #ef4444; }
-    button.btn-save { background: #10b981; font-size: 15px; padding: 13px; }
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      margin-bottom: 8px;
-      color: #e2e8f0;
+    .toast {
+      font-size: 12px;
+      color: #34d399;
+      text-align: center;
+      min-height: 18px;
+      font-weight: 600;
     }
-    .checkbox-row input { width: 16px; height: 16px; margin: 0; }
   </style>
 </head>
 <body>
-
-  <main class="workspace">
-    <canvas id="canvas" width="500" height="500"></canvas>
-    <div class="status-bar" id="statusText">ပုံတစ်ပုံ ရွေးချယ်ပြီး စတင်ပြင်ဆင်နိုင်ပါပြီ</div>
-  </main>
-
-  <aside class="sidebar">
-    <!-- 1. Upload -->
-    <div class="card">
-      <div class="card-title">၁။ ပုံတင်ရန် (Upload Image)</div>
-      <input type="file" id="imageLoader" accept="image/*" />
+  <div class="app">
+    <div class="upload-box">
+      <label>ပုံတင်ရန် (Upload Image)</label>
+      <input type="file" id="fileInput" accept="image/*" />
     </div>
 
-    <!-- 2. Cover / Patch Box (မူလစာသားကို ဖုံးအုပ်ရန်) -->
-    <div class="card">
-      <div class="card-title">၂။ မူလစာသားကို ဖုံးအုပ်ရန် (Cover Box)</div>
-      <div class="grid-3">
-        <div>
-          <label>နောက်ခံအရောင်</label>
-          <input type="color" id="patchColor" value="#ffffff" />
-        </div>
-        <div>
-          <label>အကျယ် (W)</label>
-          <input type="number" id="patchW" value="140" min="10" />
-        </div>
-        <div>
-          <label>အမြင့် (H)</label>
-          <input type="number" id="patchH" value="36" min="10" />
-        </div>
-      </div>
-      <button class="btn-patch" id="addPatchBtn">+ ဖုံးအုပ်မည့် Box ထည့်မည်</button>
+    <!-- Big EDIT & SAVE Buttons -->
+    <div class="main-actions">
+      <button class="big-btn btn-edit" id="editModeBtn" disabled>EDIT</button>
+      <button class="big-btn btn-save-main" id="mainSaveBtn" disabled>SAVE</button>
     </div>
 
-    <!-- 3. Text Overlay (စာသားအသစ်ထည့် / ပြင်ရန်) -->
-    <div class="card">
-      <div class="card-title">၃။ စာသားအသစ် ထည့် / ပြင်ရန်</div>
-      <input type="text" id="textValue" placeholder="စာသားရိုက်ထည့်ပါ..." />
-      <div class="grid-3">
+    <!-- Spawned Copy & Save Buttons after clicking Main SAVE -->
+    <div class="export-choices" id="exportChoices">
+      <button class="sub-export-btn btn-copy" id="copyImgBtn">Copy</button>
+      <button class="sub-export-btn btn-download-new" id="downloadNewBtn">Save</button>
+    </div>
+
+    <!-- Image Canvas -->
+    <div class="canvas-wrap">
+      <canvas id="mainCanvas" width="500" height="500"></canvas>
+      <div class="hint" id="hintText">ပုံတင်ပြီး EDIT ကိုနှိပ်၍ ပုံပေါ်မှ ပြင်လိုသောစာသားနေရာကို နှိပ်ပါ</div>
+    </div>
+
+    <!-- Inspector Box Below Image when a spot is tapped -->
+    <div class="inspector-panel" id="inspectorPanel">
+      <div class="inspector-top">
         <div>
-          <label>စာလုံးဆိုဒ်</label>
-          <input type="number" id="textSize" value="24" min="8" max="200" />
+          <span class="mini-lbl">ရွေးထားသော နေရာဘောင်</span>
+          <canvas id="zoomCanvas" width="220" height="80"></canvas>
         </div>
-        <div>
-          <label>စာသားအရောင်</label>
-          <input type="color" id="textColor" value="#111827" />
-        </div>
-        <div>
-          <label>စာလုံးအထူ</label>
-          <select id="textWeight">
-            <option value="normal">ပုံမှန်</option>
-            <option value="bold" selected>အထူ (Bold)</option>
-          </select>
+        <div class="fields">
+          <div>
+            <span class="mini-lbl">စာသားအသစ် (မရိုက်လည်း နေရာကို ဖုံးအုပ်နိုင်သည်)</span>
+            <input type="text" id="replaceText" placeholder="ပြောင်းလဲမည့် စာသားရိုက်ပါ..." />
+          </div>
+          <div class="row-3">
+            <div>
+              <span class="mini-lbl">နောက်ခံအရောင်</span>
+              <input type="color" id="bgCoverColor" value="#ffffff" />
+            </div>
+            <div>
+              <span class="mini-lbl">စာသားအရောင်</span>
+              <input type="color" id="newTextColor" value="#0f172a" />
+            </div>
+            <div>
+              <span class="mini-lbl">စာလုံးဆိုဒ်</span>
+              <input type="number" id="newFontSize" value="20" min="8" max="150" />
+            </div>
+          </div>
         </div>
       </div>
-      <div class="checkbox-row">
-        <input type="checkbox" id="textBgEnable" checked />
-        <label for="textBgEnable" style="margin:0;">စာသားနောက်ခံ Box တစ်ခါတည်း ထည့်မည်</label>
-      </div>
-      <div class="grid-2">
-        <button id="addTextBtn">+ စာသားထည့်မည်</button>
-        <button class="btn-update" id="updateItemBtn">ပြင်ဆင်မည်</button>
+
+      <div class="inspector-actions">
+        <button class="btn-area-save" id="areaSaveBtn">Save</button>
+        <button class="btn-area-reset" id="areaResetBtn">Reset</button>
       </div>
     </div>
 
-    <!-- 4. Delete & Save -->
-    <div class="card">
-      <div class="grid-2" style="margin-bottom: 8px;">
-        <button class="btn-danger" id="deleteItemBtn">ရွေးထားတာ ဖျက်မည်</button>
-        <button style="background:#475569;" id="deselectBtn">Selection ဖြုတ်မည်</button>
-      </div>
-      <button class="btn-save" id="saveBtn">SAVE (ပုံအဖြစ် သိမ်းဆည်းမည်)</button>
-    </div>
-  </aside>
+    <div class="toast" id="toastMsg"></div>
+  </div>
 
   <script>
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const statusText = document.getElementById("statusText");
+    const fileInput = document.getElementById("fileInput");
+    const editModeBtn = document.getElementById("editModeBtn");
+    const mainSaveBtn = document.getElementById("mainSaveBtn");
+    const exportChoices = document.getElementById("exportChoices");
+    const copyImgBtn = document.getElementById("copyImgBtn");
+    const downloadNewBtn = document.getElementById("downloadNewBtn");
 
-    let baseImage = null;
-    // items: { type: 'patch'|'text', x, y, w, h, color, text, size, weight, hasBg, bgColor }
-    let items = [];
-    let selectedIndex = -1;
-    let isDragging = false;
-    let offsetX = 0;
-    let offsetY = 0;
+    const mainCanvas = document.getElementById("mainCanvas");
+    const ctx = mainCanvas.getContext("2d");
+    const zoomCanvas = document.getElementById("zoomCanvas");
+    const zCtx = zoomCanvas.getContext("2d");
 
-    function drawAll(showSelection = true) {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const inspectorPanel = document.getElementById("inspectorPanel");
+    const replaceText = document.getElementById("replaceText");
+    const bgCoverColor = document.getElementById("bgCoverColor");
+    const newTextColor = document.getElementById("newTextColor");
+    const newFontSize = document.getElementById("newFontSize");
+    const areaSaveBtn = document.getElementById("areaSaveBtn");
+    const areaResetBtn = document.getElementById("areaResetBtn");
+    const hintText = document.getElementById("hintText");
+    const toastMsg = document.getElementById("toastMsg");
 
-      if (baseImage) {
-        ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
-      } else {
-        ctx.fillStyle = "#94a3b8";
-        ctx.font = "16px sans-serif";
-        ctx.textAlign = "center";
-        ctx.fillText("ပုံတစ်ပုံ ရွေးချယ်ပါ", canvas.width / 2, canvas.height / 2);
-        ctx.textAlign = "start";
-      }
+    let originalImg = null;
+    // committedPatches: { x, y, w, h, bgColor, text, textColor, fontSize }
+    let committedPatches = [];
+    let editMode = false;
+    let activeBox = null; // { x, y, w, h }
+    let isDraggingBox = false;
+    let dragDx = 0;
+    let dragDy = 0;
 
-      items.forEach((item, index) => {
-        if (item.type === "patch") {
-          ctx.fillStyle = item.color;
-          ctx.fillRect(item.x, item.y, item.w, item.h);
-
-          if (showSelection && index === selectedIndex) {
-            ctx.strokeStyle = "#38bdf8";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(item.x - 2, item.y - 2, item.w + 4, item.h + 4);
-          }
-        } else if (item.type === "text") {
-          ctx.font = `${item.weight} ${item.size}px sans-serif`;
-          const metrics = ctx.measureText(item.text);
-          const textW = metrics.width;
-          const textH = item.size;
-          item.w = textW + 12;
-          item.h = textH + 10;
-
-          if (item.hasBg) {
-            ctx.fillStyle = item.bgColor;
-            ctx.fillRect(item.x - 6, item.y - textH + 2, item.w, item.h);
-          }
-
-          ctx.fillStyle = item.color;
-          ctx.fillText(item.text, item.x, item.y);
-
-          if (showSelection && index === selectedIndex) {
-            ctx.strokeStyle = "#38bdf8";
-            ctx.lineWidth = 2;
-            ctx.strokeRect(item.x - 8, item.y - textH, item.w + 4, item.h + 4);
-          }
-        }
-      });
+    function showToast(msg) {
+      toastMsg.textContent = msg;
+      setTimeout(() => {
+        if (toastMsg.textContent === msg) toastMsg.textContent = "";
+      }, 3000);
     }
 
-    // Upload Image
-    document.getElementById("imageLoader").addEventListener("change", (e) => {
+    function renderMain(includeSelectionBox = true) {
+      ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+      if (!originalImg) {
+        ctx.fillStyle = "#94a3b8";
+        ctx.font = "15px sans-serif";
+        ctx.textAlign = "center";
+        ctx.fillText("ပုံတစ်ပုံ ရွေးချယ်ပါ", mainCanvas.width / 2, mainCanvas.height / 2);
+        ctx.textAlign = "start";
+        return;
+      }
+
+      ctx.drawImage(originalImg, 0, 0, mainCanvas.width, mainCanvas.height);
+
+      // Draw saved replacements
+      for (const p of committedPatches) {
+        ctx.fillStyle = p.bgColor;
+        ctx.fillRect(p.x, p.y, p.w, p.h);
+
+        if (p.text) {
+          ctx.fillStyle = p.textColor;
+          ctx.font = `bold ${p.fontSize}px sans-serif`;
+          ctx.textBaseline = "middle";
+          ctx.fillText(p.text, p.x + 6, p.y + p.h / 2);
+          ctx.textBaseline = "alphabetic";
+        }
+      }
+
+      // Draw current active selection box while editing
+      if (includeSelectionBox && editMode && activeBox) {
+        ctx.save();
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = Math.max(2, mainCanvas.width / 220);
+        ctx.setLineDash([6, 4]);
+        ctx.strokeRect(activeBox.x, activeBox.y, activeBox.w, activeBox.h);
+        ctx.restore();
+      }
+    }
+
+    function renderZoomPreview() {
+      zCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+      if (!originalImg || !activeBox) return;
+
+      // Render current state onto an offscreen canvas to sample exact pixels
+      const off = document.createElement("canvas");
+      off.width = mainCanvas.width;
+      off.height = mainCanvas.height;
+      const oCtx = off.getContext("2d");
+      oCtx.drawImage(originalImg, 0, 0, off.width, off.height);
+      for (const p of committedPatches) {
+        oCtx.fillStyle = p.bgColor;
+        oCtx.fillRect(p.x, p.y, p.w, p.h);
+        if (p.text) {
+          oCtx.fillStyle = p.textColor;
+          oCtx.font = `bold ${p.fontSize}px sans-serif`;
+          oCtx.textBaseline = "middle";
+          oCtx.fillText(p.text, p.x + 6, p.y + p.h / 2);
+        }
+      }
+
+      // Auto-detect average background color around the box edges
+      try {
+        const sampleX = Math.max(0, Math.floor(activeBox.x));
+        const sampleY = Math.max(0, Math.floor(activeBox.y));
+        const px = oCtx.getImageData(sampleX, sampleY, 1, 1).data;
+        const hex = "#" + [px[0], px[1], px[2]].map(v => v.toString(16).padStart(2, "0")).join("");
+        bgCoverColor.value = hex;
+      } catch (_) {}
+
+      zCtx.drawImage(
+        off,
+        activeBox.x,
+        activeBox.y,
+        activeBox.w,
+        activeBox.h,
+        0,
+        0,
+        zoomCanvas.width,
+        zoomCanvas.height
+      );
+    }
+
+    function getCoords(clientX, clientY) {
+      const rect = mainCanvas.getBoundingClientRect();
+      return {
+        x: ((clientX - rect.left) / rect.width) * mainCanvas.width,
+        y: ((clientY - rect.top) / rect.height) * mainCanvas.height
+      };
+    }
+
+    fileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
-          baseImage = img;
-          canvas.width = img.width;
-          canvas.height = img.height;
-          items = [];
-          selectedIndex = -1;
-          statusText.textContent = "ပုံတင်ပြီးပါပြီ။ Box သို့မဟုတ် စာသားထည့်ပြီး လက်/Mouse နဲ့ ဆွဲရွှေ့ပါ။";
-          drawAll();
+          originalImg = img;
+          mainCanvas.width = img.width;
+          mainCanvas.height = img.height;
+          committedPatches = [];
+          activeBox = null;
+          editMode = false;
+          editModeBtn.classList.remove("active");
+          editModeBtn.disabled = false;
+          mainSaveBtn.disabled = false;
+          inspectorPanel.classList.remove("show");
+          exportChoices.classList.remove("show");
+          hintText.textContent = "EDIT ကိုနှိပ်ပြီး ပုံပေါ်က စာသားတစ်ခုကို နှိပ်ပါ";
+          renderMain();
         };
-        img.src = event.target.result;
+        img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
 
-    // Add Cover Patch Box
-    document.getElementById("addPatchBtn").addEventListener("click", () => {
-      const color = document.getElementById("patchColor").value;
-      const w = Number(document.getElementById("patchW").value) || 120;
-      const h = Number(document.getElementById("patchH").value) || 35;
-
-      items.push({
-        type: "patch",
-        x: Math.round(canvas.width / 2 - w / 2),
-        y: Math.round(canvas.height / 2 - h / 2),
-        w,
-        h,
-        color
-      });
-      selectedIndex = items.length - 1;
-      statusText.textContent = "ဖုံးအုပ်မည့် Box ကို လိုချင်တဲ့နေရာသို့ ဆွဲရွှေ့ပါ။";
-      drawAll();
-    });
-
-    // Add New Text
-    document.getElementById("addTextBtn").addEventListener("click", () => {
-      const text = document.getElementById("textValue").value.trim();
-      if (!text) return;
-      const size = Number(document.getElementById("textSize").value) || 24;
-      const color = document.getElementById("textColor").value;
-      const weight = document.getElementById("textWeight").value;
-      const hasBg = document.getElementById("textBgEnable").checked;
-      const bgColor = document.getElementById("patchColor").value;
-
-      items.push({
-        type: "text",
-        text,
-        x: 50,
-        y: 80,
-        size,
-        color,
-        weight,
-        hasBg,
-        bgColor
-      });
-      selectedIndex = items.length - 1;
-      statusText.textContent = "စာသားကို လိုချင်တဲ့နေရာသို့ ဆွဲရွှေ့ပါ။";
-      drawAll();
-    });
-
-    // Update Selected Item
-    document.getElementById("updateItemBtn").addEventListener("click", () => {
-      if (selectedIndex < 0) return;
-      const item = items[selectedIndex];
-      if (item.type === "patch") {
-        item.color = document.getElementById("patchColor").value;
-        item.w = Number(document.getElementById("patchW").value) || item.w;
-        item.h = Number(document.getElementById("patchH").value) || item.h;
-      } else if (item.type === "text") {
-        const val = document.getElementById("textValue").value.trim();
-        if (val) item.text = val;
-        item.size = Number(document.getElementById("textSize").value) || item.size;
-        item.color = document.getElementById("textColor").value;
-        item.weight = document.getElementById("textWeight").value;
-        item.hasBg = document.getElementById("textBgEnable").checked;
-        item.bgColor = document.getElementById("patchColor").value;
+    editModeBtn.addEventListener("click", () => {
+      if (!originalImg) return;
+      editMode = !editMode;
+      editModeBtn.classList.toggle("active", editMode);
+      if (editMode) {
+        hintText.textContent = "ပုံပေါ်က ပြင်ချင်တဲ့ စာသားနေရာကို နှိပ်ပါ (ဘောင်ကိုလည်း ဆွဲရွှေ့နိုင်သည်)";
+      } else {
+        activeBox = null;
+        inspectorPanel.classList.remove("show");
+        hintText.textContent = "Edit Mode ပိတ်ထားပါသည်";
       }
-      drawAll();
+      renderMain();
     });
 
-    // Delete & Deselect
-    document.getElementById("deleteItemBtn").addEventListener("click", () => {
-      if (selectedIndex < 0) return;
-      items.splice(selectedIndex, 1);
-      selectedIndex = -1;
-      drawAll();
-    });
+    function onPointerDown(clientX, clientY) {
+      if (!originalImg || !editMode) return;
+      const pt = getCoords(clientX, clientY);
 
-    document.getElementById("deselectBtn").addEventListener("click", () => {
-      selectedIndex = -1;
-      drawAll();
-    });
+      const defaultW = Math.max(90, Math.round(mainCanvas.width * 0.28));
+      const defaultH = Math.max(28, Math.round(mainCanvas.height * 0.055));
 
-    // Pointer Coordinates Helper (Supports both Touch & Mouse)
-    function getCanvasCoords(clientX, clientY) {
-      const rect = canvas.getBoundingClientRect();
-      return {
-        x: (clientX - rect.left) * (canvas.width / rect.width),
-        y: (clientY - rect.top) * (canvas.height / rect.height)
+      if (
+        activeBox &&
+        pt.x >= activeBox.x &&
+        pt.x <= activeBox.x + activeBox.w &&
+        pt.y >= activeBox.y &&
+        pt.y <= activeBox.y + activeBox.h
+      ) {
+        isDraggingBox = true;
+        dragDx = pt.x - activeBox.x;
+        dragDy = pt.y - activeBox.y;
+        return;
+      }
+
+      activeBox = {
+        x: Math.max(0, Math.min(mainCanvas.width - defaultW, Math.round(pt.x - defaultW / 2))),
+        y: Math.max(0, Math.min(mainCanvas.height - defaultH, Math.round(pt.y - defaultH / 2))),
+        w: defaultW,
+        h: defaultH
       };
+
+      newFontSize.value = Math.max(12, Math.round(defaultH * 0.65));
+      replaceText.value = "";
+      inspectorPanel.classList.add("show");
+      renderMain();
+      renderZoomPreview();
     }
 
-    function handleStart(clientX, clientY) {
-      const pos = getCanvasCoords(clientX, clientY);
-      selectedIndex = -1;
-
-      for (let i = items.length - 1; i >= 0; i--) {
-        const it = items[i];
-        const hitX = it.type === "text" ? it.x - 8 : it.x;
-        const hitY = it.type === "text" ? it.y - it.size : it.y;
-        const hitW = it.w || 100;
-        const hitH = it.h || 30;
-
-        if (pos.x >= hitX && pos.x <= hitX + hitW && pos.y >= hitY && pos.y <= hitY + hitH) {
-          selectedIndex = i;
-          isDragging = true;
-          offsetX = pos.x - it.x;
-          offsetY = pos.y - it.y;
-
-          if (it.type === "patch") {
-            document.getElementById("patchColor").value = it.color;
-            document.getElementById("patchW").value = it.w;
-            document.getElementById("patchH").value = it.h;
-          } else if (it.type === "text") {
-            document.getElementById("textValue").value = it.text;
-            document.getElementById("textSize").value = it.size;
-            document.getElementById("textColor").value = it.color;
-            document.getElementById("textWeight").value = it.weight;
-            document.getElementById("textBgEnable").checked = it.hasBg;
-          }
-          break;
-        }
-      }
-      drawAll();
+    function onPointerMove(clientX, clientY) {
+      if (!isDraggingBox || !activeBox) return;
+      const pt = getCoords(clientX, clientY);
+      activeBox.x = Math.max(0, Math.min(mainCanvas.width - activeBox.w, Math.round(pt.x - dragDx)));
+      activeBox.y = Math.max(0, Math.min(mainCanvas.height - activeBox.h, Math.round(pt.y - dragDy)));
+      renderMain();
+      renderZoomPreview();
     }
 
-    function handleMove(clientX, clientY) {
-      if (!isDragging || selectedIndex < 0) return;
-      const pos = getCanvasCoords(clientX, clientY);
-      items[selectedIndex].x = pos.x - offsetX;
-      items[selectedIndex].y = pos.y - offsetY;
-      drawAll();
+    function onPointerUp() {
+      isDraggingBox = false;
     }
 
-    function handleEnd() {
-      isDragging = false;
-    }
+    mainCanvas.addEventListener("mousedown", (e) => onPointerDown(e.clientX, e.clientY));
+    window.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
+    window.addEventListener("mouseup", onPointerUp);
 
-    // Mouse Events
-    canvas.addEventListener("mousedown", (e) => handleStart(e.clientX, e.clientY));
-    window.addEventListener("mousemove", (e) => handleMove(e.clientX, e.clientY));
-    window.addEventListener("mouseup", handleEnd);
-
-    // Touch Events (Mobile)
-    canvas.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 1) {
-        handleStart(e.touches[0].clientX, e.touches[0].clientY);
-      }
+    mainCanvas.addEventListener("touchstart", (e) => {
+      if (e.touches.length === 1) onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: true });
 
-    canvas.addEventListener("touchmove", (e) => {
-      if (e.touches.length === 1 && isDragging) {
+    mainCanvas.addEventListener("touchmove", (e) => {
+      if (e.touches.length === 1 && isDraggingBox) {
         e.preventDefault();
-        handleMove(e.touches[0].clientX, e.touches[0].clientY);
+        onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
       }
     }, { passive: false });
 
-    canvas.addEventListener("touchend", handleEnd);
+    mainCanvas.addEventListener("touchend", onPointerUp);
 
-    // Save Final Image (without selection border)
-    document.getElementById("saveBtn").addEventListener("click", () => {
-      drawAll(false); // ဘောင်အပြာရောင် ဖျောက်ပြီး ပြန်ဆွဲမည်
-      const link = document.createElement("a");
-      link.download = "edited-result.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-      drawAll(true);
-      statusText.textContent = "ပုံကို Save လုပ်ပြီးပါပြီ (edited-result.png)";
+    // Area Save button (replaces text in selected area)
+    areaSaveBtn.addEventListener("click", () => {
+      if (!activeBox) return;
+      committedPatches.push({
+        x: activeBox.x,
+        y: activeBox.y,
+        w: activeBox.w,
+        h: activeBox.h,
+        bgColor: bgCoverColor.value,
+        text: replaceText.value,
+        textColor: newTextColor.value,
+        fontSize: Number(newFontSize.value) || 20
+      });
+      activeBox = null;
+      inspectorPanel.classList.remove("show");
+      renderMain();
+      showToast("ရွေးထားသော နေရာကို ပြောင်းလဲပြီးပါပြီ");
     });
 
-    drawAll();
+    // Area Reset button (cancels current selection box)
+    areaResetBtn.addEventListener("click", () => {
+      activeBox = null;
+      replaceText.value = "";
+      inspectorPanel.classList.remove("show");
+      renderMain();
+      showToast("Reset ပြုလုပ်ပြီးပါပြီ");
+    });
+
+    // Main SAVE button spawns Copy & Save buttons
+    mainSaveBtn.addEventListener("click", () => {
+      if (!originalImg) return;
+      editMode = false;
+      editModeBtn.classList.remove("active");
+      activeBox = null;
+      inspectorPanel.classList.remove("show");
+      renderMain(false);
+      exportChoices.classList.add("show");
+      showToast("အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ");
+    });
+
+    function getFinalDataUrl() {
+      renderMain(false);
+      return mainCanvas.toDataURL("image/png");
+    }
+
+    // Copy image to clipboard
+    copyImgBtn.addEventListener("click", async () => {
+      if (!originalImg) return;
+      try {
+        renderMain(false);
+        const blob = await new Promise((resolve) => mainCanvas.toBlob(resolve, "image/png"));
+        if (navigator.clipboard && window.ClipboardItem) {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          showToast("ပုံကို Copy ကူးပြီးပါပြီ (Paste ချသုံးနိုင်ပါပြီ)");
+        } else {
+          showToast("ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်၍ သိမ်းပါ");
+        }
+      } catch (err) {
+        showToast("Copy ကူးမရပါ၊ Save ကိုနှိပ်၍ ပုံအသစ်သိမ်းပါ");
+      }
+    });
+
+    // Save as a new image file on phone/computer
+    downloadNewBtn.addEventListener("click", () => {
+      if (!originalImg) return;
+      const dataUrl = getFinalDataUrl();
+      const stamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
+      const link = document.createElement("a");
+      link.download = `edited-${stamp}.png`;
+      link.href = dataUrl;
+      link.click();
+      showToast(`ပုံအသစ် (${link.download}) သိမ်းဆည်းပြီးပါပြီ`);
+    });
+
+    renderMain();
   </script>
 </body>
 </html>
