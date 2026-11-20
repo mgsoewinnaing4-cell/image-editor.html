@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Quick Image Text Editor</title>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <title>Live Image Text Replacer</title>
   <style>
     :root[data-theme="dark"] {
       --bg: #0f172a;
@@ -47,7 +46,6 @@
       gap: 12px;
     }
 
-    /* Top Bar: Theme & Language */
     .top-bar {
       display: flex;
       justify-content: flex-end;
@@ -63,7 +61,6 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .top-pill-btn:active { opacity: 0.85; }
 
     .upload-box {
       background: var(--card);
@@ -74,9 +71,8 @@
     .upload-box label {
       display: block;
       font-size: 13px;
-      color: var(--text);
-      margin-bottom: 6px;
       font-weight: 600;
+      margin-bottom: 6px;
     }
     input[type="file"] {
       width: 100%;
@@ -84,30 +80,22 @@
       font-size: 13px;
     }
 
-    /* Main Big Action Buttons */
-    .main-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .big-btn {
-      padding: 15px 12px;
-      font-size: 17px;
+    /* Main SAVE Button */
+    .btn-save-main {
+      width: 100%;
+      padding: 15px;
+      font-size: 18px;
       font-weight: 800;
       border: none;
       border-radius: 12px;
-      cursor: pointer;
+      background: #10b981;
       color: #fff;
-      letter-spacing: 0.5px;
-      transition: transform 0.08s ease, opacity 0.15s ease;
+      cursor: pointer;
     }
-    .big-btn:active { transform: scale(0.98); }
-    .big-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-edit { background: #3b82f6; }
-    .btn-edit.active { background: #2563eb; box-shadow: 0 0 0 3px #93c5fd; }
-    .btn-save-main { background: #10b981; }
+    .btn-save-main:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-save-main:active { transform: scale(0.99); }
 
-    /* Sub Buttons spawned from Main SAVE */
+    /* Spawned Copy & Save Buttons */
     .export-choices {
       display: none;
       grid-template-columns: 1fr 1fr;
@@ -130,7 +118,7 @@
     .btn-copy { background: #8b5cf6; }
     .btn-download-new { background: #059669; }
 
-    /* Main Image Canvas */
+    /* Image Preview */
     .canvas-wrap {
       background: var(--canvas-bg);
       border: 1px solid var(--border);
@@ -142,7 +130,7 @@
     }
     #mainCanvas {
       max-width: 100%;
-      max-height: 58vh;
+      max-height: 55vh;
       border-radius: 8px;
       background: var(--card);
       touch-action: none;
@@ -154,50 +142,51 @@
       text-align: center;
     }
 
-    /* Selected Area Inspector Box below image */
-    .inspector-panel {
+    /* Draft Editor Box below Image */
+    .draft-box {
       display: none;
       background: var(--card);
-      border: 1px solid #3b82f6;
+      border: 1px solid var(--border);
       border-radius: 12px;
       padding: 12px;
       flex-direction: column;
       gap: 10px;
     }
-    .inspector-panel.show { display: flex; }
-    .inspector-top {
+    .draft-box.show { display: flex; }
+    .draft-header {
       display: flex;
-      gap: 12px;
+      justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
+      font-size: 13px;
+      font-weight: 700;
     }
-    #zoomCanvas {
-      border: 2px solid #38bdf8;
+    .small-btn {
+      padding: 6px 10px;
       border-radius: 8px;
-      background: var(--canvas-bg);
-      max-width: 100%;
-      touch-action: none;
+      border: none;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
     }
-    .fields {
-      flex: 1;
-      min-width: 220px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    input[type="text"], input[type="number"], select {
+    .live-input {
       width: 100%;
-      padding: 9px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--input-border);
+      padding: 11px 12px;
+      border-radius: 10px;
+      border: 2px solid #3b82f6;
       background: var(--card-2);
       color: var(--text);
-      font-size: 14px;
+      font-size: 15px;
+      font-weight: 600;
     }
-    .row-3 {
+    .controls-row {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(4, 1fr);
       gap: 8px;
+    }
+    @media (max-width: 500px) {
+      .controls-row { grid-template-columns: 1fr 1fr; }
     }
     .mini-lbl {
       display: block;
@@ -205,38 +194,14 @@
       color: var(--muted);
       margin-bottom: 3px;
     }
-    input[type="color"] {
+    input[type="number"], input[type="color"] {
       width: 100%;
-      height: 34px;
+      height: 36px;
+      border-radius: 8px;
       border: 1px solid var(--input-border);
-      border-radius: 6px;
       background: var(--card-2);
-      padding: 2px;
-    }
-    .inspector-actions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    .btn-area-save {
-      padding: 11px;
-      border: none;
-      border-radius: 8px;
-      background: #10b981;
-      color: #fff;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-    }
-    .btn-area-reset {
-      padding: 11px;
-      border: none;
-      border-radius: 8px;
-      background: #475569;
-      color: #fff;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
+      color: var(--text);
+      padding: 4px;
     }
     .toast {
       font-size: 12px;
@@ -249,7 +214,6 @@
 </head>
 <body>
   <div class="app">
-    <!-- Top Theme & Language Controls -->
     <div class="top-bar">
       <button class="top-pill-btn" id="themeToggleBtn">☀️ Light</button>
       <button class="top-pill-btn" id="langToggleBtn">🌐 English</button>
@@ -260,56 +224,44 @@
       <input type="file" id="fileInput" accept="image/*" />
     </div>
 
-    <!-- Big EDIT & SAVE Buttons -->
-    <div class="main-actions">
-      <button class="big-btn btn-edit" id="editModeBtn" disabled>EDIT</button>
-      <button class="big-btn btn-save-main" id="mainSaveBtn" disabled>SAVE</button>
-    </div>
+    <button class="btn-save-main" id="mainSaveBtn" disabled>SAVE</button>
 
-    <!-- Spawned Copy & Save Buttons after clicking Main SAVE -->
     <div class="export-choices" id="exportChoices">
       <button class="sub-export-btn btn-copy" id="copyImgBtn">Copy</button>
       <button class="sub-export-btn btn-download-new" id="downloadNewBtn">Save</button>
     </div>
 
-    <!-- Image Canvas -->
     <div class="canvas-wrap">
       <canvas id="mainCanvas" width="500" height="500"></canvas>
-      <div class="hint" id="hintText">ပုံတင်ပြီး EDIT ကိုနှိပ်၍ ပုံပေါ်မှ ပြင်လိုသောစာသားနေရာကို နှိပ်ပါ</div>
+      <div class="hint" id="hintText">ပုံတင်လိုက်တာနဲ့ အောက်မှာ စာသားပြောင်းရန် ဘောင်ကွက်ထွက်လာပါမယ်</div>
     </div>
 
-    <!-- Inspector Box Below Image when a spot is tapped -->
-    <div class="inspector-panel" id="inspectorPanel">
-      <div class="inspector-top">
-        <div>
-          <span class="mini-lbl" id="zoomBoxLabel">ရွေးထားသော နေရာဘောင်</span>
-          <canvas id="zoomCanvas" width="220" height="80"></canvas>
-        </div>
-        <div class="fields">
-          <div>
-            <span class="mini-lbl" id="newTextLabel">စာသားအသစ် (နှိပ်လိုက်သော စာသားပေါ်လာမည်၊ စိတ်ကြိုက်ပြင်နိုင်သည်)</span>
-            <input type="text" id="replaceText" placeholder="ပြောင်းလဲမည့် စာသားရိုက်ပါ..." />
-          </div>
-          <div class="row-3">
-            <div>
-              <span class="mini-lbl" id="bgColorLabel">နောက်ခံအရောင်</span>
-              <input type="color" id="bgCoverColor" value="#ffffff" />
-            </div>
-            <div>
-              <span class="mini-lbl" id="textColorLabel">စာသားအရောင်</span>
-              <input type="color" id="newTextColor" value="#0f172a" />
-            </div>
-            <div>
-              <span class="mini-lbl" id="fontSizeLabel">စာလုံးဆိုဒ်</span>
-              <input type="number" id="newFontSize" value="20" min="8" max="150" />
-            </div>
-          </div>
-        </div>
+    <!-- Draft Text Box Below Image -->
+    <div class="draft-box" id="draftBox">
+      <div class="draft-header">
+        <span id="draftTitle">စာသားကွက်လပ် (ရိုက်လိုက်တာနဲ့ ပုံမှာ တိုက်ရိုက်ပြောင်းမည်)</span>
+        <button class="small-btn" id="addSlotBtn">+ စာကွက်ထပ်ထည့်</button>
       </div>
 
-      <div class="inspector-actions">
-        <button class="btn-area-save" id="areaSaveBtn">Save</button>
-        <button class="btn-area-reset" id="areaResetBtn">Reset</button>
+      <input type="text" class="live-input" id="liveTextInput" placeholder="စာသားဟောင်းကို ဖျက်ပြီး ကြိုက်တဲ့စာ ရိုက်ထည့်ပါ..." />
+
+      <div class="controls-row">
+        <div>
+          <span class="mini-lbl" id="lblTextColor">စာသားအရောင်</span>
+          <input type="color" id="textColorInput" value="#ffffff" />
+        </div>
+        <div>
+          <span class="mini-lbl" id="lblBgColor">နောက်ခံဖုံးအရောင်</span>
+          <input type="color" id="bgColorInput" value="#000000" />
+        </div>
+        <div>
+          <span class="mini-lbl" id="lblFontSize">စာလုံးဆိုဒ်</span>
+          <input type="number" id="fontSizeInput" value="32" min="8" max="250" />
+        </div>
+        <div>
+          <span class="mini-lbl" id="lblBoxSize">ဖုံးအုပ်ဘောင်အကျယ်</span>
+          <input type="number" id="boxWidthInput" value="220" min="20" max="2000" />
+        </div>
       </div>
     </div>
 
@@ -325,24 +277,19 @@
         toMy: "🌐 မြန်မာ",
         uploadLabel: "ပုံတင်ရန် (Upload Image)",
         placeholderCanvas: "ပုံတစ်ပုံ ရွေးချယ်ပါ",
-        hintInitial: "ပုံတင်ပြီး EDIT ကိုနှိပ်၍ ပုံပေါ်မှ ပြင်လိုသောစာသားနေရာကို နှိပ်ပါ",
-        hintReady: "EDIT ကိုနှိပ်ပြီး ပုံပေါ်က စာသားတစ်ခုကို နှိပ်ပါ",
-        hintEditActive: "ပုံပေါ်က ပြင်ချင်တဲ့ စာသားနေရာကို နှိပ်ပါ (ဘောင်ကိုလည်း ဆွဲရွှေ့နိုင်သည်)",
-        hintEditOff: "Edit Mode ပိတ်ထားပါသည်",
-        zoomBoxLabel: "ရွေးထားသော နေရာဘောင်",
-        newTextLabel: "စာသားအသစ် (နှိပ်လိုက်သော စာသားပေါ်လာမည်၊ စိတ်ကြိုက်ပြင်နိုင်သည်)",
-        replacePlaceholder: "ပြောင်းလဲမည့် စာသားရိုက်ပါ...",
-        bgColorLabel: "နောက်ခံအရောင်",
-        textColorLabel: "စာသားအရောင်",
-        fontSizeLabel: "စာလုံးဆိုဒ်",
-        readingText: "ရွေးထားသော နေရာမှ စာသားကို ဖတ်နေပါသည်...",
-        textDetected: "စာသားဖတ်ပြီးပါပြီ — လိုသလိုပြင်ပြီး Save နှိပ်ပါ",
-        areaSaved: "ပုံပေါ်က စာသားကို အစားထိုးပြီးပါပြီ",
-        areaReset: "Reset ပြုလုပ်ပြီးပါပြီ",
+        hintInitial: "ပုံတင်လိုက်တာနဲ့ အောက်မှာ စာသားပြောင်းရန် ဘောင်ကွက်ထွက်လာပါမယ်",
+        hintActive: "အောက်ကကွက်မှာ စာရိုက်ပြီး ပြောင်းလိုတဲ့နေရာကို ဆွဲရွှေ့ပါ",
+        draftTitle: "စာသားကွက်လပ် (ရိုက်လိုက်တာနဲ့ ပုံမှာ တိုက်ရိုက်ပြောင်းမည်)",
+        addSlot: "+ စာကွက်ထပ်ထည့်",
+        inputPlaceholder: "စာသားဟောင်းကို ဖျက်ပြီး ကြိုက်တဲ့စာ ရိုက်ထည့်ပါ...",
+        lblTextColor: "စာသားအရောင်",
+        lblBgColor: "နောက်ခံဖုံးအရောင်",
+        lblFontSize: "စာလုံးဆိုဒ်",
+        lblBoxSize: "ဖုံးအုပ်ဘောင်အကျယ်",
         chooseExport: "အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
-        copied: "ပုံကို Copy ကူးပြီးပါပြီ (Paste ချသုံးနိုင်ပါပြီ)",
-        copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်၍ သိမ်းပါ",
-        copyFailed: "Copy ကူးမရပါ၊ Save ကိုနှိပ်၍ ပုံအသစ်သိမ်းပါ",
+        copied: "ပုံကို Copy ကူးပြီးပါပြီ",
+        copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်ပါ",
+        copyFailed: "Copy ကူးမရပါ၊ Save ကိုနှိပ်၍ သိမ်းပါ",
         savedNew: (name) => `ပုံအသစ် (${name}) သိမ်းဆည်းပြီးပါပြီ`
       },
       en: {
@@ -352,114 +299,106 @@
         toMy: "🌐 မြန်မာ",
         uploadLabel: "Upload Image",
         placeholderCanvas: "Choose an image",
-        hintInitial: "Upload an image, tap EDIT, then tap text on the image",
-        hintReady: "Tap EDIT, then tap a text area on the image",
-        hintEditActive: "Tap text on the image to edit (you can drag the box too)",
-        hintEditOff: "Edit Mode is off",
-        zoomBoxLabel: "Selected Area Box",
-        newTextLabel: "New Text (Tapped text appears here; edit freely)",
-        replacePlaceholder: "Type replacement text...",
-        bgColorLabel: "Background",
-        textColorLabel: "Text Color",
-        fontSizeLabel: "Font Size",
-        readingText: "Reading text from selected area...",
-        textDetected: "Text detected — edit as desired and tap Save",
-        areaSaved: "Text replaced on the image",
-        areaReset: "Reset complete",
+        hintInitial: "Upload an image to open the live text box below",
+        hintActive: "Type in the box below to change text live; drag on image to position",
+        draftTitle: "Text Box (Changes appear live on the image)",
+        addSlot: "+ Add Text Slot",
+        inputPlaceholder: "Clear and type your new text...",
+        lblTextColor: "Text Color",
+        lblBgColor: "Cover Color",
+        lblFontSize: "Font Size",
+        lblBoxSize: "Cover Width",
         chooseExport: "Choose Copy or Save below",
-        copied: "Image copied to clipboard (ready to paste)",
-        copyUnsupported: "Copy not supported in this browser; use Save",
-        copyFailed: "Could not copy; use Save for a new image",
+        copied: "Image copied to clipboard",
+        copyUnsupported: "Copy not supported here; use Save",
+        copyFailed: "Could not copy; use Save instead",
         savedNew: (name) => `Saved new image (${name})`
       }
     };
 
-    let currentLang = "my";
-    let currentTheme = "dark";
+    let lang = "my";
+    let theme = "dark";
 
     const themeToggleBtn = document.getElementById("themeToggleBtn");
     const langToggleBtn = document.getElementById("langToggleBtn");
     const fileInput = document.getElementById("fileInput");
-    const editModeBtn = document.getElementById("editModeBtn");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
     const exportChoices = document.getElementById("exportChoices");
     const copyImgBtn = document.getElementById("copyImgBtn");
     const downloadNewBtn = document.getElementById("downloadNewBtn");
-
     const mainCanvas = document.getElementById("mainCanvas");
     const ctx = mainCanvas.getContext("2d");
-    const zoomCanvas = document.getElementById("zoomCanvas");
-    const zCtx = zoomCanvas.getContext("2d");
-
-    const inspectorPanel = document.getElementById("inspectorPanel");
-    const replaceText = document.getElementById("replaceText");
-    const bgCoverColor = document.getElementById("bgCoverColor");
-    const newTextColor = document.getElementById("newTextColor");
-    const newFontSize = document.getElementById("newFontSize");
-    const areaSaveBtn = document.getElementById("areaSaveBtn");
-    const areaResetBtn = document.getElementById("areaResetBtn");
+    const draftBox = document.getElementById("draftBox");
+    const liveTextInput = document.getElementById("liveTextInput");
+    const textColorInput = document.getElementById("textColorInput");
+    const bgColorInput = document.getElementById("bgColorInput");
+    const fontSizeInput = document.getElementById("fontSizeInput");
+    const boxWidthInput = document.getElementById("boxWidthInput");
+    const addSlotBtn = document.getElementById("addSlotBtn");
     const hintText = document.getElementById("hintText");
     const toastMsg = document.getElementById("toastMsg");
 
-    let originalImg = null;
-    let committedPatches = [];
-    let editMode = false;
-    let activeBox = null;
-    let isDraggingBox = false;
+    let baseImg = null;
+    // slots: { text, x, y, w, h, textColor, bgColor, fontSize }
+    let slots = [];
+    let currentIdx = 0;
+    let isDragging = false;
     let dragDx = 0;
     let dragDy = 0;
-    let ocrRequestId = 0;
 
-    function t(key, ...args) {
-      const val = i18n[currentLang][key];
-      return typeof val === "function" ? val(...args) : val;
+    function t(k, ...a) {
+      const v = i18n[lang][k];
+      return typeof v === "function" ? v(...a) : v;
     }
 
-    function applyUILanguage() {
+    function applyLang() {
       document.getElementById("uploadLabel").textContent = t("uploadLabel");
-      document.getElementById("zoomBoxLabel").textContent = t("zoomBoxLabel");
-      document.getElementById("newTextLabel").textContent = t("newTextLabel");
-      replaceText.placeholder = t("replacePlaceholder");
-      document.getElementById("bgColorLabel").textContent = t("bgColorLabel");
-      document.getElementById("textColorLabel").textContent = t("textColorLabel");
-      document.getElementById("fontSizeLabel").textContent = t("fontSizeLabel");
-
-      themeToggleBtn.textContent = currentTheme === "dark" ? t("toLight") : t("toDark");
-      langToggleBtn.textContent = currentLang === "my" ? t("toEn") : t("toMy");
-
-      if (!originalImg) {
-        hintText.textContent = t("hintInitial");
-      } else if (editMode) {
-        hintText.textContent = t("hintEditActive");
-      } else {
-        hintText.textContent = t("hintReady");
-      }
-      renderMain();
+      document.getElementById("draftTitle").textContent = t("draftTitle");
+      addSlotBtn.textContent = t("addSlot");
+      liveTextInput.placeholder = t("inputPlaceholder");
+      document.getElementById("lblTextColor").textContent = t("lblTextColor");
+      document.getElementById("lblBgColor").textContent = t("lblBgColor");
+      document.getElementById("lblFontSize").textContent = t("lblFontSize");
+      document.getElementById("lblBoxSize").textContent = t("lblBoxSize");
+      themeToggleBtn.textContent = theme === "dark" ? t("toLight") : t("toDark");
+      langToggleBtn.textContent = lang === "my" ? t("toEn") : t("toMy");
+      hintText.textContent = baseImg ? t("hintActive") : t("hintInitial");
+      render(true);
     }
 
     themeToggleBtn.addEventListener("click", () => {
-      currentTheme = currentTheme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", currentTheme);
-      themeToggleBtn.textContent = currentTheme === "dark" ? t("toLight") : t("toDark");
+      theme = theme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      themeToggleBtn.textContent = theme === "dark" ? t("toLight") : t("toDark");
     });
 
     langToggleBtn.addEventListener("click", () => {
-      currentLang = currentLang === "my" ? "en" : "my";
-      document.documentElement.setAttribute("lang", currentLang);
-      applyUILanguage();
+      lang = lang === "my" ? "en" : "my";
+      document.documentElement.setAttribute("lang", lang);
+      applyLang();
     });
 
     function showToast(msg) {
       toastMsg.textContent = msg;
       setTimeout(() => {
         if (toastMsg.textContent === msg) toastMsg.textContent = "";
-      }, 3000);
+      }, 2800);
     }
 
-    function renderMain(includeSelectionBox = true) {
+    function syncInputsFromSlot() {
+      const s = slots[currentIdx];
+      if (!s) return;
+      liveTextInput.value = s.text;
+      textColorInput.value = s.textColor;
+      bgColorInput.value = s.bgColor;
+      fontSizeInput.value = s.fontSize;
+      boxWidthInput.value = s.w;
+    }
+
+    function render(showOutline = true) {
       ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-      if (!originalImg) {
-        ctx.fillStyle = currentTheme === "dark" ? "#94a3b8" : "#475569";
+      if (!baseImg) {
+        ctx.fillStyle = theme === "dark" ? "#94a3b8" : "#475569";
         ctx.font = "15px sans-serif";
         ctx.textAlign = "center";
         ctx.fillText(t("placeholderCanvas"), mainCanvas.width / 2, mainCanvas.height / 2);
@@ -467,118 +406,49 @@
         return;
       }
 
-      ctx.drawImage(originalImg, 0, 0, mainCanvas.width, mainCanvas.height);
+      // Draw original background & image untouched
+      ctx.drawImage(baseImg, 0, 0, mainCanvas.width, mainCanvas.height);
 
-      for (const p of committedPatches) {
-        ctx.fillStyle = p.bgColor;
-        ctx.fillRect(p.x, p.y, p.w, p.h);
+      slots.forEach((s, idx) => {
+        const boxH = Math.max(s.h, Math.round(s.fontSize * 1.35));
+        const boxY = s.y - boxH * 0.72;
 
-        if (p.text) {
-          ctx.fillStyle = p.textColor;
-          ctx.font = `bold ${p.fontSize}px sans-serif`;
+        // Only cover & draw new text when user types or edits
+        if (s.text.length > 0) {
+          ctx.fillStyle = s.bgColor;
+          ctx.fillRect(s.x - 4, boxY, s.w, boxH);
+
+          ctx.fillStyle = s.textColor;
+          ctx.font = `bold ${s.fontSize}px sans-serif`;
           ctx.textBaseline = "middle";
-          ctx.fillText(p.text, p.x + 6, p.y + p.h / 2);
+          ctx.fillText(s.text, s.x + 2, boxY + boxH / 2);
           ctx.textBaseline = "alphabetic";
         }
-      }
 
-      if (includeSelectionBox && editMode && activeBox) {
-        ctx.save();
-        ctx.strokeStyle = "#38bdf8";
-        ctx.lineWidth = Math.max(2, mainCanvas.width / 220);
-        ctx.setLineDash([6, 4]);
-        ctx.strokeRect(activeBox.x, activeBox.y, activeBox.w, activeBox.h);
-        ctx.restore();
-      }
-    }
-
-    async function recognizeSelectedAreaText(box, reqId) {
-      if (!window.Tesseract || !box) return;
-      const cropCanvas = document.createElement("canvas");
-      cropCanvas.width = Math.max(40, Math.round(box.w * 2));
-      cropCanvas.height = Math.max(24, Math.round(box.h * 2));
-      const cCtx = cropCanvas.getContext("2d");
-      cCtx.fillStyle = "#ffffff";
-      cCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
-      cCtx.drawImage(
-        zoomCanvas,
-        0,
-        0,
-        zoomCanvas.width,
-        zoomCanvas.height,
-        0,
-        0,
-        cropCanvas.width,
-        cropCanvas.height
-      );
-
-      showToast(t("readingText"));
-      try {
-        const result = await Tesseract.recognize(cropCanvas.toDataURL("image/png"), "eng+mya");
-        if (reqId !== ocrRequestId) return;
-        const detected = (result?.data?.text || "").replace(/\s+/g, " ").trim();
-        if (detected) {
-          replaceText.value = detected;
-          showToast(t("textDetected"));
-        } else {
-          showToast("");
+        if (showOutline && idx === currentIdx) {
+          ctx.save();
+          ctx.strokeStyle = "#38bdf8";
+          ctx.lineWidth = Math.max(2, mainCanvas.width / 220);
+          ctx.setLineDash([6, 4]);
+          ctx.strokeRect(s.x - 4, boxY, s.w, boxH);
+          ctx.restore();
         }
-      } catch (_) {
-        if (reqId === ocrRequestId) showToast("");
-      }
+      });
     }
 
-    function renderZoomPreview(runOcr = false) {
-      zCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
-      if (!originalImg || !activeBox) return;
-
-      const off = document.createElement("canvas");
-      off.width = mainCanvas.width;
-      off.height = mainCanvas.height;
-      const oCtx = off.getContext("2d");
-      oCtx.drawImage(originalImg, 0, 0, off.width, off.height);
-      for (const p of committedPatches) {
-        oCtx.fillStyle = p.bgColor;
-        oCtx.fillRect(p.x, p.y, p.w, p.h);
-        if (p.text) {
-          oCtx.fillStyle = p.textColor;
-          oCtx.font = `bold ${p.fontSize}px sans-serif`;
-          oCtx.textBaseline = "middle";
-          oCtx.fillText(p.text, p.x + 6, p.y + p.h / 2);
-        }
-      }
-
-      try {
-        const sampleX = Math.max(0, Math.floor(activeBox.x));
-        const sampleY = Math.max(0, Math.floor(activeBox.y));
-        const px = oCtx.getImageData(sampleX, sampleY, 1, 1).data;
-        const hex = "#" + [px[0], px[1], px[2]].map(v => v.toString(16).padStart(2, "0")).join("");
-        bgCoverColor.value = hex;
-      } catch (_) {}
-
-      zCtx.drawImage(
-        off,
-        activeBox.x,
-        activeBox.y,
-        activeBox.w,
-        activeBox.h,
-        0,
-        0,
-        zoomCanvas.width,
-        zoomCanvas.height
-      );
-
-      if (runOcr) {
-        const currentReq = ++ocrRequestId;
-        recognizeSelectedAreaText({ ...activeBox }, currentReq);
-      }
-    }
-
-    function getCoords(clientX, clientY) {
-      const rect = mainCanvas.getBoundingClientRect();
+    function createDefaultSlot(offsetY = 0) {
+      const fs = Math.max(18, Math.round(mainCanvas.height * 0.05));
+      const bw = Math.max(120, Math.round(mainCanvas.width * 0.45));
+      const bh = Math.round(fs * 1.35);
       return {
-        x: ((clientX - rect.left) / rect.width) * mainCanvas.width,
-        y: ((clientY - rect.top) / rect.height) * mainCanvas.height
+        text: "",
+        x: Math.round((mainCanvas.width - bw) / 2),
+        y: Math.min(mainCanvas.height - 20, Math.round(mainCanvas.height * 0.5) + offsetY),
+        w: bw,
+        h: bh,
+        textColor: "#ffffff",
+        bgColor: "#000000",
+        fontSize: fs
       };
     }
 
@@ -589,183 +459,166 @@
       reader.onload = (ev) => {
         const img = new Image();
         img.onload = () => {
-          originalImg = img;
+          baseImg = img;
           mainCanvas.width = img.width;
           mainCanvas.height = img.height;
-          committedPatches = [];
-          activeBox = null;
-          editMode = false;
-          editModeBtn.classList.remove("active");
-          editModeBtn.disabled = false;
-          mainSaveBtn.disabled = false;
-          inspectorPanel.classList.remove("show");
+          slots = [createDefaultSlot(0)];
+          currentIdx = 0;
+          syncInputsFromSlot();
+          draftBox.classList.add("show");
           exportChoices.classList.remove("show");
-          hintText.textContent = t("hintReady");
-          renderMain();
+          mainSaveBtn.disabled = false;
+          hintText.textContent = t("hintActive");
+          render(true);
+          liveTextInput.focus();
         };
         img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
 
-    editModeBtn.addEventListener("click", () => {
-      if (!originalImg) return;
-      editMode = !editMode;
-      editModeBtn.classList.toggle("active", editMode);
-      if (editMode) {
-        hintText.textContent = t("hintEditActive");
-      } else {
-        ocrRequestId++;
-        activeBox = null;
-        inspectorPanel.classList.remove("show");
-        hintText.textContent = t("hintEditOff");
-      }
-      renderMain();
+    addSlotBtn.addEventListener("click", () => {
+      if (!baseImg) return;
+      slots.push(createDefaultSlot(slots.length * 36));
+      currentIdx = slots.length - 1;
+      syncInputsFromSlot();
+      render(true);
+      liveTextInput.focus();
     });
 
-    function onPointerDown(clientX, clientY) {
-      if (!originalImg || !editMode) return;
-      const pt = getCoords(clientX, clientY);
+    // Live updates as user types
+    liveTextInput.addEventListener("input", () => {
+      if (!slots[currentIdx]) return;
+      slots[currentIdx].text = liveTextInput.value;
+      render(true);
+    });
 
-      const defaultW = Math.max(90, Math.round(mainCanvas.width * 0.28));
-      const defaultH = Math.max(28, Math.round(mainCanvas.height * 0.055));
+    textColorInput.addEventListener("input", () => {
+      if (!slots[currentIdx]) return;
+      slots[currentIdx].textColor = textColorInput.value;
+      render(true);
+    });
 
-      if (
-        activeBox &&
-        pt.x >= activeBox.x &&
-        pt.x <= activeBox.x + activeBox.w &&
-        pt.y >= activeBox.y &&
-        pt.y <= activeBox.y + activeBox.h
-      ) {
-        isDraggingBox = true;
-        dragDx = pt.x - activeBox.x;
-        dragDy = pt.y - activeBox.y;
-        return;
-      }
+    bgColorInput.addEventListener("input", () => {
+      if (!slots[currentIdx]) return;
+      slots[currentIdx].bgColor = bgColorInput.value;
+      render(true);
+    });
 
-      activeBox = {
-        x: Math.max(0, Math.min(mainCanvas.width - defaultW, Math.round(pt.x - defaultW / 2))),
-        y: Math.max(0, Math.min(mainCanvas.height - defaultH, Math.round(pt.y - defaultH / 2))),
-        w: defaultW,
-        h: defaultH
+    fontSizeInput.addEventListener("input", () => {
+      if (!slots[currentIdx]) return;
+      const v = Number(fontSizeInput.value) || 20;
+      slots[currentIdx].fontSize = v;
+      slots[currentIdx].h = Math.round(v * 1.35);
+      render(true);
+    });
+
+    boxWidthInput.addEventListener("input", () => {
+      if (!slots[currentIdx]) return;
+      slots[currentIdx].w = Number(boxWidthInput.value) || 120;
+      render(true);
+    });
+
+    function getCoords(clientX, clientY) {
+      const rect = mainCanvas.getBoundingClientRect();
+      return {
+        x: ((clientX - rect.left) / rect.width) * mainCanvas.width,
+        y: ((clientY - rect.top) / rect.height) * mainCanvas.height
       };
-
-      newFontSize.value = Math.max(12, Math.round(defaultH * 0.65));
-      replaceText.value = "";
-      inspectorPanel.classList.add("show");
-      renderMain();
-      renderZoomPreview(true);
     }
 
-    function onPointerMove(clientX, clientY) {
-      if (!isDraggingBox || !activeBox) return;
+    function onDown(clientX, clientY) {
+      if (!baseImg || !slots.length) return;
       const pt = getCoords(clientX, clientY);
-      activeBox.x = Math.max(0, Math.min(mainCanvas.width - activeBox.w, Math.round(pt.x - dragDx)));
-      activeBox.y = Math.max(0, Math.min(mainCanvas.height - activeBox.h, Math.round(pt.y - dragDy)));
-      renderMain();
-      renderZoomPreview(false);
-    }
 
-    function onPointerUp() {
-      if (isDraggingBox && activeBox) {
-        isDraggingBox = false;
-        const currentReq = ++ocrRequestId;
-        recognizeSelectedAreaText({ ...activeBox }, currentReq);
-      } else {
-        isDraggingBox = false;
+      for (let i = slots.length - 1; i >= 0; i--) {
+        const s = slots[i];
+        const boxH = Math.max(s.h, Math.round(s.fontSize * 1.35));
+        const boxY = s.y - boxH * 0.72;
+        if (pt.x >= s.x - 10 && pt.x <= s.x + s.w + 10 && pt.y >= boxY - 10 && pt.y <= boxY + boxH + 10) {
+          currentIdx = i;
+          syncInputsFromSlot();
+          isDragging = true;
+          dragDx = pt.x - s.x;
+          dragDy = pt.y - s.y;
+          render(true);
+          return;
+        }
       }
+
+      // Move active slot to tapped spot
+      slots[currentIdx].x = Math.max(0, Math.min(mainCanvas.width - slots[currentIdx].w, Math.round(pt.x - slots[currentIdx].w / 2)));
+      slots[currentIdx].y = Math.max(20, Math.min(mainCanvas.height - 10, Math.round(pt.y)));
+      isDragging = true;
+      dragDx = pt.x - slots[currentIdx].x;
+      dragDy = pt.y - slots[currentIdx].y;
+      render(true);
     }
 
-    mainCanvas.addEventListener("mousedown", (e) => onPointerDown(e.clientX, e.clientY));
-    window.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
-    window.addEventListener("mouseup", onPointerUp);
+    function onMove(clientX, clientY) {
+      if (!isDragging || !slots[currentIdx]) return;
+      const pt = getCoords(clientX, clientY);
+      slots[currentIdx].x = Math.max(0, Math.min(mainCanvas.width - slots[currentIdx].w, Math.round(pt.x - dragDx)));
+      slots[currentIdx].y = Math.max(20, Math.min(mainCanvas.height - 10, Math.round(pt.y - dragDy)));
+      render(true);
+    }
+
+    function onUp() {
+      isDragging = false;
+    }
+
+    mainCanvas.addEventListener("mousedown", (e) => onDown(e.clientX, e.clientY));
+    window.addEventListener("mousemove", (e) => onMove(e.clientX, e.clientY));
+    window.addEventListener("mouseup", onUp);
 
     mainCanvas.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 1) onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
+      if (e.touches.length === 1) onDown(e.touches[0].clientX, e.touches[0].clientY);
     }, { passive: true });
 
     mainCanvas.addEventListener("touchmove", (e) => {
-      if (e.touches.length === 1 && isDraggingBox) {
+      if (e.touches.length === 1 && isDragging) {
         e.preventDefault();
-        onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+        onMove(e.touches[0].clientX, e.touches[0].clientY);
       }
     }, { passive: false });
 
-    mainCanvas.addEventListener("touchend", onPointerUp);
-
-    areaSaveBtn.addEventListener("click", () => {
-      if (!activeBox) return;
-      ocrRequestId++;
-      committedPatches.push({
-        x: activeBox.x,
-        y: activeBox.y,
-        w: activeBox.w,
-        h: activeBox.h,
-        bgColor: bgCoverColor.value,
-        text: replaceText.value,
-        textColor: newTextColor.value,
-        fontSize: Number(newFontSize.value) || 20
-      });
-      activeBox = null;
-      inspectorPanel.classList.remove("show");
-      renderMain();
-      showToast(t("areaSaved"));
-    });
-
-    areaResetBtn.addEventListener("click", () => {
-      ocrRequestId++;
-      activeBox = null;
-      replaceText.value = "";
-      inspectorPanel.classList.remove("show");
-      renderMain();
-      showToast(t("areaReset"));
-    });
+    mainCanvas.addEventListener("touchend", onUp);
 
     mainSaveBtn.addEventListener("click", () => {
-      if (!originalImg) return;
-      ocrRequestId++;
-      editMode = false;
-      editModeBtn.classList.remove("active");
-      activeBox = null;
-      inspectorPanel.classList.remove("show");
-      renderMain(false);
+      if (!baseImg) return;
+      render(false);
       exportChoices.classList.add("show");
       showToast(t("chooseExport"));
     });
 
-    function getFinalDataUrl() {
-      renderMain(false);
-      return mainCanvas.toDataURL("image/png");
-    }
-
     copyImgBtn.addEventListener("click", async () => {
-      if (!originalImg) return;
+      if (!baseImg) return;
       try {
-        renderMain(false);
-        const blob = await new Promise((resolve) => mainCanvas.toBlob(resolve, "image/png"));
+        render(false);
+        const blob = await new Promise((r) => mainCanvas.toBlob(r, "image/png"));
         if (navigator.clipboard && window.ClipboardItem) {
           await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
           showToast(t("copied"));
         } else {
           showToast(t("copyUnsupported"));
         }
-      } catch (err) {
+      } catch (_) {
         showToast(t("copyFailed"));
       }
     });
 
     downloadNewBtn.addEventListener("click", () => {
-      if (!originalImg) return;
-      const dataUrl = getFinalDataUrl();
+      if (!baseImg) return;
+      render(false);
       const stamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
-      const link = document.createElement("a");
-      link.download = `edited-${stamp}.png`;
-      link.href = dataUrl;
-      link.click();
-      showToast(t("savedNew", link.download));
+      const a = document.createElement("a");
+      a.download = `edited-${stamp}.png`;
+      a.href = mainCanvas.toDataURL("image/png");
+      a.click();
+      showToast(t("savedNew", a.download));
     });
 
-    applyUILanguage();
+    applyLang();
   </script>
 </body>
 </html>
