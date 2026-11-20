@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Live Image Text Sync Editor</title>
+  <title>Inspect & Auto-Align Text Editor</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root[data-theme="dark"] {
@@ -49,7 +49,25 @@
 
     .top-bar {
       display: flex;
-      justify-content: flex-end;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .inspect-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      border: 1px solid #38bdf8;
+      background: rgba(56, 189, 248, 0.14);
+      color: #38bdf8;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .top-right-btns {
+      display: flex;
       gap: 8px;
     }
     .top-pill-btn {
@@ -131,7 +149,8 @@
       max-height: 55vh;
       border-radius: 8px;
       background: var(--card);
-      touch-action: none;
+      cursor: crosshair;
+      touch-action: manipulation;
     }
     .hint {
       margin-top: 8px;
@@ -224,8 +243,11 @@
 <body>
   <div class="app">
     <div class="top-bar">
-      <button class="top-pill-btn" id="themeToggleBtn">☀️ Light</button>
-      <button class="top-pill-btn" id="langToggleBtn">🌐 English</button>
+      <span class="inspect-badge" id="inspectBadge">⌖ Inspect & Auto-Align</span>
+      <div class="top-right-btns">
+        <button class="top-pill-btn" id="themeToggleBtn">☀️ Light</button>
+        <button class="top-pill-btn" id="langToggleBtn">🌐 English</button>
+      </div>
     </div>
 
     <div class="upload-box">
@@ -242,12 +264,12 @@
 
     <div class="canvas-wrap">
       <canvas id="mainCanvas" width="500" height="500"></canvas>
-      <div class="hint" id="hintText">ပုံတင်ပြီး ပုံပေါ်က ပြင်ချင်တဲ့ စာသားနေရာကို နှိပ်ပါ</div>
+      <div class="hint" id="hintText">ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (နေရာအော်တိုညှိပြီး ပြောင်းပေးပါမည်)</div>
     </div>
 
     <!-- Live Sync Box -->
     <div class="sync-box" id="syncBox">
-      <div class="sync-title" id="syncTitle">တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (စာကြောင်း/ဂဏန်းတွဲလုံး အော်တိုပေါ်မည်)</div>
+      <div class="sync-title" id="syncTitle">တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (နေရာအော်တိုညှိမည်)</div>
 
       <input type="text" class="sync-input" id="syncTextInput" placeholder="နှိပ်လိုက်သော စာသား အော်တိုပေါ်လာမည်..." />
 
@@ -278,21 +300,22 @@
   <script>
     const i18n = {
       my: {
+        inspectBadge: "⌖ Inspect & Auto-Align",
         toLight: "☀️ Light",
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
         uploadLabel: "ပုံတင်ရန် (Upload Image)",
         placeholderCanvas: "ပုံတစ်ပုံ ရွေးချယ်ပါ",
-        hintInitial: "ပုံတင်ပြီး ပုံပေါ်က ပြင်ချင်တဲ့ စာသားနေရာကို နှိပ်ပါ",
-        hintActive: "စာ/ဂဏန်းတစ်ခုကို နှိပ်ပါ — စာကြောင်းလုံး အော်တိုပေါ်လာပြီး ရိုက်/ဖျက်တာနဲ့ တိုက်ရိုက်ပြောင်းမည်",
-        syncTitle: "တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (စာကြောင်း/ဂဏန်းတွဲလုံး အော်တိုပေါ်မည်)",
+        hintInitial: "ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (နေရာအော်တိုညှိပြီး ပြောင်းပေးပါမည်)",
+        hintActive: "စာကြောင်းပေါ် Hover / Tap လုပ်ပြီး နှိပ်ပါ — နေရာကို အော်တိုညှိပြီး တိုက်ရိုက်ပြောင်းပေးမည်",
+        syncTitle: "တိုက်ရိုက် ချိတ်ဆက်ပြင်ဆင်ရန် ကွက်လပ် (နေရာအော်တိုညှိမည်)",
         syncPlaceholder: "နှိပ်လိုက်သော စာသား အော်တိုပေါ်လာမည်...",
         lblOrigSize: "Size (Default 20)",
         lblTextColor: "စာသားအရောင်",
         lblBgColor: "နောက်ခံဖုံးအရောင်",
-        readingOcr: "စာကြောင်း/ဂဏန်းတွဲလုံးကို ဖတ်နေပါသည်...",
-        ocrDone: "စာပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
+        readingOcr: "စာကြောင်းကို ဖတ်နေပါသည်...",
+        ocrDone: "စာပေါ်လာပါပြီ — ရိုက်/ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
         confirmed: "ပုံပေါ်တွင် အတည်ပြုပြီးပါပြီ",
         reverted: "မူရင်းစာ ပြန်ပေါ်လာပါပြီ",
         chooseExport: "အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
@@ -302,20 +325,21 @@
         savedNew: (name) => `ပုံအသစ် (${name}) သိမ်းဆည်းပြီးပါပြီ`
       },
       en: {
+        inspectBadge: "⌖ Inspect & Auto-Align",
         toLight: "☀️ Light",
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
         uploadLabel: "Upload Image",
         placeholderCanvas: "Choose an image",
-        hintInitial: "Upload an image and tap a text area on the image",
-        hintActive: "Tap a character/number — full line/group auto-loads and syncs live as you type or erase",
-        syncTitle: "Live Sync Input (Full line/number group auto-appears)",
+        hintInitial: "Upload an image and tap/hover text to auto-align & edit",
+        hintActive: "Hover/tap a text line and click to lock — auto-aligns position live",
+        syncTitle: "Live Sync Input (Auto-aligns to original position)",
         syncPlaceholder: "Tapped text auto-appears here...",
         lblOrigSize: "Size (Default 20)",
         lblTextColor: "Text Color",
         lblBgColor: "Cover Color",
-        readingOcr: "Reading full text/number group...",
+        readingOcr: "Reading text line...",
         ocrDone: "Text loaded — edit and tap Save to confirm",
         confirmed: "Confirmed on the image",
         reverted: "Restored original text in box",
@@ -354,10 +378,8 @@
     let sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
 
     let confirmedEdits = [];
-    let liveEdit = null;
-    let isDragging = false;
-    let dragDx = 0;
-    let dragDy = 0;
+    let hoverBox = null; // { x, y, w, h, textColor, bgColor, fontSize }
+    let liveEdit = null; // { x, y, w, h, centerX, centerY, text, originalText, fontSize, textColor, bgColor, isDirty }
     let ocrToken = 0;
 
     function t(k, ...a) {
@@ -366,6 +388,7 @@
     }
 
     function applyLang() {
+      document.getElementById("inspectBadge").textContent = t("inspectBadge");
       document.getElementById("uploadLabel").textContent = t("uploadLabel");
       document.getElementById("syncTitle").textContent = t("syncTitle");
       syncTextInput.placeholder = t("syncPlaceholder");
@@ -405,22 +428,22 @@
       return (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2;
     }
 
-    // Detect background/text color and expand box horizontally to capture full connected text/number group
-    function detectLineGroupAt(cx, cy) {
+    // Inspect target line/group around (cx, cy) like F12 Inspect highlight
+    function inspectLineAt(cx, cy) {
       const defaultSize = 20;
       const fallback = {
         bgColor: "#ffffff",
         textColor: "#111827",
         fontSize: defaultSize,
-        boxX: Math.max(0, Math.round(cx - 90)),
-        boxY: Math.max(0, Math.round(cy - 16)),
-        boxW: Math.min(mainCanvas.width, 180),
-        boxH: Math.round(defaultSize * 1.4)
+        x: Math.max(0, Math.round(cx - 90)),
+        y: Math.max(0, Math.round(cy - 14)),
+        w: Math.min(mainCanvas.width, 180),
+        h: Math.round(defaultSize * 1.4)
       };
       if (!baseImg) return fallback;
 
-      const scanW = Math.min(sampleCanvas.width, Math.max(160, Math.round(sampleCanvas.width * 0.65)));
-      const scanH = Math.min(sampleCanvas.height, Math.max(24, Math.round(sampleCanvas.height * 0.035)));
+      const scanW = Math.min(sampleCanvas.width, Math.max(180, Math.round(sampleCanvas.width * 0.72)));
+      const scanH = Math.min(sampleCanvas.height, Math.max(24, Math.round(sampleCanvas.height * 0.036)));
       const sx0 = Math.max(0, Math.min(sampleCanvas.width - scanW, Math.round(cx - scanW / 2)));
       const sy0 = Math.max(0, Math.min(sampleCanvas.height - scanH, Math.round(cy - scanH / 2)));
 
@@ -442,9 +465,8 @@
         borderColors.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
         const bgRgb = borderColors[Math.floor(borderColors.length / 2)] || [255, 255, 255];
 
-        // Build vertical column hit map around vertical center of scanH
         const midY = Math.floor(scanH / 2);
-        const halfBand = Math.max(4, Math.floor(scanH * 0.35));
+        const halfBand = Math.max(4, Math.floor(scanH * 0.36));
         const colHits = new Array(scanW).fill(false);
         let fgSum = [0, 0, 0];
         let fgCount = 0;
@@ -467,7 +489,6 @@
         let leftX = tapLocalX;
         let rightX = tapLocalX;
 
-        // Expand left/right across continuous characters (allowing small gaps up to 6px between digits/letters)
         let gap = 0;
         for (let x = tapLocalX; x >= 0; x--) {
           if (colHits[x]) {
@@ -489,17 +510,15 @@
           }
         }
 
-        let boxX = sx0 + Math.max(0, leftX - 4);
-        let boxW = Math.max(80, Math.min(sampleCanvas.width - boxX, (rightX - leftX) + 12));
-
-        // If no foreground pixels were right under tap, fall back to a reasonable line width
+        let x = sx0 + Math.max(0, leftX - 4);
+        let w = Math.max(80, Math.min(sampleCanvas.width - x, (rightX - leftX) + 12));
         if (rightX - leftX < 8) {
-          boxX = Math.max(0, Math.min(sampleCanvas.width - 140, Math.round(cx - 70)));
-          boxW = Math.min(sampleCanvas.width - boxX, 140);
+          x = Math.max(0, Math.min(sampleCanvas.width - 150, Math.round(cx - 75)));
+          w = Math.min(sampleCanvas.width - x, 150);
         }
 
-        const boxH = Math.max(24, Math.round(defaultSize * 1.4));
-        const boxY = Math.max(0, Math.min(sampleCanvas.height - boxH, Math.round(cy - boxH / 2)));
+        const h = Math.max(24, Math.round(defaultSize * 1.4));
+        const y = Math.max(0, Math.min(sampleCanvas.height - h, Math.round(cy - h / 2)));
 
         let fgRgb = bgRgb[0] + bgRgb[1] + bgRgb[2] > 380 ? [15, 23, 42] : [255, 255, 255];
         if (fgCount > 4) {
@@ -510,39 +529,44 @@
           bgColor: rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]),
           textColor: rgbToHex(fgRgb[0], fgRgb[1], fgRgb[2]),
           fontSize: defaultSize,
-          boxX,
-          boxY,
-          boxW,
-          boxH
+          x,
+          y,
+          w,
+          h
         };
       } catch (_) {
         return fallback;
       }
     }
 
-    function drawEditItem(item, showBorder, isLive) {
+    // Auto-aligns cover & new text automatically to original center/baseline without manual positioning
+    function drawAutoAlignedEdit(item, showOutline, isLive) {
       const boxH = Math.max(item.h, Math.round(item.fontSize * 1.35));
       const boxY = item.y;
 
-      // Once user types or edits (or when confirmed), cover original text and draw new text
       if (!isLive || item.isDirty) {
         ctx.fillStyle = item.bgColor;
         ctx.fillRect(item.x, boxY, item.w, boxH);
 
         if (item.text && item.text.length > 0) {
-          ctx.fillStyle = item.textColor;
           ctx.font = `${item.fontSize}px sans-serif`;
+          const measuredW = ctx.measureText(item.text).width;
+          // Auto-align horizontally centered within original slot (or left-aligned if wider than slot)
+          const alignedX = measuredW < item.w - 6
+            ? Math.round(item.centerX - measuredW / 2)
+            : item.x + 2;
+
+          ctx.fillStyle = item.textColor;
           ctx.textBaseline = "middle";
-          ctx.fillText(item.text, item.x + 4, boxY + boxH / 2);
+          ctx.fillText(item.text, alignedX, boxY + boxH / 2);
           ctx.textBaseline = "alphabetic";
         }
       }
 
-      if (showBorder) {
+      if (showOutline) {
         ctx.save();
         ctx.strokeStyle = "#38bdf8";
         ctx.lineWidth = Math.max(1.5, mainCanvas.width / 260);
-        ctx.setLineDash([5, 3]);
         ctx.strokeRect(item.x, boxY, item.w, boxH);
         ctx.restore();
       }
@@ -561,12 +585,23 @@
 
       ctx.drawImage(baseImg, 0, 0, mainCanvas.width, mainCanvas.height);
 
+      // F12-style inspect highlight on hover/touch before locking
+      if (showOutline && !liveEdit && hoverBox) {
+        ctx.save();
+        ctx.fillStyle = "rgba(56, 189, 248, 0.14)";
+        ctx.fillRect(hoverBox.x, hoverBox.y, hoverBox.w, hoverBox.h);
+        ctx.strokeStyle = "#38bdf8";
+        ctx.lineWidth = Math.max(1.5, mainCanvas.width / 260);
+        ctx.strokeRect(hoverBox.x, hoverBox.y, hoverBox.w, hoverBox.h);
+        ctx.restore();
+      }
+
       for (const item of confirmedEdits) {
-        drawEditItem(item, false, false);
+        drawAutoAlignedEdit(item, false, false);
       }
 
       if (liveEdit) {
-        drawEditItem(liveEdit, showOutline, true);
+        drawAutoAlignedEdit(liveEdit, showOutline, true);
       }
     }
 
@@ -637,6 +672,7 @@
           sampleCtx.drawImage(img, 0, 0);
 
           confirmedEdits = [];
+          hoverBox = null;
           liveEdit = null;
           syncBox.classList.remove("show");
           exportChoices.classList.remove("show");
@@ -649,7 +685,6 @@
       reader.readAsDataURL(file);
     });
 
-    // Typing or erasing immediately replaces/removes original text on canvas
     syncTextInput.addEventListener("input", () => {
       ocrToken++;
       if (!liveEdit) return;
@@ -686,6 +721,7 @@
       ocrToken++;
       confirmedEdits.push({ ...liveEdit, isDirty: true });
       liveEdit = null;
+      hoverBox = null;
       syncBox.classList.remove("show");
       render(true);
       showToast(t("confirmed"));
@@ -709,26 +745,34 @@
       };
     }
 
-    function onPointerDown(clientX, clientY) {
+    // Hover inspect highlight on desktop mouse move
+    mainCanvas.addEventListener("mousemove", (e) => {
+      if (!baseImg || liveEdit) return;
+      const pt = getCoords(e.clientX, e.clientY);
+      hoverBox = inspectLineAt(pt.x, pt.y);
+      render(true);
+    });
+
+    mainCanvas.addEventListener("mouseleave", () => {
+      if (hoverBox) {
+        hoverBox = null;
+        render(true);
+      }
+    });
+
+    // Click / Tap to inspect and lock onto text line (auto-aligns position)
+    function selectTargetAt(clientX, clientY) {
       if (!baseImg) return;
       const pt = getCoords(clientX, clientY);
+      const info = inspectLineAt(pt.x, pt.y);
 
-      if (liveEdit) {
-        const boxH = Math.max(liveEdit.h, Math.round(liveEdit.fontSize * 1.35));
-        if (pt.x >= liveEdit.x && pt.x <= liveEdit.x + liveEdit.w && pt.y >= liveEdit.y && pt.y <= liveEdit.y + boxH) {
-          isDragging = true;
-          dragDx = pt.x - liveEdit.x;
-          dragDy = pt.y - liveEdit.y;
-          return;
-        }
-      }
-
-      const info = detectLineGroupAt(pt.x, pt.y);
       liveEdit = {
-        x: info.boxX,
-        y: info.boxY,
-        w: info.boxW,
-        h: info.boxH,
+        x: info.x,
+        y: info.y,
+        w: info.w,
+        h: info.h,
+        centerX: info.x + info.w / 2,
+        centerY: info.y + info.h / 2,
         text: "",
         originalText: "",
         fontSize: info.fontSize,
@@ -745,49 +789,15 @@
       runAutoOcr({ ...liveEdit }, token);
     }
 
-    function onPointerMove(clientX, clientY) {
-      if (!isDragging || !liveEdit) return;
-      const pt = getCoords(clientX, clientY);
-      const boxH = Math.max(liveEdit.h, Math.round(liveEdit.fontSize * 1.35));
-      liveEdit.x = Math.max(0, Math.min(mainCanvas.width - liveEdit.w, Math.round(pt.x - dragDx)));
-      liveEdit.y = Math.max(0, Math.min(mainCanvas.height - boxH, Math.round(pt.y - dragDy)));
-      render(true);
-    }
-
-    function onPointerUp() {
-      if (isDragging && liveEdit) {
-        isDragging = false;
-        const boxH = Math.max(liveEdit.h, Math.round(liveEdit.fontSize * 1.35));
-        const info = detectLineGroupAt(liveEdit.x + liveEdit.w / 2, liveEdit.y + boxH / 2);
-        liveEdit.textColor = info.textColor;
-        liveEdit.bgColor = info.bgColor;
-        syncInputsFromLive();
-        render(true);
-        if (!liveEdit.isDirty) {
-          const token = ++ocrToken;
-          runAutoOcr({ ...liveEdit }, token);
-        }
-      } else {
-        isDragging = false;
-      }
-    }
-
-    mainCanvas.addEventListener("mousedown", (e) => onPointerDown(e.clientX, e.clientY));
-    window.addEventListener("mousemove", (e) => onPointerMove(e.clientX, e.clientY));
-    window.addEventListener("mouseup", onPointerUp);
-
+    mainCanvas.addEventListener("click", (e) => selectTargetAt(e.clientX, e.clientY));
     mainCanvas.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 1) onPointerDown(e.touches[0].clientX, e.touches[0].clientY);
-    }, { passive: true });
-
-    mainCanvas.addEventListener("touchmove", (e) => {
-      if (e.touches.length === 1 && isDragging) {
-        e.preventDefault();
-        onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+      if (e.touches.length === 1) {
+        const pt = getCoords(e.touches[0].clientX, e.touches[0].clientY);
+        hoverBox = inspectLineAt(pt.x, pt.y);
+        render(true);
+        selectTargetAt(e.touches[0].clientX, e.touches[0].clientY);
       }
-    }, { passive: false });
-
-    mainCanvas.addEventListener("touchend", onPointerUp);
+    }, { passive: true });
 
     mainSaveBtn.addEventListener("click", () => {
       if (!baseImg) return;
@@ -795,6 +805,7 @@
         confirmedEdits.push({ ...liveEdit });
       }
       liveEdit = null;
+      hoverBox = null;
       syncBox.classList.remove("show");
       render(false);
       exportChoices.classList.add("show");
