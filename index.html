@@ -157,7 +157,7 @@
     }
     .sync-input {
       width: 100%;
-      padding: 11px 12px;
+      padding: 10px 12px;
       border-radius: 10px;
       border: 2px solid #3b82f6;
       background: var(--card-2);
@@ -185,31 +185,35 @@
       color: var(--text);
       padding: 4px;
     }
-    .confirm-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+
+    /* Small Save & Reset buttons below edit box */
+    .small-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
     }
-    .btn-confirm-save {
-      padding: 11px;
+    .btn-mini-save {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       background: #10b981;
       color: #fff;
-      font-weight: 700;
-      font-size: 14px;
       cursor: pointer;
     }
-    .btn-revert {
-      padding: 11px;
+    .btn-mini-reset {
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       background: #475569;
       color: #fff;
-      font-weight: 700;
-      font-size: 14px;
       cursor: pointer;
     }
+    .btn-mini-save:active, .btn-mini-reset:active { opacity: 0.85; }
+
     .toast {
       font-size: 12px;
       color: #10b981;
@@ -252,7 +256,7 @@
       <div class="meta-row">
         <div>
           <span class="mini-lbl" id="lblOrigSize">မူရင်း Size (px)</span>
-          <input type="number" id="sizeInput" value="24" min="8" max="250" />
+          <input type="number" id="sizeInput" value="16" min="8" max="200" />
         </div>
         <div>
           <span class="mini-lbl" id="lblTextColor">စာသားအရောင်</span>
@@ -264,9 +268,9 @@
         </div>
       </div>
 
-      <div class="confirm-row">
-        <button class="btn-confirm-save" id="confirmSaveBtn">Save</button>
-        <button class="btn-revert" id="revertBtn">Reset</button>
+      <div class="small-actions">
+        <button class="btn-mini-save" id="miniSaveBtn">Save</button>
+        <button class="btn-mini-reset" id="miniResetBtn">Reset</button>
       </div>
     </div>
 
@@ -290,9 +294,9 @@
         lblTextColor: "စာသားအရောင်",
         lblBgColor: "နောက်ခံဖုံးအရောင်",
         readingOcr: "နှိပ်လိုက်သော နေရာမှ စာသားကို အော်တိုဖတ်နေပါသည်...",
-        ocrDone: "စာသားပေါ်လာပါပြီ — ဖျက်/ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
-        confirmed: "အတည်ပြု Save ပြီးပါပြီ",
-        reverted: "Reset ပြန်လုပ်ပြီးပါပြီ",
+        ocrDone: "စာသားပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်၍ အတည်ပြုပါ",
+        confirmed: "ပုံပေါ်တွင် အတည်ပြုပြီးပါပြီ",
+        reverted: "မူရင်းစာ ပြန်ပေါ်လာပါပြီ",
         chooseExport: "အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
         copied: "ပုံကို Copy ကူးပြီးပါပြီ",
         copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်ပါ",
@@ -315,8 +319,8 @@
         lblBgColor: "Cover Color",
         readingOcr: "Auto-detecting text from tapped area...",
         ocrDone: "Text loaded — edit and tap Save to confirm",
-        confirmed: "Confirmed and saved to image",
-        reverted: "Reset complete",
+        confirmed: "Confirmed on the image",
+        reverted: "Restored original text in box",
         chooseExport: "Choose Copy or Save below",
         copied: "Image copied to clipboard",
         copyUnsupported: "Copy not supported here; use Save",
@@ -342,8 +346,8 @@
     const sizeInput = document.getElementById("sizeInput");
     const textColorInput = document.getElementById("textColorInput");
     const bgColorInput = document.getElementById("bgColorInput");
-    const confirmSaveBtn = document.getElementById("confirmSaveBtn");
-    const revertBtn = document.getElementById("revertBtn");
+    const miniSaveBtn = document.getElementById("miniSaveBtn");
+    const miniResetBtn = document.getElementById("miniResetBtn");
     const hintText = document.getElementById("hintText");
     const toastMsg = document.getElementById("toastMsg");
 
@@ -351,9 +355,8 @@
     let sampleCanvas = document.createElement("canvas");
     let sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
 
-    // Confirmed permanent edits: { x, y, w, h, text, fontSize, textColor, bgColor }
     let confirmedEdits = [];
-    // Active live edit currently being typed/erased: { x, y, w, h, text, fontSize, textColor, bgColor } | null
+    // liveEdit: { x, y, w, h, text, originalText, fontSize, textColor, bgColor, isDirty }
     let liveEdit = null;
     let isDragging = false;
     let dragDx = 0;
@@ -405,18 +408,20 @@
       return (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2;
     }
 
+    // Estimate original text size (smaller, accurate to actual line/character height)
     function detectStyleAt(cx, cy) {
+      const baseScaleSize = Math.max(12, Math.min(36, Math.round(mainCanvas.height * 0.018)));
       const fallback = {
         bgColor: "#ffffff",
         textColor: "#111827",
-        fontSize: Math.max(16, Math.round(mainCanvas.height * 0.032)),
-        boxW: Math.max(140, Math.round(mainCanvas.width * 0.42)),
-        boxH: Math.max(30, Math.round(mainCanvas.height * 0.045))
+        fontSize: baseScaleSize,
+        boxW: Math.max(110, Math.round(mainCanvas.width * 0.34)),
+        boxH: Math.max(22, Math.round(baseScaleSize * 1.35))
       };
       if (!baseImg) return fallback;
 
-      const patchW = Math.max(80, Math.min(sampleCanvas.width, Math.round(sampleCanvas.width * 0.32)));
-      const patchH = Math.max(28, Math.min(sampleCanvas.height, Math.round(sampleCanvas.height * 0.065)));
+      const patchW = Math.max(80, Math.min(sampleCanvas.width, Math.round(sampleCanvas.width * 0.3)));
+      const patchH = Math.max(22, Math.min(sampleCanvas.height, Math.round(sampleCanvas.height * 0.035)));
       const x0 = Math.max(0, Math.min(sampleCanvas.width - patchW, Math.round(cx - patchW / 2)));
       const y0 = Math.max(0, Math.min(sampleCanvas.height - patchH, Math.round(cy - patchH / 2)));
 
@@ -440,33 +445,54 @@
 
         let fgSum = [0, 0, 0];
         let fgCount = 0;
-        let minTy = patchH;
-        let maxTy = -1;
+        const activeRows = [];
 
         for (let y = 0; y < patchH; y++) {
+          let rowHits = 0;
           for (let x = 0; x < patchW; x++) {
             const idx = (y * patchW + x) * 4;
             const px = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
-            if (colorDistSq(px, bgRgb) > 2200) {
+            if (colorDistSq(px, bgRgb) > 2500) {
               fgSum[0] += px[0];
               fgSum[1] += px[1];
               fgSum[2] += px[2];
               fgCount++;
-              if (y < minTy) minTy = y;
-              if (y > maxTy) maxTy = y;
+              rowHits++;
             }
           }
+          if (rowHits >= 2) activeRows.push(y);
         }
 
         let fgRgb = bgRgb[0] + bgRgb[1] + bgRgb[2] > 380 ? [15, 23, 42] : [255, 255, 255];
-        if (fgCount > 6) {
+        if (fgCount > 5) {
           fgRgb = [fgSum[0] / fgCount, fgSum[1] / fgCount, fgSum[2] / fgCount];
         }
 
-        let detectedSize = fallback.fontSize;
-        if (maxTy > minTy && fgCount > 6) {
-          const spanH = maxTy - minTy + 1;
-          detectedSize = Math.max(10, Math.min(200, Math.round(spanH * 0.92)));
+        let detectedSize = baseScaleSize;
+        if (activeRows.length >= 4) {
+          // Find contiguous row cluster near middle of patch
+          const midRow = Math.floor(patchH / 2);
+          let bestCluster = [activeRows[0]];
+          let curCluster = [activeRows[0]];
+          for (let i = 1; i < activeRows.length; i++) {
+            if (activeRows[i] - activeRows[i - 1] <= 2) {
+              curCluster.push(activeRows[i]);
+            } else {
+              if (Math.abs(curCluster[Math.floor(curCluster.length / 2)] - midRow) <
+                  Math.abs(bestCluster[Math.floor(bestCluster.length / 2)] - midRow)) {
+                bestCluster = curCluster;
+              }
+              curCluster = [activeRows[i]];
+            }
+          }
+          if (Math.abs(curCluster[Math.floor(curCluster.length / 2)] - midRow) <
+              Math.abs(bestCluster[Math.floor(bestCluster.length / 2)] - midRow)) {
+            bestCluster = curCluster;
+          }
+          const charHeight = bestCluster[bestCluster.length - 1] - bestCluster[0] + 1;
+          if (charHeight >= 8 && charHeight <= patchH * 0.9) {
+            detectedSize = Math.max(10, Math.min(60, Math.round(charHeight * 1.05)));
+          }
         }
 
         return {
@@ -474,34 +500,36 @@
           textColor: rgbToHex(fgRgb[0], fgRgb[1], fgRgb[2]),
           fontSize: detectedSize,
           boxW: patchW,
-          boxH: Math.max(patchH, Math.round(detectedSize * 1.35))
+          boxH: Math.max(20, Math.round(detectedSize * 1.35))
         };
       } catch (_) {
         return fallback;
       }
     }
 
-    function drawEditItem(item, showBorder) {
+    function drawEditItem(item, showBorder, isLive) {
       const boxH = Math.max(item.h, Math.round(item.fontSize * 1.35));
       const boxY = item.y - boxH * 0.72;
 
-      // Always cover original text area when active or confirmed
-      ctx.fillStyle = item.bgColor;
-      ctx.fillRect(item.x, boxY, item.w, boxH);
+      // Live item only covers/replaces once user types or erases
+      if (!isLive || item.isDirty) {
+        ctx.fillStyle = item.bgColor;
+        ctx.fillRect(item.x, boxY, item.w, boxH);
 
-      if (item.text && item.text.length > 0) {
-        ctx.fillStyle = item.textColor;
-        ctx.font = `bold ${item.fontSize}px sans-serif`;
-        ctx.textBaseline = "middle";
-        ctx.fillText(item.text, item.x + 4, boxY + boxH / 2);
-        ctx.textBaseline = "alphabetic";
+        if (item.text && item.text.length > 0) {
+          ctx.fillStyle = item.textColor;
+          ctx.font = `${item.fontSize}px sans-serif`;
+          ctx.textBaseline = "middle";
+          ctx.fillText(item.text, item.x + 3, boxY + boxH / 2);
+          ctx.textBaseline = "alphabetic";
+        }
       }
 
       if (showBorder) {
         ctx.save();
         ctx.strokeStyle = "#38bdf8";
-        ctx.lineWidth = Math.max(2, mainCanvas.width / 220);
-        ctx.setLineDash([6, 4]);
+        ctx.lineWidth = Math.max(1.5, mainCanvas.width / 260);
+        ctx.setLineDash([5, 3]);
         ctx.strokeRect(item.x, boxY, item.w, boxH);
         ctx.restore();
       }
@@ -521,11 +549,11 @@
       ctx.drawImage(baseImg, 0, 0, mainCanvas.width, mainCanvas.height);
 
       for (const item of confirmedEdits) {
-        drawEditItem(item, false);
+        drawEditItem(item, false, false);
       }
 
       if (liveEdit) {
-        drawEditItem(liveEdit, showOutline);
+        drawEditItem(liveEdit, showOutline, true);
       }
     }
 
@@ -535,8 +563,8 @@
       const boxY = Math.max(0, Math.round(item.y - boxH * 0.72));
 
       const cropCanvas = document.createElement("canvas");
-      cropCanvas.width = Math.max(60, Math.round(item.w * 2));
-      cropCanvas.height = Math.max(30, Math.round(boxH * 2));
+      cropCanvas.width = Math.max(80, Math.round(item.w * 2));
+      cropCanvas.height = Math.max(36, Math.round(boxH * 2));
       const cCtx = cropCanvas.getContext("2d");
       cCtx.fillStyle = "#ffffff";
       cCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
@@ -555,9 +583,10 @@
       showToast(t("readingOcr"));
       try {
         const res = await Tesseract.recognize(cropCanvas.toDataURL("image/png"), "eng+mya");
-        if (token !== ocrToken || !liveEdit) return;
+        if (token !== ocrToken || !liveEdit || liveEdit.isDirty) return;
         const detected = (res?.data?.text || "").replace(/\s+/g, " ").trim();
         if (detected) {
+          liveEdit.originalText = detected;
           liveEdit.text = detected;
           syncTextInput.value = detected;
           render(true);
@@ -607,51 +636,56 @@
       reader.readAsDataURL(file);
     });
 
-    // Live 1-to-1 sync when typing or erasing in the input box
+    // Live sync as user types or deletes characters
     syncTextInput.addEventListener("input", () => {
       ocrToken++;
       if (!liveEdit) return;
+      liveEdit.isDirty = true;
       liveEdit.text = syncTextInput.value;
       render(true);
     });
 
     sizeInput.addEventListener("input", () => {
       if (!liveEdit) return;
-      const sz = Number(sizeInput.value) || 20;
+      const sz = Number(sizeInput.value) || 16;
       liveEdit.fontSize = sz;
       liveEdit.h = Math.round(sz * 1.35);
+      liveEdit.isDirty = true;
       render(true);
     });
 
     textColorInput.addEventListener("input", () => {
       if (!liveEdit) return;
       liveEdit.textColor = textColorInput.value;
+      liveEdit.isDirty = true;
       render(true);
     });
 
     bgColorInput.addEventListener("input", () => {
       if (!liveEdit) return;
       liveEdit.bgColor = bgColorInput.value;
+      liveEdit.isDirty = true;
       render(true);
     });
 
-    // Confirm current edit
-    confirmSaveBtn.addEventListener("click", () => {
+    // Small Save button below edit box: confirm on image
+    miniSaveBtn.addEventListener("click", () => {
       if (!liveEdit) return;
       ocrToken++;
-      confirmedEdits.push({ ...liveEdit });
+      confirmedEdits.push({ ...liveEdit, isDirty: true });
       liveEdit = null;
       syncBox.classList.remove("show");
       render(true);
       showToast(t("confirmed"));
     });
 
-    // Reset current live edit
-    revertBtn.addEventListener("click", () => {
+    // Small Reset button below edit box: restore original text in input box & clear live replacement
+    miniResetBtn.addEventListener("click", () => {
+      if (!liveEdit) return;
       ocrToken++;
-      liveEdit = null;
-      syncTextInput.value = "";
-      syncBox.classList.remove("show");
+      liveEdit.isDirty = false;
+      liveEdit.text = liveEdit.originalText || "";
+      syncTextInput.value = liveEdit.text;
       render(true);
       showToast(t("reverted"));
     });
@@ -686,9 +720,11 @@
         w: style.boxW,
         h: style.boxH,
         text: "",
+        originalText: "",
         fontSize: style.fontSize,
         textColor: style.textColor,
-        bgColor: style.bgColor
+        bgColor: style.bgColor,
+        isDirty: false
       };
 
       syncInputsFromLive();
@@ -717,8 +753,10 @@
         liveEdit.bgColor = style.bgColor;
         syncInputsFromLive();
         render(true);
-        const token = ++ocrToken;
-        runAutoOcr({ ...liveEdit }, token);
+        if (!liveEdit.isDirty) {
+          const token = ++ocrToken;
+          runAutoOcr({ ...liveEdit }, token);
+        }
       } else {
         isDragging = false;
       }
@@ -741,14 +779,13 @@
 
     mainCanvas.addEventListener("touchend", onPointerUp);
 
-    // Main SAVE spawns Copy & Save
     mainSaveBtn.addEventListener("click", () => {
       if (!baseImg) return;
-      if (liveEdit) {
+      if (liveEdit && liveEdit.isDirty) {
         confirmedEdits.push({ ...liveEdit });
-        liveEdit = null;
-        syncBox.classList.remove("show");
       }
+      liveEdit = null;
+      syncBox.classList.remove("show");
       render(false);
       exportChoices.classList.add("show");
       showToast(t("chooseExport"));
