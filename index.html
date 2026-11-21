@@ -90,7 +90,7 @@
       min-height: 100vh;
       padding: 12px;
       gap: 12px;
-      max-width: 1360px;
+      max-width: 1380px;
       margin: 0 auto;
     }
     .editor-screen.active { display: flex; }
@@ -213,9 +213,9 @@
       gap: 12px;
       flex: 1;
     }
-    @media (min-width: 920px) {
+    @media (min-width: 960px) {
       .split-grid {
-        grid-template-columns: 1.05fr 0.95fr;
+        grid-template-columns: 1fr 1.1fr;
         align-items: start;
       }
     }
@@ -322,14 +322,57 @@
       background: var(--card);
     }
 
+    /* RIGHT SIDE: SEPARATE LEFT-COLUMN vs RIGHT-COLUMN SECTIONS + GENERAL */
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
     .lines-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      max-height: 68vh;
+      gap: 12px;
+      max-height: 74vh;
       overflow-y: auto;
-      padding-right: 2px;
+      padding-right: 3px;
     }
+    .group-section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px;
+      background: rgba(15, 23, 42, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    :root[data-theme="light"] .group-section {
+      background: #f8fafc;
+    }
+    .group-section.left-col-box {
+      border-color: rgba(239, 68, 68, 0.55);
+    }
+    .group-section.right-col-box {
+      border-color: rgba(56, 189, 248, 0.55);
+    }
+    .group-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 800;
+      padding-bottom: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    .tag-left {
+      color: #f87171;
+    }
+    .tag-right {
+      color: #38bdf8;
+    }
+    .tag-other {
+      color: #a78bfa;
+    }
+
     .line-card {
       background: var(--card-2);
       border: 1px solid var(--border);
@@ -337,10 +380,11 @@
       padding: 9px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 7px;
     }
     .line-card.focused {
-      border-color: #38bdf8;
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
     }
     .line-card-top {
       display: flex;
@@ -348,7 +392,34 @@
       align-items: center;
       font-size: 11px;
       color: var(--muted);
+      gap: 6px;
+      flex-wrap: wrap;
     }
+    .side-pill {
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .side-pill.left {
+      background: rgba(239, 68, 68, 0.18);
+      color: #fca5a5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    .side-pill.right {
+      background: rgba(56, 189, 248, 0.18);
+      color: #7dd3fc;
+      border: 1px solid rgba(56, 189, 248, 0.4);
+    }
+    .side-pill.other {
+      background: rgba(167, 139, 250, 0.18);
+      color: #c4b5fd;
+      border: 1px solid rgba(167, 139, 250, 0.4);
+    }
+    :root[data-theme="light"] .side-pill.left { color: #dc2626; }
+    :root[data-theme="light"] .side-pill.right { color: #0284c7; }
+    :root[data-theme="light"] .side-pill.other { color: #6d28d9; }
+
     .line-input {
       width: 100%;
       padding: 8px 10px;
@@ -359,19 +430,85 @@
       font-size: 14px;
       font-weight: 600;
     }
+
+    /* Font Size Adjuster Controls (- / Slider / +) */
+    .size-control-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 8px;
+    }
+    .size-lbl {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+    .size-step-btn {
+      width: 28px;
+      height: 26px;
+      border-radius: 6px;
+      border: 1px solid var(--input-border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 900;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .size-step-btn:active {
+      background: #2563eb;
+      color: #fff;
+    }
+    .size-slider {
+      flex: 1;
+      min-width: 60px;
+      accent-color: #38bdf8;
+    }
+    .size-val-badge {
+      font-size: 11px;
+      font-weight: 800;
+      color: #38bdf8;
+      min-width: 38px;
+      text-align: right;
+    }
+
     .line-actions {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .line-btn-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
     }
     .mini-reset-line {
-      padding: 5px 10px;
+      padding: 5px 9px;
       border-radius: 6px;
       border: none;
       background: #475569;
       color: #fff;
       font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .mini-move-btn {
+      padding: 5px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--input-border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 10px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -384,7 +521,7 @@
       border-radius: 10px;
     }
 
-    /* HISTORY MODAL / DRAWER */
+    /* HISTORY MODAL */
     .history-modal {
       display: none;
       position: fixed;
@@ -462,7 +599,7 @@
   <section class="welcome-screen" id="welcomeScreen">
     <span class="welcome-badge">LIVE LINE SYNC & STATUS BAR STUDIO</span>
     <h1 class="welcome-title">Welcome to Photo edit</h1>
-    <p class="welcome-sub">ပုံထဲက စာကြောင်းတွေကို မူရင်းနေရာ/ဆိုဒ်အတိုင်း တိုက်ရိုက်အစားထိုးပြင်ဆင်နိုင်ပြီး ဖုန်း Status Bar နှင့် မှတ်တမ်းများကို သိမ်းဆည်းနိုင်ပါသည်။</p>
+    <p class="welcome-sub">ပုံထဲက ဘယ်ဘက်/ညာဘက် စာကြောင်းတွေကို သီးသန့်ခွဲထုတ်ပြီး မူရင်းနေရာ၊ စာလုံးအကြီးအသေး အလျှော့အတင်းနှင့်အတူ တိုက်ရိုက်အစားထိုးပြင်ဆင်နိုင်ပါသည်။</p>
     <button class="go-edit-btn" id="goEditBtn">Go to edit</button>
   </section>
 
@@ -545,7 +682,6 @@
             </div>
           </div>
 
-          <!-- ON / OFF Buttons for Charging, Signal, Battery, Wi-Fi, Brightness -->
           <div class="ctrl-row-3">
             <div>
               <span class="mini-lbl">အားသွင်း (Charging)</span>
@@ -592,15 +728,22 @@
         </div>
       </div>
 
-      <!-- RIGHT: EXACT LINE-BY-LINE TEXT LIST -->
+      <!-- RIGHT: SEPARATE LEFT & RIGHT COLUMN TEXT LINES + FONT SIZE SLIDER -->
       <div class="panel">
         <div class="panel-title">
-          <span id="rightPanelTitle">ညာဘက် — ပုံထဲမှ စာကြောင်းများ (မူရင်းနေရာ/ဆိုဒ်အတိုင်း တိုက်ရိုက်အစားထိုးမည်)</span>
+          <span id="rightPanelTitle">ညာဘက် — ဘယ်/ညာ သီးသန့်ခွဲထားသော စာကြောင်းများနှင့် စာလုံးဆိုဒ် ချိန်ညှိရန်</span>
+        </div>
+
+        <div class="filter-tabs" id="columnFilterTabs">
+          <button class="pill-btn active-tab" data-colfilter="all" id="colFilterAll">အားလုံး (All)</button>
+          <button class="pill-btn" data-colfilter="left" id="colFilterLeft">🔴 ဘယ်ဘက်စာ (Labels)</button>
+          <button class="pill-btn" data-colfilter="right" id="colFilterRight">🔵 ညာဘက်စာ (Values)</button>
+          <button class="pill-btn" data-colfilter="other" id="colFilterOther">🟣 အပေါ်/အောက် စာများ</button>
         </div>
 
         <div class="lines-list" id="linesList">
           <div class="empty-state" id="emptyStateText">
-            ပုံထည့်လိုက်တာနဲ့ ပုံထဲက စာကြောင်းတွေကို လိုင်းကြောင်းအတိုင်း ဖတ်ပြီး ပြပေးပါမယ်။
+            ပုံထည့်လိုက်တာနဲ့ ဘယ်ဘက်စာကြောင်း (Labels) နဲ့ ညာဘက်စာကြောင်း (Values) တွေကို သီးသန့်စီ ခွဲထုတ်ပြီး ပြပေးပါမယ်။
           </div>
         </div>
       </div>
@@ -636,21 +779,26 @@
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
         leftTitle: "ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်နှင့် Status Bar ချိန်ညှိရန်",
-        rightTitle: "ညာဘက် — ပုံထဲမှ စာကြောင်းများ (မူရင်းနေရာ/ဆိုဒ်အတိုင်း တိုက်ရိုက်အစားထိုးမည်)",
+        rightTitle: "ညာဘက် — ဘယ်/ညာ သီးသန့်ခွဲထားသော စာကြောင်းများနှင့် စာလုံးဆိုဒ် ချိန်ညှိရန်",
         lblPhone: "ဖုန်းအမျိုးအစား",
         lblCutout: "Cutout ပုံစံ",
         lblClock: "နာရီ (Time)",
         lblBattery: "ဘက်ထရီ (%)",
         lblSignal: "Signal တိုင် (0-4)",
         lblBrightness: "အလင်းအမှောင် အလျှော့အတင်း",
-        emptyMsg: "ပုံထည့်လိုက်တာနဲ့ ပုံထဲက စာကြောင်းတွေကို လိုင်းကြောင်းအတိုင်း ဖတ်ပြီး ပြပေးပါမယ်။",
-        scanning: "ပုံထဲက စာကြောင်းများကို လိုင်းကြောင်းအတိုင်း ဖတ်နေပါသည်...",
-        scanDone: (n) => `စာကြောင်း (${n}) ကြောင်း ဖတ်ပြီးပါပြီ — ညာဘက်မှာ ပြင်/ဖျက်ပြီး တိုက်ရိုက်အစားထိုးနိုင်ပါပြီ`,
+        emptyMsg: "ပုံထည့်လိုက်တာနဲ့ ဘယ်ဘက်စာကြောင်း (Labels) နဲ့ ညာဘက်စာကြောင်း (Values) တွေကို သီးသန့်စီ ခွဲထုတ်ပြီး ပြပေးပါမယ်။",
+        scanning: "ပုံထဲက ဘယ်/ညာ စာကြောင်းများကို သီးသန့်စီ ခွဲထုတ်ဖတ်နေပါသည်...",
+        scanDone: (l, r, o) => `ဘယ်ဘက် (${l}) ကြောင်း၊ ညာဘက် (${r}) ကြောင်း၊ အခြား (${o}) ကြောင်း သီးသန့်ခွဲပြီးပါပြီ`,
         scanEmpty: "စာကြောင်း အလိုအလျောက် မတွေ့ပါ",
         copied: "ပုံကို Copy ကူးပြီး မှတ်တမ်းထဲ သိမ်းပြီးပါပြီ",
         copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်ပါ",
         savedFile: (f) => `ပုံအသစ် (${f}) သိမ်းဆည်းပြီး မှတ်တမ်းထဲ ထည့်ပြီးပါပြီ`,
-        noHistory: "မှတ်တမ်း မရှိသေးပါ"
+        noHistory: "မှတ်တမ်း မရှိသေးပါ",
+        secLeft: "🔴 ဘယ်ဘက် စာကြောင်းများ (Left Column)",
+        secRight: "🔵 ညာဘက် စာကြောင်းများ (Right Column)",
+        secOther: "🟣 အပေါ် / အောက် စာကြောင်းများ (Header / Footer)",
+        fontSizeLbl: "စာလုံးဆိုဒ်",
+        resetBtn: "မူရင်းပြန်ထား"
       },
       en: {
         uploadBtn: "+ Upload Image",
@@ -659,28 +807,34 @@
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
         leftTitle: "Left — Live Image Preview & Status Bar",
-        rightTitle: "Right — Image Text Lines (Direct Replace at Original Size & Spot)",
+        rightTitle: "Right — Separate Left/Right Columns & Font Size Controls",
         lblPhone: "Phone Model",
         lblCutout: "Cutout Style",
         lblClock: "Clock Time",
         lblBattery: "Battery (%)",
         lblSignal: "Signal Bars (0-4)",
         lblBrightness: "Screen Brightness",
-        emptyMsg: "Upload an image to scan its text lines here.",
-        scanning: "Scanning text lines from image...",
-        scanDone: (n) => `Detected ${n} lines — edit or delete on the right to replace live`,
+        emptyMsg: "Upload an image to separate Left labels and Right values automatically.",
+        scanning: "Scanning & separating Left vs Right text columns...",
+        scanDone: (l, r, o) => `Separated Left (${l}), Right (${r}), and Other (${o}) text lines`,
         scanEmpty: "No lines auto-detected",
         copied: "Image copied & recorded in history",
         copyUnsupported: "Copy not supported here; use Save",
         savedFile: (f) => `Saved ${f} & recorded in history`,
-        noHistory: "No history records yet"
+        noHistory: "No history records yet",
+        secLeft: "🔴 Left Side Text Lines (Labels)",
+        secRight: "🔵 Right Side Text Lines (Values)",
+        secOther: "🟣 Top / Bottom Text Lines (Header / Footer)",
+        fontSizeLbl: "Font Size",
+        resetBtn: "Reset"
       }
     };
 
     let lang = "my";
     let theme = "dark";
-    let selectedRating = "star"; // default auto-star unless user clicks heart
+    let selectedRating = "star";
     let activeHistoryTab = "all";
+    let activeColFilter = "all";
 
     const welcomeScreen = document.getElementById("welcomeScreen");
     const editorScreen = document.getElementById("editorScreen");
@@ -740,7 +894,8 @@
       brightness: 100
     };
 
-    // Each line: { id, origText, text, x, y, w, h, fontSize, textColor, bgColor, modified }
+    // Each line item:
+    // { id, side: 'left'|'right'|'other', align: 'left'|'right'|'center', origText, text, x, y, w, h, origFontSize, fontSize, textColor, bgColor, modified }
     let textLines = [];
     let focusedLineId = null;
 
@@ -753,7 +908,7 @@
       toastMsg.textContent = msg;
       setTimeout(() => {
         if (toastMsg.textContent === msg) toastMsg.textContent = "";
-      }, 3200);
+      }, 3400);
     }
 
     goEditBtn.addEventListener("click", () => {
@@ -776,6 +931,7 @@
       document.getElementById("lblBrightness").textContent = t("lblBrightness");
       const emptyEl = document.getElementById("emptyStateText");
       if (emptyEl) emptyEl.textContent = t("emptyMsg");
+      if (textLines.length > 0) renderLinesUI();
     }
 
     themeBtn.addEventListener("click", () => {
@@ -790,7 +946,16 @@
       applyLang();
     });
 
-    // Heart & Star Rating buttons
+    // Column filter tabs
+    document.querySelectorAll("#columnFilterTabs .pill-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#columnFilterTabs .pill-btn").forEach(b => b.classList.remove("active-tab"));
+        btn.classList.add("active-tab");
+        activeColFilter = btn.dataset.colfilter;
+        renderLinesUI();
+      });
+    });
+
     function setRating(rating) {
       selectedRating = rating;
       heartBtn.classList.toggle("picked-heart", rating === "heart");
@@ -977,297 +1142,564 @@
         ctx.fill();
       }
 
-      const clockX = statusState.cutout === "punch-left" ? padX + Math.round(barH * 0.65) : padX;
+      // Left Clock
+      const timeX = statusState.cutout === "punch-left" ? padX + Math.round(barH * 0.6) : padX;
       ctx.fillStyle = fg;
-      ctx.font = `700 ${fontSize}px system-ui, sans-serif`;
+      ctx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`;
       ctx.textBaseline = "middle";
-      ctx.fillText(statusState.time, clockX, midY);
+      ctx.textAlign = "left";
+      ctx.fillText(statusState.time, timeX, midY);
 
-      let curX = W - padX;
+      // Right Icons
+      let cursorX = W - padX;
 
       if (statusState.showBattery) {
-        const batW = Math.round(fontSize * 1.7);
+        const batW = Math.round(fontSize * 1.65);
         const batH = Math.round(fontSize * 0.85);
-        curX -= batW;
+        const batX = cursorX - batW;
+        const batY = Math.round(midY - batH / 2);
+
         ctx.strokeStyle = fg;
-        ctx.lineWidth = Math.max(1.2, W / 320);
-        ctx.strokeRect(curX, midY - batH / 2, batW - 2, batH);
+        ctx.lineWidth = Math.max(1.2, barH * 0.035);
+        ctx.beginPath();
+        ctx.roundRect(batX, batY, batW, batH, 3);
+        ctx.stroke();
+
         ctx.fillStyle = fg;
-        ctx.fillRect(curX + batW - 2, midY - batH * 0.22, 2, batH * 0.44);
+        ctx.fillRect(batX + batW + 1, Math.round(midY - batH * 0.22), 2, Math.round(batH * 0.44));
 
-        const fillRatio = statusState.battery / 100;
-        ctx.fillStyle = statusState.charging ? "#10b981" : (statusState.battery <= 20 ? "#ef4444" : fg);
-        ctx.fillRect(curX + 2, midY - batH / 2 + 2, Math.max(2, (batW - 6) * fillRatio), batH - 4);
+        const fillW = Math.max(2, Math.round((batW - 4) * (statusState.battery / 100)));
+        ctx.fillStyle = statusState.charging ? "#22c55e" : (statusState.battery <= 20 ? "#ef4444" : fg);
+        ctx.fillRect(batX + 2, batY + 2, fillW, batH - 4);
 
-        const batLabel = `${statusState.battery}%${statusState.charging ? "⚡" : ""}`;
-        curX -= 4;
-        ctx.font = `700 ${Math.round(fontSize * 0.8)}px system-ui, sans-serif`;
+        cursorX = batX - Math.round(fontSize * 0.4);
+        ctx.fillStyle = fg;
+        ctx.font = `700 ${Math.round(fontSize * 0.82)}px sans-serif`;
         ctx.textAlign = "right";
-        ctx.fillStyle = fg;
-        ctx.fillText(batLabel, curX, midY);
-        curX -= ctx.measureText(batLabel).width + 6;
+        ctx.fillText(`${statusState.battery}%${statusState.charging ? "⚡" : ""}`, cursorX, midY);
+        cursorX -= ctx.measureText(`${statusState.battery}%${statusState.charging ? "⚡" : ""}`).width + Math.round(fontSize * 0.5);
       }
 
       if (statusState.wifi) {
-        const wifiR = Math.round(fontSize * 0.62);
-        curX -= wifiR;
+        const wr = Math.round(fontSize * 0.58);
         ctx.strokeStyle = fg;
-        ctx.lineWidth = Math.max(1.3, W / 300);
+        ctx.lineWidth = Math.max(1.3, barH * 0.04);
         for (let a = 1; a <= 3; a++) {
           ctx.beginPath();
-          ctx.arc(curX, midY + wifiR * 0.45, (wifiR * a) / 3, Math.PI * 1.22, Math.PI * 1.78);
+          ctx.arc(cursorX - wr, midY + wr * 0.42, (wr / 3) * a, -Math.PI * 0.78, -Math.PI * 0.22);
           ctx.stroke();
         }
-        curX -= wifiR + 6;
+        cursorX -= wr * 2 + Math.round(fontSize * 0.4);
       }
 
       if (statusState.network) {
-        ctx.font = `700 ${Math.round(fontSize * 0.78)}px system-ui, sans-serif`;
-        ctx.textAlign = "right";
         ctx.fillStyle = fg;
-        ctx.fillText(statusState.network, curX, midY);
-        curX -= ctx.measureText(statusState.network).width + 6;
+        ctx.font = `700 ${Math.round(fontSize * 0.8)}px sans-serif`;
+        ctx.textAlign = "right";
+        ctx.fillText(statusState.network, cursorX, midY);
+        cursorX -= ctx.measureText(statusState.network).width + Math.round(fontSize * 0.45);
       }
 
       if (statusState.showSignal) {
-        const barGap = 2;
-        const singleW = Math.max(2, Math.round(fontSize * 0.2));
-        const totalSigW = 4 * singleW + 3 * barGap;
-        const batH = Math.round(fontSize * 0.85);
-        curX -= totalSigW;
+        const barW = Math.max(2, Math.round(fontSize * 0.19));
+        const barGap = Math.max(1.5, Math.round(fontSize * 0.13));
+        const maxH = Math.round(fontSize * 0.78);
+        const totalW = 4 * barW + 3 * barGap;
+        const startX = cursorX - totalW;
         for (let b = 0; b < 4; b++) {
-          const bh = Math.round(batH * (0.35 + b * 0.21));
-          ctx.fillStyle = b < statusState.signal ? fg : "rgba(148,163,184,0.35)";
-          ctx.fillRect(curX + b * (singleW + barGap), midY + batH / 2 - bh, singleW, bh);
+          const bh = Math.round(maxH * ((b + 1) / 4));
+          const bx = startX + b * (barW + barGap);
+          const by = Math.round(midY + maxH / 2 - bh);
+          ctx.fillStyle = b < statusState.signal ? fg : (isDarkTop ? "rgba(255,255,255,0.28)" : "rgba(15,23,42,0.25)");
+          ctx.fillRect(bx, by, barW, bh);
         }
       }
 
       ctx.restore();
     }
 
-    function renderCanvas(showFocusOutline = false) {
-      ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+    function renderCanvas(isExport = false) {
+      const W = mainCanvas.width;
+      const H = mainCanvas.height;
+      ctx.clearRect(0, 0, W, H);
+
       if (!baseImg) {
-        ctx.fillStyle = "#94a3b8";
-        ctx.font = "15px sans-serif";
+        ctx.fillStyle = theme === "dark" ? "#0f172a" : "#e2e8f0";
+        ctx.fillRect(0, 0, W, H);
+        ctx.fillStyle = theme === "dark" ? "#94a3b8" : "#475569";
+        ctx.font = "600 14px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText("ပုံထည့်ရန် အပေါ်က '+ ပုံထည့်ရန်' ကိုနှိပ်ပါ", mainCanvas.width / 2, mainCanvas.height / 2);
-        ctx.textAlign = "start";
+        ctx.fillText("+ ပုံထည့်ရန် ကိုနှိပ်ပါ", W / 2, H / 2);
         return;
       }
 
       ctx.save();
-      const brightVal = statusState.brightnessEnabled ? statusState.brightness : 100;
-      ctx.filter = `brightness(${brightVal}%)`;
-      ctx.drawImage(baseImg, 0, 0, mainCanvas.width, mainCanvas.height);
+      if (statusState.brightnessEnabled) {
+        ctx.filter = `brightness(${statusState.brightness}%)`;
+      }
+      ctx.drawImage(baseImg, 0, 0, W, H);
+      ctx.restore();
 
-      // Direct line-by-line replacement at original position & original fontSize
-      for (const line of textLines) {
-        if (line.modified) {
-          ctx.fillStyle = line.bgColor;
-          ctx.fillRect(line.x, line.y, line.w, line.h);
+      // Replace modified or resized lines directly on their original spot & alignment
+      textLines.forEach(line => {
+        const sizeChanged = Math.abs(line.fontSize - line.origFontSize) > 0.4;
+        if (!line.modified && !sizeChanged) return;
 
-          if (line.text.length > 0) {
-            ctx.fillStyle = line.textColor;
-            ctx.font = `${line.fontSize}px system-ui, sans-serif`;
-            ctx.textBaseline = "middle";
-            ctx.fillText(line.text, line.x + 1, line.y + line.h / 2);
-            ctx.textBaseline = "alphabetic";
+        const padX = Math.max(4, line.origFontSize * 0.25);
+        const maxH = Math.max(line.h, line.fontSize * 1.35);
+        const padY = Math.max(3, (maxH - line.h) / 2 + 3);
+
+        const rx = Math.max(0, line.x - padX);
+        const ry = Math.max(0, line.y - padY);
+        const rw = Math.min(W - rx, line.w + padX * 2);
+        const rh = Math.min(H - ry, line.h + padY * 2);
+
+        ctx.save();
+        ctx.fillStyle = line.bgColor;
+        ctx.fillRect(rx, ry, rw, rh);
+
+        const val = line.text;
+        if (val.trim() !== "") {
+          ctx.fillStyle = line.textColor;
+          ctx.font = `600 ${line.fontSize}px "Pyidaungsu", "Noto Sans Myanmar", system-ui, -apple-system, sans-serif`;
+          ctx.textBaseline = "middle";
+
+          if (line.align === "right") {
+            ctx.textAlign = "right";
+            ctx.fillText(val, line.x + line.w, line.y + line.h / 2);
+          } else if (line.align === "center") {
+            ctx.textAlign = "center";
+            ctx.fillText(val, line.x + line.w / 2, line.y + line.h / 2);
+          } else {
+            ctx.textAlign = "left";
+            ctx.fillText(val, line.x, line.y + line.h / 2);
           }
         }
+        ctx.restore();
+      });
 
-        if (showFocusOutline && line.id === focusedLineId) {
+      // Highlight focused line during preview
+      if (!isExport && focusedLineId !== null) {
+        const f = textLines.find(l => l.id === focusedLineId);
+        if (f) {
           ctx.save();
-          ctx.strokeStyle = "#38bdf8";
-          ctx.lineWidth = Math.max(1.5, mainCanvas.width / 260);
-          ctx.strokeRect(line.x, line.y, line.w, line.h);
+          ctx.strokeStyle = f.side === "left" ? "#ef4444" : (f.side === "right" ? "#38bdf8" : "#a855f7");
+          ctx.lineWidth = 2;
+          ctx.setLineDash([4, 3]);
+          ctx.strokeRect(
+            Math.max(1, f.x - 4),
+            Math.max(1, f.y - 3),
+            Math.min(W - 2, f.w + 8),
+            Math.min(H - 2, f.h + 6)
+          );
           ctx.restore();
         }
       }
 
       drawStatusBarOverlay();
-      ctx.restore();
     }
 
-    function renderLinesList() {
-      if (!textLines.length) {
-        linesList.innerHTML = `<div class="empty-state" id="emptyStateText">${t("emptyMsg")}</div>`;
+    // Split a single horizontal OCR line into separate LEFT-column segment and RIGHT-column segment
+    // whenever there is a wide horizontal gap between words (like KBZ Receipt label vs value)
+    function splitRowIntoLeftRightSegments(words, imgW, imgH) {
+      if (!words || words.length === 0) return [];
+
+      // Filter valid words with bounding boxes
+      const valid = words
+        .filter(w => w && w.text && w.text.trim() && w.bbox)
+        .sort((a, b) => a.bbox.x0 - b.bbox.x0);
+
+      if (valid.length === 0) return [];
+
+      const segments = [];
+      let currentGroup = [valid[0]];
+
+      for (let i = 1; i < valid.length; i++) {
+        const prev = valid[i - 1];
+        const curr = valid[i];
+        const gap = curr.bbox.x0 - prev.bbox.x1;
+        const avgH = Math.max(12, ((prev.bbox.y1 - prev.bbox.y0) + (curr.bbox.y1 - curr.bbox.y0)) / 2);
+
+        // If horizontal gap is wide (> 2.2x character height OR crosses center from left half to right half),
+        // split into two separate editable items!
+        const crossesCenter = (prev.bbox.x1 < imgW * 0.56) && (curr.bbox.x0 > imgW * 0.44) && (gap > avgH * 1.15);
+        if (gap > avgH * 2.2 || crossesCenter) {
+          segments.push(currentGroup);
+          currentGroup = [curr];
+        } else {
+          currentGroup.push(curr);
+        }
+      }
+      segments.push(currentGroup);
+
+      return segments.map(grp => {
+        const x0 = Math.min(...grp.map(w => w.bbox.x0));
+        const y0 = Math.min(...grp.map(w => w.bbox.y0));
+        const x1 = Math.max(...grp.map(w => w.bbox.x1));
+        const y1 = Math.max(...grp.map(w => w.bbox.y1));
+        const text = grp.map(w => w.text.trim()).join(" ").trim();
+        return { text, x0, y0, x1, y1 };
+      }).filter(seg => seg.text.length > 0);
+    }
+
+    function classifySegmentSide(seg, imgW, imgH) {
+      const centerX = (seg.x0 + seg.x1) / 2;
+      const centerY = (seg.y0 + seg.y1) / 2;
+      const widthRatio = (seg.x1 - seg.x0) / imgW;
+
+      // Top header area (top 28%) or bottom footer area (bottom 20%) or full-width banner text
+      if (centerY < imgH * 0.27 || centerY > imgH * 0.80 || widthRatio > 0.62) {
+        return {
+          side: "other",
+          align: centerX > imgW * 0.6 ? "right" : (seg.x0 > imgW * 0.28 && seg.x1 < imgW * 0.72 ? "center" : "left")
+        };
+      }
+
+      // Middle receipt details area: split cleanly into LEFT column vs RIGHT column
+      if (centerX < imgW * 0.50 && seg.x0 < imgW * 0.42) {
+        return { side: "left", align: "left" };
+      } else {
+        return { side: "right", align: "right" };
+      }
+    }
+
+    function buildSingleLineCard(line) {
+      const card = document.createElement("div");
+      card.className = "line-card" + (line.id === focusedLineId ? " focused" : "");
+
+      const top = document.createElement("div");
+      top.className = "line-card-top";
+
+      const sideBadge = document.createElement("span");
+      sideBadge.className = `side-pill ${line.side}`;
+      if (line.side === "left") {
+        sideBadge.textContent = lang === "my" ? "🔴 ဘယ်ဘက်စာ (Left)" : "🔴 Left Side";
+      } else if (line.side === "right") {
+        sideBadge.textContent = lang === "my" ? "🔵 ညာဘက်စာ (Right)" : "🔵 Right Side";
+      } else {
+        sideBadge.textContent = lang === "my" ? "🟣 အပေါ်/အောက် (Other)" : "🟣 Header/Footer";
+      }
+
+      const origInfo = document.createElement("span");
+      origInfo.textContent = line.origText.length > 26 ? line.origText.slice(0, 26) + "…" : line.origText;
+
+      top.appendChild(sideBadge);
+      top.appendChild(origInfo);
+
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "line-input";
+      input.value = line.text;
+      input.placeholder = lang === "my" ? "စာသားပြင်ရန် (အလွတ်ထားရင် ဖျက်ပေးမည်)" : "Edit text (empty = erase)";
+
+      input.addEventListener("focus", () => {
+        focusedLineId = line.id;
+        renderCanvas(false);
+        document.querySelectorAll(".line-card").forEach(c => c.classList.remove("focused"));
+        card.classList.add("focused");
+      });
+
+      input.addEventListener("input", () => {
+        line.text = input.value;
+        line.modified = (line.text !== line.origText);
+        renderCanvas(false);
+      });
+
+      // Font Size Adjuster Row: [ - ] [ Slider ] [ + ] [ 18px ]
+      const sizeBar = document.createElement("div");
+      sizeBar.className = "size-control-bar";
+
+      const sizeLbl = document.createElement("span");
+      sizeLbl.className = "size-lbl";
+      sizeLbl.textContent = t("fontSizeLbl") + ":";
+
+      const minusBtn = document.createElement("button");
+      minusBtn.type = "button";
+      minusBtn.className = "size-step-btn";
+      minusBtn.textContent = "−";
+      minusBtn.title = "စာလုံးသေးရန် (-1px)";
+
+      const slider = document.createElement("input");
+      slider.type = "range";
+      slider.className = "size-slider";
+      slider.min = "8";
+      slider.max = "96";
+      slider.step = "1";
+      slider.value = String(Math.round(line.fontSize));
+
+      const plusBtn = document.createElement("button");
+      plusBtn.type = "button";
+      plusBtn.className = "size-step-btn";
+      plusBtn.textContent = "+";
+      plusBtn.title = "စာလုံးကြီးရန် (+1px)";
+
+      const valBadge = document.createElement("span");
+      valBadge.className = "size-val-badge";
+      valBadge.textContent = `${Math.round(line.fontSize)}px`;
+
+      function updateFontSize(newSize) {
+        const clamped = Math.max(8, Math.min(96, Math.round(newSize)));
+        line.fontSize = clamped;
+        slider.value = String(clamped);
+        valBadge.textContent = `${clamped}px`;
+        focusedLineId = line.id;
+        renderCanvas(false);
+      }
+
+      minusBtn.addEventListener("click", () => updateFontSize(line.fontSize - 1));
+      plusBtn.addEventListener("click", () => updateFontSize(line.fontSize + 1));
+      slider.addEventListener("input", () => updateFontSize(Number(slider.value)));
+
+      sizeBar.appendChild(sizeLbl);
+      sizeBar.appendChild(minusBtn);
+      sizeBar.appendChild(slider);
+      sizeBar.appendChild(plusBtn);
+      sizeBar.appendChild(valBadge);
+
+      // Action buttons row (Switch Left/Right column if needed + Reset)
+      const actions = document.createElement("div");
+      actions.className = "line-actions";
+
+      const switchGroup = document.createElement("div");
+      switchGroup.className = "line-btn-group";
+
+      const toLeftBtn = document.createElement("button");
+      toLeftBtn.type = "button";
+      toLeftBtn.className = "mini-move-btn";
+      toLeftBtn.textContent = "◀ ဘယ်";
+      toLeftBtn.title = "ဘယ်ဘက်အုပ်စုသို့ ရွှေ့ရန်";
+      toLeftBtn.addEventListener("click", () => {
+        line.side = "left";
+        line.align = "left";
+        renderLinesUI();
+        renderCanvas(false);
+      });
+
+      const toRightBtn = document.createElement("button");
+      toRightBtn.type = "button";
+      toRightBtn.className = "mini-move-btn";
+      toRightBtn.textContent = "ညာ ▶";
+      toRightBtn.title = "ညာဘက်အုပ်စုသို့ ရွှေ့ရန်";
+      toRightBtn.addEventListener("click", () => {
+        line.side = "right";
+        line.align = "right";
+        renderLinesUI();
+        renderCanvas(false);
+      });
+
+      switchGroup.appendChild(toLeftBtn);
+      switchGroup.appendChild(toRightBtn);
+
+      const resetBtn = document.createElement("button");
+      resetBtn.type = "button";
+      resetBtn.className = "mini-reset-line";
+      resetBtn.textContent = t("resetBtn");
+      resetBtn.addEventListener("click", () => {
+        line.text = line.origText;
+        line.fontSize = line.origFontSize;
+        line.modified = false;
+        input.value = line.origText;
+        slider.value = String(Math.round(line.origFontSize));
+        valBadge.textContent = `${Math.round(line.origFontSize)}px`;
+        renderCanvas(false);
+      });
+
+      actions.appendChild(switchGroup);
+      actions.appendChild(resetBtn);
+
+      card.appendChild(top);
+      card.appendChild(input);
+      card.appendChild(sizeBar);
+      card.appendChild(actions);
+      return card;
+    }
+
+    function renderLinesUI() {
+      linesList.innerHTML = "";
+      if (textLines.length === 0) {
+        const div = document.createElement("div");
+        div.className = "empty-state";
+        div.textContent = t("scanEmpty");
+        linesList.appendChild(div);
         return;
       }
 
-      linesList.innerHTML = "";
-      textLines.forEach((line, idx) => {
-        const card = document.createElement("div");
-        card.className = "line-card" + (line.id === focusedLineId ? " focused" : "");
+      const leftItems = textLines.filter(l => l.side === "left");
+      const rightItems = textLines.filter(l => l.side === "right");
+      const otherItems = textLines.filter(l => l.side === "other");
 
-        const top = document.createElement("div");
-        top.className = "line-card-top";
-        top.innerHTML = `<span>Line ${idx + 1}</span><span>Orig Size: ${line.fontSize}px</span>`;
+      const sections = [
+        { key: "left", title: t("secLeft"), items: leftItems, boxClass: "left-col-box", tagClass: "tag-left" },
+        { key: "right", title: t("secRight"), items: rightItems, boxClass: "right-col-box", tagClass: "tag-right" },
+        { key: "other", title: t("secOther"), items: otherItems, boxClass: "", tagClass: "tag-other" }
+      ];
 
-        const input = document.createElement("input");
-        input.type = "text";
-        input.className = "line-input";
-        input.value = line.text;
-        input.placeholder = "စာဖျက်ရင် ပုံမှာလိုက်ပျက်မည်၊ ရိုက်ရင် အစားထိုးမည်...";
+      sections.forEach(sec => {
+        if (activeColFilter !== "all" && activeColFilter !== sec.key) return;
+        if (sec.items.length === 0) return;
 
-        input.addEventListener("focus", () => {
-          focusedLineId = line.id;
-          document.querySelectorAll(".line-card").forEach(c => c.classList.remove("focused"));
-          card.classList.add("focused");
-          renderCanvas(true);
+        const secEl = document.createElement("div");
+        secEl.className = `group-section ${sec.boxClass}`.trim();
+
+        const head = document.createElement("div");
+        head.className = "group-header";
+        head.innerHTML = `<span class="${sec.tagClass}">${sec.title}</span><span>(${sec.items.length})</span>`;
+        secEl.appendChild(head);
+
+        sec.items.forEach(line => {
+          secEl.appendChild(buildSingleLineCard(line));
         });
 
-        input.addEventListener("input", () => {
-          line.text = input.value;
-          line.modified = true;
-          renderCanvas(false);
-        });
-
-        const actions = document.createElement("div");
-        actions.className = "line-actions";
-
-        const origLabel = document.createElement("span");
-        origLabel.style.fontSize = "11px";
-        origLabel.style.color = "var(--muted)";
-        origLabel.textContent = line.origText;
-
-        const resetBtn = document.createElement("button");
-        resetBtn.className = "mini-reset-line";
-        resetBtn.textContent = "Reset";
-        resetBtn.addEventListener("click", () => {
-          line.text = line.origText;
-          line.modified = false;
-          input.value = line.origText;
-          renderCanvas(false);
-        });
-
-        actions.append(origLabel, resetBtn);
-        card.append(top, input, actions);
-        linesList.appendChild(card);
+        linesList.appendChild(secEl);
       });
     }
 
-    async function scanImageLines() {
-      if (!baseImg || !window.Tesseract) return;
-      showToast(t("scanning"));
+    async function autoDetectTextLines(imgDataUrl) {
+      linesList.innerHTML = `<div class="empty-state">${t("scanning")}</div>`;
       try {
-        const res = await Tesseract.recognize(sampleCanvas.toDataURL("image/png"), "eng+mya");
-        const ocrLines = res?.data?.lines || [];
+        const res = await Tesseract.recognize(imgDataUrl, "mya+eng");
+        const rawLines = res?.data?.lines || [];
+        const statusBarCutoff = statusState.enabled ? mainCanvas.height * 0.068 : 0;
+
         const extracted = [];
+        let idxCounter = 0;
 
-        ocrLines.forEach((ln, idx) => {
-          const clean = (ln.text || "").replace(/\s+/g, " ").trim();
-          if (!clean) return;
-          const b = ln.bbox;
-          const w = Math.max(16, b.x1 - b.x0);
-          const h = Math.max(12, b.y1 - b.y0);
-          const colors = sampleRegionColors(b.x0, b.y0, w, h);
-          const origFontSize = Math.max(10, Math.min(48, Math.round(h * 0.78)));
+        rawLines.forEach(ln => {
+          if (!ln.bbox) return;
+          if (ln.bbox.y1 < statusBarCutoff) return;
 
-          extracted.push({
-            id: "ln_" + Date.now() + "_" + idx,
-            origText: clean,
-            text: clean,
-            x: b.x0,
-            y: b.y0,
-            w,
-            h,
-            fontSize: origFontSize,
-            textColor: colors.textColor,
-            bgColor: colors.bgColor,
-            modified: false
+          // Split row into separate Left-side and Right-side segments if words have a wide column gap
+          const segments = (ln.words && ln.words.length > 0)
+            ? splitRowIntoLeftRightSegments(ln.words, mainCanvas.width, mainCanvas.height)
+            : [{ text: (ln.text || "").trim(), x0: ln.bbox.x0, y0: ln.bbox.y0, x1: ln.bbox.x1, y1: ln.bbox.y1 }];
+
+          segments.forEach(seg => {
+            const clean = seg.text.replace(/\s+/g, " ").trim();
+            if (!clean) return;
+
+            const w = Math.max(10, seg.x1 - seg.x0);
+            const h = Math.max(10, seg.y1 - seg.y0);
+            const colors = sampleRegionColors(seg.x0, seg.y0, w, h);
+            const initialFontSize = Math.max(11, Math.min(72, Math.round(h * 0.80)));
+            const classification = classifySegmentSide(seg, mainCanvas.width, mainCanvas.height);
+
+            extracted.push({
+              id: idxCounter++,
+              side: classification.side,
+              align: classification.align,
+              origText: clean,
+              text: clean,
+              x: seg.x0,
+              y: seg.y0,
+              w,
+              h,
+              origFontSize: initialFontSize,
+              fontSize: initialFontSize,
+              textColor: colors.textColor,
+              bgColor: colors.bgColor,
+              modified: false
+            });
           });
         });
 
         textLines = extracted;
-        renderLinesList();
+        renderLinesUI();
         renderCanvas(false);
-        showToast(extracted.length ? t("scanDone", extracted.length) : t("scanEmpty"));
-      } catch (_) {
-        showToast(t("scanEmpty"));
+
+        const lCount = textLines.filter(l => l.side === "left").length;
+        const rCount = textLines.filter(l => l.side === "right").length;
+        const oCount = textLines.filter(l => l.side === "other").length;
+        showToast(textLines.length ? t("scanDone", lCount, rCount, oCount) : t("scanEmpty"));
+      } catch (err) {
+        console.error(err);
+        textLines = [];
+        renderLinesUI();
       }
     }
 
     fileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
+      const file = e.target.files?.[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
         const img = new Image();
         img.onload = () => {
           baseImg = img;
-          mainCanvas.width = img.width;
-          mainCanvas.height = img.height;
+          const maxW = 900;
+          const scale = img.width > maxW ? maxW / img.width : 1;
+          mainCanvas.width = Math.round(img.width * scale);
+          mainCanvas.height = Math.round(img.height * scale);
 
-          sampleCanvas.width = img.width;
-          sampleCanvas.height = img.height;
-          sampleCtx.clearRect(0, 0, sampleCanvas.width, sampleCanvas.height);
-          sampleCtx.drawImage(img, 0, 0);
+          sampleCanvas.width = mainCanvas.width;
+          sampleCanvas.height = mainCanvas.height;
+          sampleCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
 
           textLines = [];
           focusedLineId = null;
           mainSaveBtn.disabled = false;
           exportBar.classList.remove("show");
           setRating("star");
-          renderLinesList();
           renderCanvas(false);
-          scanImageLines();
+          autoDetectTextLines(mainCanvas.toDataURL("image/png"));
         };
-        img.src = ev.target.result;
+        img.src = dataUrl;
       };
       reader.readAsDataURL(file);
     });
 
-    // History recording (who/device, where/timezone/location info, date/time, rating heart or star)
-    function recordHistory(actionType, fileName) {
-      const now = new Date();
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
-      const platform = navigator.platform || "Device";
-      const changedCount = textLines.filter(l => l.modified).length;
+    mainSaveBtn.addEventListener("click", () => {
+      if (!baseImg) return;
+      focusedLineId = null;
+      renderCanvas(true);
+      exportBar.classList.add("show");
+    });
 
-      const entry = {
-        id: "hist_" + Date.now(),
-        rating: selectedRating || "star", // 'heart' or 'star'
-        action: actionType,
-        fileName: fileName || "canvas.png",
-        dateStr: now.toLocaleDateString("my-MM"),
-        timeStr: now.toLocaleTimeString("my-MM"),
-        placeInfo: `${tz} (${platform})`,
-        model: phoneModelSelect.options[phoneModelSelect.selectedIndex]?.text || statusState.model,
-        changedCount
-      };
-
-      const existing = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || "[]");
-      existing.unshift(entry);
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(existing.slice(0, 100)));
+    function getHistoryList() {
+      try {
+        return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || "[]");
+      } catch (_) {
+        return [];
+      }
     }
 
-    function renderHistoryList() {
-      const all = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || "[]");
-      const filtered = all.filter((item) => {
-        if (activeHistoryTab === "heart") return item.rating === "heart";
-        if (activeHistoryTab === "star") return item.rating === "star";
-        return true;
-      });
+    function addHistoryRecord(actionType) {
+      const list = getHistoryList();
+      const changedLines = textLines
+        .filter(l => l.modified || Math.abs(l.fontSize - l.origFontSize) > 0.4)
+        .map(l => `${l.origText} → ${l.text || "[ဖျက်]"} (${Math.round(l.fontSize)}px)`);
 
-      if (!filtered.length) {
+      list.unshift({
+        id: Date.now(),
+        timestamp: new Date().toLocaleString(),
+        action: actionType,
+        rating: selectedRating,
+        phoneModel: phoneModelSelect.options[phoneModelSelect.selectedIndex].text,
+        summary: changedLines.length ? changedLines.join(" | ") : "ပုံနှင့် Status Bar ချိန်ညှိမှု"
+      });
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 60)));
+    }
+
+    function renderHistoryModal() {
+      const list = getHistoryList().filter(item => {
+        if (activeHistoryTab === "all") return true;
+        return item.rating === activeHistoryTab;
+      });
+      historyItems.innerHTML = "";
+      if (list.length === 0) {
         historyItems.innerHTML = `<div class="empty-state">${t("noHistory")}</div>`;
         return;
       }
-
-      historyItems.innerHTML = "";
-      filtered.forEach((item) => {
+      list.forEach(item => {
         const div = document.createElement("div");
         div.className = "history-entry";
         const badge = item.rating === "heart"
           ? `<span class="history-badge-heart">❤️ အသည်း (Heart)</span>`
           : `<span class="history-badge-star">⭐ ကြယ် (Star)</span>`;
-
         div.innerHTML = `
           <div class="history-meta">
-            <div>${badge} — <b>${item.action}</b> (${item.fileName})</div>
-            <div>📅 ${item.dateStr} | 🕒 ${item.timeStr} | 📍 ${item.placeInfo}</div>
-            <div>📱 ${item.model} | ပြင်ပြီးစာကြောင်း: ${item.changedCount}</div>
+            <div>${badge} • <b>${item.action}</b> • <span style="color:var(--muted)">${item.timestamp}</span></div>
+            <div style="margin-top:4px;">${item.summary}</div>
           </div>
         `;
         historyItems.appendChild(div);
@@ -1275,62 +1707,51 @@
     }
 
     historyOpenBtn.addEventListener("click", () => {
-      renderHistoryList();
+      renderHistoryModal();
       historyModal.classList.add("open");
     });
-
-    closeHistoryBtn.addEventListener("click", () => {
-      historyModal.classList.remove("open");
+    closeHistoryBtn.addEventListener("click", () => historyModal.classList.remove("open"));
+    historyModal.addEventListener("click", (e) => {
+      if (e.target === historyModal) historyModal.classList.remove("open");
     });
 
-    document.querySelectorAll("[data-htab]").forEach((btn) => {
+    document.querySelectorAll("[data-htab]").forEach(btn => {
       btn.addEventListener("click", () => {
-        activeHistoryTab = btn.dataset.htab;
         document.querySelectorAll("[data-htab]").forEach(b => b.classList.remove("active-tab"));
         btn.classList.add("active-tab");
-        renderHistoryList();
+        activeHistoryTab = btn.dataset.htab;
+        renderHistoryModal();
       });
     });
 
-    mainSaveBtn.addEventListener("click", () => {
+    copyBtn.addEventListener("click", () => {
       if (!baseImg) return;
-      focusedLineId = null;
-      renderCanvas(false);
-      exportBar.classList.add("show");
-      showToast("❤️ အသည်း သို့မဟုတ် ⭐ ကြယ် ရွေးပြီး Copy / Save နှိပ်ပါ");
-    });
-
-    copyBtn.addEventListener("click", async () => {
-      if (!baseImg) return;
-      try {
-        renderCanvas(false);
-        const blob = await new Promise((r) => mainCanvas.toBlob(r, "image/png"));
-        if (navigator.clipboard && window.ClipboardItem) {
+      renderCanvas(true);
+      mainCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+        try {
           await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
-          recordHistory("Copy", "clipboard.png");
+          addHistoryRecord("Copy");
           showToast(t("copied"));
-        } else {
+        } catch (_) {
           showToast(t("copyUnsupported"));
         }
-      } catch (_) {
-        showToast(t("copyUnsupported"));
-      }
+      }, "image/png");
     });
 
     downloadBtn.addEventListener("click", () => {
       if (!baseImg) return;
-      renderCanvas(false);
-      const stamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
-      const fileName = `photo-edit-${stamp}.png`;
-      const a = document.createElement("a");
-      a.download = fileName;
-      a.href = mainCanvas.toDataURL("image/png");
-      a.click();
-      recordHistory("Save", fileName);
-      showToast(t("savedFile", fileName));
+      renderCanvas(true);
+      const filename = `edited-photo-${Date.now()}.png`;
+      const link = document.createElement("a");
+      link.download = filename;
+      link.href = mainCanvas.toDataURL("image/png");
+      link.click();
+      addHistoryRecord("Save");
+      showToast(t("savedFile", filename));
     });
 
-    applyLang();
+    renderCanvas(false);
   </script>
 </body>
 </html>
