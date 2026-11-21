@@ -215,7 +215,7 @@
     }
     @media (min-width: 960px) {
       .split-grid {
-        grid-template-columns: 1fr 1.1fr;
+        grid-template-columns: 1fr 1.12fr;
         align-items: start;
       }
     }
@@ -332,7 +332,7 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
-      max-height: 74vh;
+      max-height: 76vh;
       overflow-y: auto;
       padding-right: 3px;
     }
@@ -386,6 +386,9 @@
       border-color: #f59e0b;
       box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
     }
+    .line-card.edited-card {
+      border-left: 4px solid #10b981;
+    }
     .line-card-top {
       display: flex;
       justify-content: space-between;
@@ -431,15 +434,27 @@
       font-weight: 600;
     }
 
-    /* Font Size Adjuster Controls (- / Slider / +) */
+    /* Font Size & Text Color Controls */
+    .style-controls-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      align-items: center;
+    }
+    @media (max-width: 560px) {
+      .style-controls-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     .size-control-bar {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 5px 8px;
+      padding: 5px 7px;
     }
     .size-lbl {
       font-size: 11px;
@@ -448,13 +463,13 @@
       white-space: nowrap;
     }
     .size-step-btn {
-      width: 28px;
-      height: 26px;
+      width: 26px;
+      height: 24px;
       border-radius: 6px;
       border: 1px solid var(--input-border);
       background: var(--card-2);
       color: var(--text);
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 900;
       cursor: pointer;
       display: inline-flex;
@@ -468,15 +483,52 @@
     }
     .size-slider {
       flex: 1;
-      min-width: 60px;
+      min-width: 52px;
       accent-color: #38bdf8;
     }
     .size-val-badge {
       font-size: 11px;
       font-weight: 800;
       color: #38bdf8;
-      min-width: 38px;
+      min-width: 34px;
       text-align: right;
+    }
+
+    /* Color Adjuster Bar */
+    .color-control-bar {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 7px;
+      flex-wrap: wrap;
+    }
+    .color-picker-input {
+      width: 28px;
+      height: 24px;
+      padding: 0;
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      background: transparent;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .color-swatch-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(148, 163, 184, 0.7);
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+    }
+    .color-hex-tag {
+      font-size: 10px;
+      font-family: monospace;
+      font-weight: 700;
+      color: var(--muted);
     }
 
     .line-actions {
@@ -599,7 +651,7 @@
   <section class="welcome-screen" id="welcomeScreen">
     <span class="welcome-badge">LIVE LINE SYNC & STATUS BAR STUDIO</span>
     <h1 class="welcome-title">Welcome to Photo edit</h1>
-    <p class="welcome-sub">ပုံထဲက ဘယ်ဘက်/ညာဘက် စာကြောင်းတွေကို သီးသန့်ခွဲထုတ်ပြီး မူရင်းနေရာ၊ စာလုံးအကြီးအသေး အလျှော့အတင်းနှင့်အတူ တိုက်ရိုက်အစားထိုးပြင်ဆင်နိုင်ပါသည်။</p>
+    <p class="welcome-sub">ပုံထဲက ဘယ်ဘက်/ညာဘက် စာကြောင်းတွေကို သီးသန့်ခွဲထုတ်ပြီး မူရင်းနေရာ၊ စာလုံးဆိုဒ်နှင့် စာအရောင် အလျှော့အတင်းတို့ဖြင့် ထင်ရှားသိသာစွာ တိုက်ရိုက်အစားထိုးပြင်ဆင်နိုင်ပါသည်။</p>
     <button class="go-edit-btn" id="goEditBtn">Go to edit</button>
   </section>
 
@@ -728,10 +780,10 @@
         </div>
       </div>
 
-      <!-- RIGHT: SEPARATE LEFT & RIGHT COLUMN TEXT LINES + FONT SIZE SLIDER -->
+      <!-- RIGHT: SEPARATE LEFT & RIGHT COLUMN TEXT LINES + FONT SIZE & COLOR CONTROLS -->
       <div class="panel">
         <div class="panel-title">
-          <span id="rightPanelTitle">ညာဘက် — ဘယ်/ညာ သီးသန့်ခွဲထားသော စာကြောင်းများနှင့် စာလုံးဆိုဒ် ချိန်ညှိရန်</span>
+          <span id="rightPanelTitle">ညာဘက် — ဘယ်/ညာ စာကြောင်းများ၊ စာလုံးဆိုဒ်နှင့် စာအရောင် ချိန်ညှိရန်</span>
         </div>
 
         <div class="filter-tabs" id="columnFilterTabs">
@@ -770,6 +822,7 @@
 
   <script>
     const HISTORY_STORAGE_KEY = "photo_edit_history_v1";
+    const QUICK_SWATCHES = ["#0f172a", "#1e3a8a", "#dc2626", "#059669", "#d97706", "#ffffff"];
 
     const i18n = {
       my: {
@@ -779,7 +832,7 @@
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
         leftTitle: "ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်နှင့် Status Bar ချိန်ညှိရန်",
-        rightTitle: "ညာဘက် — ဘယ်/ညာ သီးသန့်ခွဲထားသော စာကြောင်းများနှင့် စာလုံးဆိုဒ် ချိန်ညှိရန်",
+        rightTitle: "ညာဘက် — ဘယ်/ညာ စာကြောင်းများ၊ စာလုံးဆိုဒ်နှင့် စာအရောင် ချိန်ညှိရန်",
         lblPhone: "ဖုန်းအမျိုးအစား",
         lblCutout: "Cutout ပုံစံ",
         lblClock: "နာရီ (Time)",
@@ -797,7 +850,8 @@
         secLeft: "🔴 ဘယ်ဘက် စာကြောင်းများ (Left Column)",
         secRight: "🔵 ညာဘက် စာကြောင်းများ (Right Column)",
         secOther: "🟣 အပေါ် / အောက် စာကြောင်းများ (Header / Footer)",
-        fontSizeLbl: "စာလုံးဆိုဒ်",
+        fontSizeLbl: "ဆိုဒ်",
+        colorLbl: "စာအရောင်",
         resetBtn: "မူရင်းပြန်ထား"
       },
       en: {
@@ -807,7 +861,7 @@
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
         leftTitle: "Left — Live Image Preview & Status Bar",
-        rightTitle: "Right — Separate Left/Right Columns & Font Size Controls",
+        rightTitle: "Right — Separate Left/Right Columns, Font Size & Text Color",
         lblPhone: "Phone Model",
         lblCutout: "Cutout Style",
         lblClock: "Clock Time",
@@ -825,7 +879,8 @@
         secLeft: "🔴 Left Side Text Lines (Labels)",
         secRight: "🔵 Right Side Text Lines (Values)",
         secOther: "🟣 Top / Bottom Text Lines (Header / Footer)",
-        fontSizeLbl: "Font Size",
+        fontSizeLbl: "Size",
+        colorLbl: "Color",
         resetBtn: "Reset"
       }
     };
@@ -894,8 +949,7 @@
       brightness: 100
     };
 
-    // Each line item:
-    // { id, side: 'left'|'right'|'other', align: 'left'|'right'|'center', origText, text, x, y, w, h, origFontSize, fontSize, textColor, bgColor, modified }
+    // Each line item tracks original & current text, font size, and text color
     let textLines = [];
     let focusedLineId = null;
 
@@ -909,6 +963,13 @@
       setTimeout(() => {
         if (toastMsg.textContent === msg) toastMsg.textContent = "";
       }, 3400);
+    }
+
+    function hasLineChanged(line) {
+      const textChanged = line.text !== line.origText;
+      const sizeChanged = Math.abs(line.fontSize - line.origFontSize) > 0.4;
+      const colorChanged = (line.textColor || "").toLowerCase() !== (line.origTextColor || "").toLowerCase();
+      return textChanged || sizeChanged || colorChanged;
     }
 
     goEditBtn.addEventListener("click", () => {
@@ -946,7 +1007,6 @@
       applyLang();
     });
 
-    // Column filter tabs
     document.querySelectorAll("#columnFilterTabs .pill-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll("#columnFilterTabs .pill-btn").forEach(b => b.classList.remove("active-tab"));
@@ -1142,7 +1202,6 @@
         ctx.fill();
       }
 
-      // Left Clock
       const timeX = statusState.cutout === "punch-left" ? padX + Math.round(barH * 0.6) : padX;
       ctx.fillStyle = fg;
       ctx.font = `700 ${fontSize}px -apple-system, BlinkMacSystemFont, sans-serif`;
@@ -1150,7 +1209,6 @@
       ctx.textAlign = "left";
       ctx.fillText(statusState.time, timeX, midY);
 
-      // Right Icons
       let cursorX = W - padX;
 
       if (statusState.showBattery) {
@@ -1240,14 +1298,13 @@
       ctx.drawImage(baseImg, 0, 0, W, H);
       ctx.restore();
 
-      // Replace modified or resized lines directly on their original spot & alignment
+      // Render clearly and cleanly on edited lines (text, size, or color)
       textLines.forEach(line => {
-        const sizeChanged = Math.abs(line.fontSize - line.origFontSize) > 0.4;
-        if (!line.modified && !sizeChanged) return;
+        if (!hasLineChanged(line)) return;
 
-        const padX = Math.max(4, line.origFontSize * 0.25);
-        const maxH = Math.max(line.h, line.fontSize * 1.35);
-        const padY = Math.max(3, (maxH - line.h) / 2 + 3);
+        const padX = Math.max(6, line.origFontSize * 0.35);
+        const maxH = Math.max(line.h, line.fontSize * 1.38);
+        const padY = Math.max(4, (maxH - line.h) / 2 + 3);
 
         const rx = Math.max(0, line.x - padX);
         const ry = Math.max(0, line.y - padY);
@@ -1258,11 +1315,23 @@
         ctx.fillStyle = line.bgColor;
         ctx.fillRect(rx, ry, rw, rh);
 
+        // Subtle crisp outline so the updated text stands out clearly without looking like a messy sticker
+        if (!isExport) {
+          ctx.strokeStyle = "rgba(16, 185, 129, 0.45)";
+          ctx.lineWidth = 1;
+          ctx.strokeRect(rx + 0.5, ry + 0.5, Math.max(1, rw - 1), Math.max(1, rh - 1));
+        }
+
         const val = line.text;
         if (val.trim() !== "") {
           ctx.fillStyle = line.textColor;
-          ctx.font = `600 ${line.fontSize}px "Pyidaungsu", "Noto Sans Myanmar", system-ui, -apple-system, sans-serif`;
+          ctx.font = `700 ${line.fontSize}px "Pyidaungsu", "Noto Sans Myanmar", system-ui, -apple-system, sans-serif`;
           ctx.textBaseline = "middle";
+
+          // Subtle contrast shadow when text is bright on light or dark on dark
+          ctx.shadowColor = "rgba(0, 0, 0, 0.14)";
+          ctx.shadowBlur = 1.5;
+          ctx.shadowOffsetY = 0.5;
 
           if (line.align === "right") {
             ctx.textAlign = "right";
@@ -1284,8 +1353,8 @@
         if (f) {
           ctx.save();
           ctx.strokeStyle = f.side === "left" ? "#ef4444" : (f.side === "right" ? "#38bdf8" : "#a855f7");
-          ctx.lineWidth = 2;
-          ctx.setLineDash([4, 3]);
+          ctx.lineWidth = 2.2;
+          ctx.setLineDash([5, 3]);
           ctx.strokeRect(
             Math.max(1, f.x - 4),
             Math.max(1, f.y - 3),
@@ -1299,12 +1368,9 @@
       drawStatusBarOverlay();
     }
 
-    // Split a single horizontal OCR line into separate LEFT-column segment and RIGHT-column segment
-    // whenever there is a wide horizontal gap between words (like KBZ Receipt label vs value)
     function splitRowIntoLeftRightSegments(words, imgW, imgH) {
       if (!words || words.length === 0) return [];
 
-      // Filter valid words with bounding boxes
       const valid = words
         .filter(w => w && w.text && w.text.trim() && w.bbox)
         .sort((a, b) => a.bbox.x0 - b.bbox.x0);
@@ -1320,8 +1386,6 @@
         const gap = curr.bbox.x0 - prev.bbox.x1;
         const avgH = Math.max(12, ((prev.bbox.y1 - prev.bbox.y0) + (curr.bbox.y1 - curr.bbox.y0)) / 2);
 
-        // If horizontal gap is wide (> 2.2x character height OR crosses center from left half to right half),
-        // split into two separate editable items!
         const crossesCenter = (prev.bbox.x1 < imgW * 0.56) && (curr.bbox.x0 > imgW * 0.44) && (gap > avgH * 1.15);
         if (gap > avgH * 2.2 || crossesCenter) {
           segments.push(currentGroup);
@@ -1347,7 +1411,6 @@
       const centerY = (seg.y0 + seg.y1) / 2;
       const widthRatio = (seg.x1 - seg.x0) / imgW;
 
-      // Top header area (top 28%) or bottom footer area (bottom 20%) or full-width banner text
       if (centerY < imgH * 0.27 || centerY > imgH * 0.80 || widthRatio > 0.62) {
         return {
           side: "other",
@@ -1355,7 +1418,6 @@
         };
       }
 
-      // Middle receipt details area: split cleanly into LEFT column vs RIGHT column
       if (centerX < imgW * 0.50 && seg.x0 < imgW * 0.42) {
         return { side: "left", align: "left" };
       } else {
@@ -1365,7 +1427,9 @@
 
     function buildSingleLineCard(line) {
       const card = document.createElement("div");
-      card.className = "line-card" + (line.id === focusedLineId ? " focused" : "");
+      card.className = "line-card"
+        + (line.id === focusedLineId ? " focused" : "")
+        + (hasLineChanged(line) ? " edited-card" : "");
 
       const top = document.createElement("div");
       top.className = "line-card-top";
@@ -1392,6 +1456,12 @@
       input.value = line.text;
       input.placeholder = lang === "my" ? "စာသားပြင်ရန် (အလွတ်ထားရင် ဖျက်ပေးမည်)" : "Edit text (empty = erase)";
 
+      function syncCardState() {
+        line.modified = hasLineChanged(line);
+        card.classList.toggle("edited-card", line.modified);
+        renderCanvas(false);
+      }
+
       input.addEventListener("focus", () => {
         focusedLineId = line.id;
         renderCanvas(false);
@@ -1401,11 +1471,13 @@
 
       input.addEventListener("input", () => {
         line.text = input.value;
-        line.modified = (line.text !== line.origText);
-        renderCanvas(false);
+        syncCardState();
       });
 
-      // Font Size Adjuster Row: [ - ] [ Slider ] [ + ] [ 18px ]
+      // Style Row: Size (- / slider / +) + Color (color picker + quick swatches)
+      const styleGrid = document.createElement("div");
+      styleGrid.className = "style-controls-grid";
+
       const sizeBar = document.createElement("div");
       sizeBar.className = "size-control-bar";
 
@@ -1443,7 +1515,7 @@
         slider.value = String(clamped);
         valBadge.textContent = `${clamped}px`;
         focusedLineId = line.id;
-        renderCanvas(false);
+        syncCardState();
       }
 
       minusBtn.addEventListener("click", () => updateFontSize(line.fontSize - 1));
@@ -1456,7 +1528,53 @@
       sizeBar.appendChild(plusBtn);
       sizeBar.appendChild(valBadge);
 
-      // Action buttons row (Switch Left/Right column if needed + Reset)
+      // Color Control Bar
+      const colorBar = document.createElement("div");
+      colorBar.className = "color-control-bar";
+
+      const colorLbl = document.createElement("span");
+      colorLbl.className = "size-lbl";
+      colorLbl.textContent = t("colorLbl") + ":";
+
+      const colorPicker = document.createElement("input");
+      colorPicker.type = "color";
+      colorPicker.className = "color-picker-input";
+      colorPicker.value = line.textColor || "#0f172a";
+      colorPicker.title = "စာအရောင် ရွေးရန်";
+
+      const hexTag = document.createElement("span");
+      hexTag.className = "color-hex-tag";
+      hexTag.textContent = (line.textColor || "#0f172a").toUpperCase();
+
+      function applyTextColor(hex) {
+        line.textColor = hex;
+        colorPicker.value = hex;
+        hexTag.textContent = hex.toUpperCase();
+        focusedLineId = line.id;
+        syncCardState();
+      }
+
+      colorPicker.addEventListener("input", () => applyTextColor(colorPicker.value));
+
+      colorBar.appendChild(colorLbl);
+      colorBar.appendChild(colorPicker);
+
+      QUICK_SWATCHES.forEach(sw => {
+        const dot = document.createElement("button");
+        dot.type = "button";
+        dot.className = "color-swatch-btn";
+        dot.style.background = sw;
+        dot.title = sw;
+        dot.addEventListener("click", () => applyTextColor(sw));
+        colorBar.appendChild(dot);
+      });
+
+      colorBar.appendChild(hexTag);
+
+      styleGrid.appendChild(sizeBar);
+      styleGrid.appendChild(colorBar);
+
+      // Action buttons row
       const actions = document.createElement("div");
       actions.className = "line-actions";
 
@@ -1497,11 +1615,14 @@
       resetBtn.addEventListener("click", () => {
         line.text = line.origText;
         line.fontSize = line.origFontSize;
+        line.textColor = line.origTextColor;
         line.modified = false;
         input.value = line.origText;
         slider.value = String(Math.round(line.origFontSize));
         valBadge.textContent = `${Math.round(line.origFontSize)}px`;
-        renderCanvas(false);
+        colorPicker.value = line.origTextColor;
+        hexTag.textContent = line.origTextColor.toUpperCase();
+        syncCardState();
       });
 
       actions.appendChild(switchGroup);
@@ -1509,7 +1630,7 @@
 
       card.appendChild(top);
       card.appendChild(input);
-      card.appendChild(sizeBar);
+      card.appendChild(styleGrid);
       card.appendChild(actions);
       return card;
     }
@@ -1568,7 +1689,6 @@
           if (!ln.bbox) return;
           if (ln.bbox.y1 < statusBarCutoff) return;
 
-          // Split row into separate Left-side and Right-side segments if words have a wide column gap
           const segments = (ln.words && ln.words.length > 0)
             ? splitRowIntoLeftRightSegments(ln.words, mainCanvas.width, mainCanvas.height)
             : [{ text: (ln.text || "").trim(), x0: ln.bbox.x0, y0: ln.bbox.y0, x1: ln.bbox.x1, y1: ln.bbox.y1 }];
@@ -1595,6 +1715,7 @@
               h,
               origFontSize: initialFontSize,
               fontSize: initialFontSize,
+              origTextColor: colors.textColor,
               textColor: colors.textColor,
               bgColor: colors.bgColor,
               modified: false
@@ -1666,8 +1787,8 @@
     function addHistoryRecord(actionType) {
       const list = getHistoryList();
       const changedLines = textLines
-        .filter(l => l.modified || Math.abs(l.fontSize - l.origFontSize) > 0.4)
-        .map(l => `${l.origText} → ${l.text || "[ဖျက်]"} (${Math.round(l.fontSize)}px)`);
+        .filter(l => hasLineChanged(l))
+        .map(l => `${l.origText} → ${l.text || "[ဖျက်]"} (${Math.round(l.fontSize)}px, ${l.textColor})`);
 
       list.unshift({
         id: Date.now(),
