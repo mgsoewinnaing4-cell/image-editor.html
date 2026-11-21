@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Inspect & Auto-Align Text Editor</title>
+  <title>Photo Edit Studio</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root[data-theme="dark"] {
-      --bg: #0f172a;
-      --card: #1e293b;
+      --bg: #0b1120;
+      --card: #162032;
       --card-2: #0f172a;
       --canvas-bg: #020617;
       --text: #f8fafc;
       --muted: #94a3b8;
-      --border: #334155;
-      --input-border: #475569;
+      --border: #2a3954;
+      --input-border: #3e5275;
     }
     :root[data-theme="light"] {
       --bg: #f1f5f9;
       --card: #ffffff;
       --card-2: #f8fafc;
-      --canvas-bg: #e2e8f0;
+      --canvas-bg: #cbd5e1;
       --text: #0f172a;
       --muted: #475569;
       --border: #cbd5e1;
@@ -34,125 +34,247 @@
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      padding: 12px;
-      transition: background 0.2s ease, color 0.2s ease;
-    }
-    .app {
-      width: 100%;
-      max-width: 740px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
     }
 
-    .top-bar {
+    /* 1. WELCOME SCREEN */
+    .welcome-screen {
+      min-height: 100vh;
       display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+      background: radial-gradient(circle at top, #1e293b 0%, #090d16 100%);
+      color: #f8fafc;
+    }
+    .welcome-screen.hidden { display: none; }
+    .welcome-badge {
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .welcome-title {
+      font-size: clamp(28px, 6vw, 44px);
+      font-weight: 900;
+      margin: 0 0 12px;
+      letter-spacing: -0.5px;
+    }
+    .welcome-sub {
+      color: #94a3b8;
+      font-size: 14px;
+      max-width: 420px;
+      margin: 0 0 28px;
+      line-height: 1.5;
+    }
+    .go-edit-btn {
+      padding: 16px 36px;
+      font-size: 18px;
+      font-weight: 800;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #3b82f6, #10b981);
+      color: #fff;
+      cursor: pointer;
+      box-shadow: 0 12px 28px rgba(59, 130, 246, 0.35);
+      transition: transform 0.1s ease;
+    }
+    .go-edit-btn:active { transform: scale(0.97); }
+
+    /* 2. EDITOR WORKSPACE */
+    .editor-screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 12px;
+      gap: 12px;
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+    .editor-screen.active { display: flex; }
+
+    /* Top Header Bar */
+    .top-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
       justify-content: space-between;
+      gap: 10px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+    .header-left, .header-right {
+      display: flex;
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
     }
-    .inspect-badge {
+    .upload-btn-label {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 7px 12px;
+      padding: 9px 14px;
+      border-radius: 10px;
+      background: #3b82f6;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    #fileInput { display: none; }
+
+    .pill-btn {
+      padding: 8px 12px;
       border-radius: 999px;
-      border: 1px solid #38bdf8;
-      background: rgba(56, 189, 248, 0.14);
-      color: #38bdf8;
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
       font-size: 12px;
       font-weight: 700;
-    }
-    .top-right-btns {
-      display: flex;
-      gap: 8px;
-    }
-    .top-pill-btn {
-      padding: 8px 14px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 700;
       cursor: pointer;
     }
-
-    .upload-box {
-      background: var(--card);
-      border: 1px dashed var(--input-border);
-      border-radius: 12px;
-      padding: 12px;
-    }
-    .upload-box label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 6px;
-    }
-    input[type="file"] {
-      width: 100%;
-      color: var(--text);
-      font-size: 13px;
-    }
-
-    .action-bar {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 8px;
-    }
-    .btn-save-main {
-      width: 100%;
-      padding: 14px;
-      font-size: 17px;
-      font-weight: 800;
+    .btn-main-save {
+      padding: 10px 20px;
+      border-radius: 10px;
       border: none;
-      border-radius: 12px;
       background: #10b981;
       color: #fff;
+      font-size: 14px;
+      font-weight: 800;
       cursor: pointer;
     }
-    .btn-save-main:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-save-main:active { transform: scale(0.99); }
+    .btn-main-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .btn-undo-top {
-      padding: 0 14px;
+    .export-bar {
+      display: none;
+      gap: 8px;
+      align-items: center;
+    }
+    .export-bar.show { display: flex; }
+    .btn-copy {
+      padding: 9px 14px;
+      border-radius: 9px;
+      border: none;
+      background: #8b5cf6;
+      color: #fff;
       font-size: 13px;
       font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-download {
+      padding: 9px 14px;
+      border-radius: 9px;
+      border: none;
+      background: #059669;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* Split Layout: Left Preview + Device Controls | Right Line-by-Line Draft List */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      flex: 1;
+    }
+    @media (min-width: 900px) {
+      .split-grid {
+        grid-template-columns: 1.05fr 0.95fr;
+        align-items: start;
+      }
+    }
+
+    .panel {
+      background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 12px;
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .panel-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #38bdf8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Device & Status Bar Control Grid */
+    .device-controls {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ctrl-row-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    .ctrl-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+    }
+    .mini-lbl {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 3px;
+      font-weight: 600;
+    }
+    select, input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 7px 8px;
+      border-radius: 7px;
+      border: 1px solid var(--input-border);
       background: var(--card);
       color: var(--text);
-      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
     }
-    .btn-undo-top:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .export-choices {
-      display: none;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+    input[type="range"] {
+      width: 100%;
+      accent-color: #38bdf8;
+    }
+    .preset-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+    .chip-btn {
+      padding: 5px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--input-border);
       background: var(--card);
-      padding: 10px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-    }
-    .export-choices.show { display: grid; }
-    .sub-export-btn {
-      padding: 12px;
-      font-size: 15px;
+      color: var(--text);
+      font-size: 11px;
       font-weight: 700;
-      border: none;
-      border-radius: 10px;
       cursor: pointer;
+    }
+    .chip-btn.active {
+      background: #2563eb;
+      border-color: #3b82f6;
       color: #fff;
     }
-    .btn-copy { background: #8b5cf6; }
-    .btn-download-new { background: #059669; }
 
-    .canvas-wrap {
+    /* Left Canvas Stage */
+    .canvas-stage {
       background: var(--canvas-bg);
       border: 1px solid var(--border);
       border-radius: 12px;
@@ -160,1078 +282,811 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 8px;
-    }
-    .zoom-bar {
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .zoom-controls {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .zoom-btn {
-      padding: 5px 10px;
-      font-size: 13px;
-      font-weight: 700;
-      border-radius: 8px;
-      border: 1px solid var(--input-border);
-      background: var(--card);
-      color: var(--text);
-      cursor: pointer;
-    }
-    .zoom-label {
-      font-size: 12px;
-      font-weight: 700;
-      min-width: 46px;
-      text-align: center;
-      color: var(--text);
-    }
-    .zoom-note {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .canvas-scroll {
-      width: 100%;
-      max-height: 58vh;
-      overflow: auto;
-      display: flex;
       justify-content: center;
-      align-items: flex-start;
-      border-radius: 8px;
-      padding: 4px;
     }
     #mainCanvas {
-      border-radius: 8px;
-      background: var(--card);
-      cursor: crosshair;
-      touch-action: manipulation;
-    }
-    .hint {
-      font-size: 12px;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .sync-box {
-      display: none;
-      background: var(--card);
-      border: 1px solid #3b82f6;
+      max-width: 100%;
+      max-height: 64vh;
       border-radius: 12px;
-      padding: 12px;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .sync-box.show { display: flex; }
-    .sync-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .sync-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #38bdf8;
-    }
-    .ocr-mode-group {
-      display: flex;
-      gap: 4px;
-    }
-    .ocr-mode-btn {
-      padding: 4px 8px;
-      font-size: 11px;
-      font-weight: 700;
-      border-radius: 6px;
-      border: 1px solid var(--input-border);
-      background: var(--card-2);
-      color: var(--text);
-      cursor: pointer;
-    }
-    .ocr-mode-btn.active {
-      background: #2563eb;
-      border-color: #3b82f6;
-      color: #fff;
-    }
-
-    .sync-input {
-      width: 100%;
-      padding: 10px 12px;
-      border-radius: 10px;
-      border: 2px solid #3b82f6;
-      background: var(--card-2);
-      color: var(--text);
-      font-size: 15px;
-      font-weight: 600;
-    }
-    .meta-row {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-    @media (max-width: 520px) {
-      .meta-row { grid-template-columns: repeat(2, 1fr); }
-    }
-    .mini-lbl {
-      display: block;
-      font-size: 11px;
-      color: var(--muted);
-      margin-bottom: 3px;
-    }
-    .size-stepper {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .step-btn {
-      width: 30px;
-      height: 36px;
-      border-radius: 8px;
-      border: 1px solid var(--input-border);
-      background: var(--card-2);
-      color: var(--text);
-      font-weight: 800;
-      font-size: 14px;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    input[type="number"], input[type="color"], select {
-      width: 100%;
-      height: 36px;
-      border-radius: 8px;
-      border: 1px solid var(--input-border);
-      background: var(--card-2);
-      color: var(--text);
-      padding: 4px 6px;
-      font-size: 13px;
-    }
-
-    .small-actions {
-      display: flex;
-      gap: 8px;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-    .right-mini-btns {
-      display: flex;
-      gap: 8px;
-    }
-    .btn-mini-save {
-      padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      border: none;
-      border-radius: 6px;
-      background: #10b981;
-      color: #fff;
-      cursor: pointer;
-    }
-    .btn-mini-reset {
-      padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      border: none;
-      border-radius: 6px;
-      background: #475569;
-      color: #fff;
-      cursor: pointer;
-    }
-    .btn-mini-delete {
-      padding: 7px 14px;
-      font-size: 12px;
-      font-weight: 700;
-      border: none;
-      border-radius: 6px;
-      background: #dc2626;
-      color: #fff;
-      cursor: pointer;
-    }
-
-    .lines-panel {
-      display: none;
+      box-shadow: 0 10px 26px rgba(0,0,0,0.5);
       background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px;
-      flex-direction: column;
-      gap: 8px;
     }
-    .lines-panel.show { display: flex; }
-    .lines-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-    }
-    .lines-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text);
-    }
-    .btn-rescan {
-      padding: 5px 10px;
-      font-size: 11px;
-      font-weight: 700;
-      border-radius: 7px;
-      border: 1px solid var(--input-border);
-      background: var(--card-2);
-      color: var(--text);
-      cursor: pointer;
-    }
+
+    /* Right Line-by-Line OCR List */
     .lines-list {
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      max-height: 210px;
+      gap: 8px;
+      max-height: 68vh;
       overflow-y: auto;
+      padding-right: 2px;
     }
-    .line-chip {
-      width: 100%;
-      text-align: left;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
+    .line-card {
       background: var(--card-2);
-      color: var(--text);
-      font-size: 12px;
-      cursor: pointer;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .line-card.focused {
+      border-color: #38bdf8;
+      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+    }
+    .line-card-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
-    }
-    .line-chip:hover {
-      border-color: #38bdf8;
-    }
-    .line-chip-text {
-      font-weight: 600;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .line-chip-meta {
       font-size: 11px;
       color: var(--muted);
-      flex-shrink: 0;
     }
-
+    .line-input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--input-border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .line-meta {
+      display: grid;
+      grid-template-columns: 70px 44px 44px 1fr;
+      gap: 6px;
+      align-items: center;
+    }
+    input[type="color"] {
+      width: 100%;
+      height: 30px;
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      background: var(--card);
+      padding: 1px;
+      cursor: pointer;
+    }
+    .mini-reset-line {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: none;
+      background: #475569;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .empty-state {
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 28px 12px;
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+    }
     .toast {
       font-size: 12px;
       color: #10b981;
       text-align: center;
+      font-weight: 700;
       min-height: 18px;
-      font-weight: 600;
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <div class="top-bar">
-      <span class="inspect-badge" id="inspectBadge">⌖ Inspect & Auto-Align</span>
-      <div class="top-right-btns">
-        <button class="top-pill-btn" id="themeToggleBtn">☀️ Light</button>
-        <button class="top-pill-btn" id="langToggleBtn">🌐 English</button>
-      </div>
-    </div>
 
-    <div class="upload-box">
-      <label id="uploadLabel">ပုံတင်ရန် (Upload Image)</label>
-      <input type="file" id="fileInput" accept="image/*" />
-    </div>
+  <!-- SCREEN 1: WELCOME -->
+  <section class="welcome-screen" id="welcomeScreen">
+    <span class="welcome-badge">PHONE STATUS & LIVE TEXT STUDIO</span>
+    <h1 class="welcome-title">Welcome to Photo edit</h1>
+    <p class="welcome-sub">ပုံထဲက စာကြောင်းတွေကို စာရင်းလိုက် တိုက်ရိုက်ပြင်ဆင်နိုင်ပြီး ဖုန်းအမျိုးအစားအလိုက် Status Bar အသေးစိတ်ကိုပါ စိတ်ကြိုက်ချိန်ညှိနိုင်ပါသည်။</p>
+    <button class="go-edit-btn" id="goEditBtn">Go to edit</button>
+  </section>
 
-    <div class="action-bar">
-      <button class="btn-save-main" id="mainSaveBtn" disabled>SAVE</button>
-      <button class="btn-undo-top" id="undoLastBtn" disabled>↩ Undo</button>
-    </div>
-
-    <div class="export-choices" id="exportChoices">
-      <button class="sub-export-btn btn-copy" id="copyImgBtn">Copy</button>
-      <button class="sub-export-btn btn-download-new" id="downloadNewBtn">Save</button>
-    </div>
-
-    <div class="canvas-wrap">
-      <div class="zoom-bar">
-        <div class="zoom-controls">
-          <button type="button" class="zoom-btn" id="zoomOutBtn">−</button>
-          <span class="zoom-label" id="zoomLabel">100%</span>
-          <button type="button" class="zoom-btn" id="zoomInBtn">+</button>
-          <button type="button" class="zoom-btn" id="zoomResetBtn">Fit</button>
-        </div>
-        <span class="zoom-note" id="zoomNote">Export မှာ မူရင်းပုံအတိုင်း (100%) ထုတ်ပေးပါမည်</span>
-      </div>
-
-      <div class="canvas-scroll" id="canvasScroll">
-        <canvas id="mainCanvas" width="500" height="500"></canvas>
-      </div>
-      <div class="hint" id="hintText">ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (မူလနေရာနှင့် Size အတိုင်း အော်တိုညှိပေးမည်)</div>
-    </div>
-
-    <!-- Live Sync Box -->
-    <div class="sync-box" id="syncBox">
-      <div class="sync-header">
-        <div class="sync-title" id="syncTitle">ပြုပြင်ကွက်လပ် (မူလ ဂဏန်း/သင်္ကေတနှင့် နေရာအတိုင်း ပေါ်မည်)</div>
-        <div class="ocr-mode-group">
-          <button type="button" class="ocr-mode-btn active" id="modeNumSymBtn">123 / Symbol</button>
-          <button type="button" class="ocr-mode-btn" id="modeAllBtn">Auto All</button>
+  <!-- SCREEN 2: WORKSPACE -->
+  <section class="editor-screen" id="editorScreen">
+    <header class="top-header">
+      <div class="header-left">
+        <label class="upload-btn-label" for="fileInput" id="uploadBtnText">+ ပုံထည့်ရန်</label>
+        <input type="file" id="fileInput" accept="image/*" />
+        <button class="btn-main-save" id="mainSaveBtn" disabled>SAVE</button>
+        <div class="export-bar" id="exportBar">
+          <button class="btn-copy" id="copyBtn">Copy</button>
+          <button class="btn-download" id="downloadBtn">Save</button>
         </div>
       </div>
 
-      <input type="text" class="sync-input" id="syncTextInput" placeholder="မူလပါ ဂဏန်းနှင့် သင်္ကေတများ ပေါ်လာမည်..." />
-
-      <div class="meta-row">
-        <div>
-          <span class="mini-lbl" id="lblOrigSize">Size</span>
-          <div class="size-stepper">
-            <button type="button" class="step-btn" id="sizeDecBtn">−</button>
-            <input type="number" id="sizeInput" value="14" min="6" max="200" />
-            <button type="button" class="step-btn" id="sizeIncBtn">+</button>
-          </div>
-        </div>
-        <div>
-          <span class="mini-lbl" id="lblWeight">စာလုံးအထူ</span>
-          <select id="weightInput">
-            <option value="400">Normal (400)</option>
-            <option value="600">Semi-Bold (600)</option>
-            <option value="700" selected>Bold (700)</option>
-          </select>
-        </div>
-        <div>
-          <span class="mini-lbl" id="lblTextColor">စာသားအရောင်</span>
-          <input type="color" id="textColorInput" value="#000000" />
-        </div>
-        <div>
-          <span class="mini-lbl" id="lblBgColor">နောက်ခံဖုံးအရောင်</span>
-          <input type="color" id="bgColorInput" value="#ffffff" />
-        </div>
+      <div class="header-right">
+        <button class="pill-btn" id="themeBtn">☀️ Light</button>
+        <button class="pill-btn" id="langBtn">🌐 English</button>
       </div>
-
-      <div class="small-actions">
-        <button class="btn-mini-delete" id="miniDeleteBtn">Delete Edit</button>
-        <div class="right-mini-btns">
-          <button class="btn-mini-reset" id="miniResetBtn">Reset</button>
-          <button class="btn-mini-save" id="miniSaveBtn">Save</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Auto-Scanned Text Lines List -->
-    <div class="lines-panel" id="linesPanel">
-      <div class="lines-header">
-        <span class="lines-title" id="linesTitle">ပုံထဲမှ ဖတ်မိသော စာကြောင်းများ (နှိပ်၍ ပြင်နိုင်သည်)</span>
-        <button type="button" class="btn-rescan" id="rescanBtn">↻ Scan Again</button>
-      </div>
-      <div class="lines-list" id="linesList"></div>
-    </div>
+    </header>
 
     <div class="toast" id="toastMsg"></div>
-  </div>
+
+    <div class="split-grid">
+      <!-- LEFT: PHONE PREVIEW & STATUS BAR CONTROLS -->
+      <div class="panel">
+        <div class="panel-title">
+          <span id="leftPanelTitle">ဘယ်ဘက် — ဖုန်းအမျိုးအစားနှင့် ပုံအကြိုကြည့်ရန်</span>
+          <button class="chip-btn active" id="toggleStatusBarBtn">Status Bar: ON</button>
+        </div>
+
+        <div class="device-controls">
+          <div class="ctrl-row-2">
+            <div>
+              <span class="mini-lbl" id="lblPhoneModel">ဖုန်းအမျိုးအစား (Phone Model)</span>
+              <select id="phoneModelSelect">
+                <option value="iphone16">iPhone 16 / 17 / 18 Pro (Dynamic Island)</option>
+                <option value="iphoneNotch">iPhone Classic (Notch)</option>
+                <option value="samsung">Samsung Galaxy (Center Punch-hole)</option>
+                <option value="xiaomi">Xiaomi / Redmi (Center Punch-hole)</option>
+                <option value="vivo">Vivo (Center Punch-hole)</option>
+                <option value="oppo">Oppo (Left Punch-hole)</option>
+              </select>
+            </div>
+            <div>
+              <span class="mini-lbl" id="lblNotchStyle">Cutout ပုံစံ</span>
+              <select id="cutoutStyleSelect">
+                <option value="island">Dynamic Island</option>
+                <option value="notch">Notch</option>
+                <option value="punch-center">Punch-hole (Center)</option>
+                <option value="punch-left">Punch-hole (Left)</option>
+                <option value="none">None (မထည့်ပါ)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="ctrl-row-3">
+            <div>
+              <span class="mini-lbl" id="lblClock">နာရီ (Time)</span>
+              <input type="text" id="clockInput" value="09:41" maxlength="8" />
+            </div>
+            <div>
+              <span class="mini-lbl" id="lblBattery">ဖုန်းအား (%)</span>
+              <input type="number" id="batteryInput" value="85" min="1" max="100" />
+            </div>
+            <div>
+              <span class="mini-lbl" id="lblSignal">Signal တိုင် (0-4)</span>
+              <select id="signalSelect">
+                <option value="4" selected>4 တိုင် (အပြည့်)</option>
+                <option value="3">3 တိုင်</option>
+                <option value="2">2 တိုင်</option>
+                <option value="1">1 တိုင်</option>
+                <option value="0">လိုင်းမရှိ (0)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="ctrl-row-3">
+            <div>
+              <span class="mini-lbl" id="lblNetwork">လိုင်းအမျိုးအစား</span>
+              <select id="networkSelect">
+                <option value="5G" selected>5G</option>
+                <option value="4G">4G</option>
+                <option value="LTE">LTE</option>
+                <option value="">မပြပါ</option>
+              </select>
+            </div>
+            <div>
+              <span class="mini-lbl" id="lblWifi">Wi-Fi</span>
+              <button class="chip-btn active" id="wifiToggleBtn" style="width:100%;padding:7px;">Wi-Fi: ON</button>
+            </div>
+            <div>
+              <span class="mini-lbl" id="lblCharging">အားသွင်းမှု</span>
+              <button class="chip-btn" id="chargingToggleBtn" style="width:100%;padding:7px;">Charging: OFF</button>
+            </div>
+          </div>
+
+          <div>
+            <span class="mini-lbl" id="lblQuickPresets">Quick Presets (တစ်ချက်နှိပ် ချိန်ညှိစရာ)</span>
+            <div class="preset-chips">
+              <button class="chip-btn" data-bat="100" data-chg="0">Battery 100%</button>
+              <button class="chip-btn" data-bat="50" data-chg="0">Battery 50%</button>
+              <button class="chip-btn" data-bat="20" data-chg="0">Battery 20%</button>
+              <button class="chip-btn" data-bat="78" data-chg="1">Charging ⚡</button>
+            </div>
+          </div>
+
+          <div>
+            <span class="mini-lbl"><span id="lblBrightness">ဖုန်းအလင်းအား (Brightness)</span>: <b id="brightnessVal">100%</b></span>
+            <input type="range" id="brightnessSlider" min="35" max="115" value="100" />
+          </div>
+        </div>
+
+        <div class="canvas-stage">
+          <canvas id="mainCanvas" width="420" height="760"></canvas>
+        </div>
+      </div>
+
+      <!-- RIGHT: LINE-BY-LINE EXTRACTED TEXT LIST -->
+      <div class="panel">
+        <div class="panel-title">
+          <span id="rightPanelTitle">ညာဘက် — ပုံထဲမှ စာကြောင်းများ (တိုက်ရိုက်ပြင်ရန်)</span>
+          <button class="chip-btn" id="addCustomLineBtn">+ စာကြောင်းထပ်ထည့်</button>
+        </div>
+
+        <div class="lines-list" id="linesList">
+          <div class="empty-state" id="emptyStateText">
+            ပုံတစ်ပုံ ထည့်လိုက်တာနဲ့ ပုံထဲက စာကြောင်းတွေကို ဖတ်ပြီး ဒီနေရာမှာ စာရင်းလိုက် ပြပေးပါမယ်။
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <script>
     const i18n = {
       my: {
-        inspectBadge: "⌖ Inspect & Auto-Align",
+        uploadBtn: "+ ပုံထည့်ရန်",
         toLight: "☀️ Light",
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
-        uploadLabel: "ပုံတင်ရန် (Upload Image)",
-        placeholderCanvas: "ပုံတစ်ပုံ ရွေးချယ်ပါ",
-        hintInitial: "ပုံတင်ပြီး စာသားပေါ် ထိ/နှိပ်ပါ (စာတွေကိုလည်း တစ်ခါတည်း ဖတ်ပြပေးမည်)",
-        hintActive: "ပုံပေါ် သို့မဟုတ် အောက်စာရင်းထဲက စာကြောင်းကို နှိပ်ပြီး ပြင်နိုင်သည်",
-        zoomNote: "Export မှာ မူရင်းပုံအတိုင်း (100%) ထုတ်ပေးပါမည်",
-        syncTitle: "ပြုပြင်ကွက်လပ် (မူလ ဂဏန်း/သင်္ကေတနှင့် နေရာအတိုင်း ပေါ်မည်)",
-        syncPlaceholder: "မူလပါ ဂဏန်းနှင့် သင်္ကေတများ ပေါ်လာမည်...",
-        lblOrigSize: "Size",
-        lblWeight: "စာလုံးအထူ",
-        lblTextColor: "စာသားအရောင်",
-        lblBgColor: "နောက်ခံဖုံးအရောင်",
-        linesTitle: "ပုံထဲမှ ဖတ်မိသော စာကြောင်းများ (နှိပ်၍ ပြင်နိုင်သည်)",
-        rescanBtn: "↻ Scan Again",
-        undoBtn: "↩ Undo",
-        deleteEditBtn: "Delete Edit",
-        scanningAll: "ပုံထဲမှ စာသားများကို တစ်ခါတည်း ဖတ်နေပါသည်...",
-        scanAllDone: (n) => `စာကြောင်း ${n} ကြောင်း ဖတ်ပြီးပါပြီ — ပြင်လိုရာ နှိပ်ပါ`,
-        readingOcr: "စာကြောင်းကို ဖတ်နေပါသည်...",
-        ocrDone: "မူလစာသား ပေါ်လာပါပြီ — ပြင်ပြီး Save နှိပ်ပါ",
-        confirmed: "မူလနေရာအတိုင်း အတည်ပြုပြီးပါပြီ",
-        reverted: "မူရင်းစာ ပြန်ပေါ်လာပါပြီ",
-        deletedEdit: "ပြင်ထားသော စာသားကို ဖျက်လိုက်ပါပြီ",
-        undoneEdit: "နောက်ဆုံး ပြင်ဆင်ချက်ကို ပြန်ဖျက်လိုက်ပါပြီ",
-        chooseExport: "အောက်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
-        copied: "မူရင်းပုံအတိုင်း Copy ကူးပြီးပါပြီ",
+        leftTitle: "ဘယ်ဘက် — ဖုန်းအမျိုးအစားနှင့် ပုံအကြိုကြည့်ရန်",
+        rightTitle: "ညာဘက် — ပုံထဲမှ စာကြောင်းများ (တိုက်ရိုက်ပြင်ရန်)",
+        addLine: "+ စာကြောင်းထပ်ထည့်",
+        lblPhone: "ဖုန်းအမျိုးအစား (Phone Model)",
+        lblCutout: "Cutout ပုံစံ",
+        lblClock: "နာရီ (Time)",
+        lblBattery: "ဖုန်းအား (%)",
+        lblSignal: "Signal တိုင် (0-4)",
+        lblNetwork: "လိုင်းအမျိုးအစား",
+        lblWifi: "Wi-Fi",
+        lblCharging: "အားသွင်းမှု",
+        lblPresets: "Quick Presets (တစ်ချက်နှိပ် ချိန်ညှိစရာ)",
+        lblBrightness: "ဖုန်းအလင်းအား (Brightness)",
+        emptyMsg: "ပုံတစ်ပုံ ထည့်လိုက်တာနဲ့ ပုံထဲက စာကြောင်းတွေကို ဖတ်ပြီး ဒီနေရာမှာ စာရင်းလိုက် ပြပေးပါမယ်။",
+        scanning: "ပုံထဲက စာကြောင်းတွေကို ဖတ်နေပါသည်...",
+        scanDone: (n) => `စာကြောင်း (${n}) ကြောင်း ဖတ်ပြီးပါပြီ — ညာဘက်မှာ တိုက်ရိုက်ပြင်နိုင်ပါပြီ`,
+        scanEmpty: "စာကြောင်း အလိုအလျောက် မတွေ့ပါ — '+ စာကြောင်းထပ်ထည့်' ကိုနှိပ်ပြီး ထည့်နိုင်ပါသည်",
+        chooseExport: "အပေါ်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
+        copied: "ပုံကို Copy ကူးပြီးပါပြီ",
         copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်ပါ",
-        copyFailed: "Copy ကူးမရပါ၊ Save ကိုနှိပ်၍ သိမ်းပါ",
-        savedNew: (name) => `မူရင်းပုံအတိုင်း (${name}) သိမ်းဆည်းပြီးပါပြီ`
+        savedFile: (f) => `ပုံအသစ် (${f}) သိမ်းဆည်းပြီးပါပြီ`
       },
       en: {
-        inspectBadge: "⌖ Inspect & Auto-Align",
+        uploadBtn: "+ Upload Image",
         toLight: "☀️ Light",
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
-        uploadLabel: "Upload Image",
-        placeholderCanvas: "Choose an image",
-        hintInitial: "Upload an image to auto-scan all lines & tap any text to edit",
-        hintActive: "Tap text on the image or pick a scanned line below to edit",
-        zoomNote: "Export always uses original 100% scale",
-        syncTitle: "Live Sync Input (Exact digits, symbols & alignment)",
-        syncPlaceholder: "Original digits & symbols appear here...",
-        lblOrigSize: "Size",
-        lblWeight: "Weight",
-        lblTextColor: "Text Color",
-        lblBgColor: "Cover Color",
-        linesTitle: "Auto-Scanned Lines (Tap any line to edit)",
-        rescanBtn: "↻ Scan Again",
-        undoBtn: "↩ Undo",
-        deleteEditBtn: "Delete Edit",
-        scanningAll: "Scanning text lines across image...",
-        scanAllDone: (n) => `Scanned ${n} lines — tap any line to edit`,
-        readingOcr: "Reading line...",
-        ocrDone: "Text loaded — edit and tap Save to confirm",
-        confirmed: "Confirmed at original position",
-        reverted: "Restored original text in box",
-        deletedEdit: "Deleted edited text",
-        undoneEdit: "Undid last confirmed edit",
-        chooseExport: "Choose Copy or Save below",
-        copied: "Image copied at original resolution",
+        leftTitle: "Left — Phone Frame & Live Preview",
+        rightTitle: "Right — Extracted Text Lines (Live Sync)",
+        addLine: "+ Add Line",
+        lblPhone: "Phone Model",
+        lblCutout: "Cutout Style",
+        lblClock: "Clock Time",
+        lblBattery: "Battery (%)",
+        lblSignal: "Signal Bars (0-4)",
+        lblNetwork: "Network",
+        lblWifi: "Wi-Fi",
+        lblCharging: "Charging",
+        lblPresets: "Quick Presets",
+        lblBrightness: "Screen Brightness",
+        emptyMsg: "Upload an image to scan and list its text lines here for live editing.",
+        scanning: "Scanning text lines from image...",
+        scanDone: (n) => `Detected ${n} text lines — edit on the right to sync live`,
+        scanEmpty: "No lines auto-detected — tap '+ Add Line' to add text",
+        chooseExport: "Choose Copy or Save above",
+        copied: "Image copied to clipboard",
         copyUnsupported: "Copy not supported here; use Save",
-        copyFailed: "Could not copy; use Save instead",
-        savedNew: (name) => `Saved at original scale (${name})`
+        savedFile: (f) => `Saved new image (${f})`
       }
     };
 
     let lang = "my";
     let theme = "dark";
-    let ocrMode = "num_sym";
-    let viewZoom = 1.0;
 
-    const themeToggleBtn = document.getElementById("themeToggleBtn");
-    const langToggleBtn = document.getElementById("langToggleBtn");
-    const modeNumSymBtn = document.getElementById("modeNumSymBtn");
-    const modeAllBtn = document.getElementById("modeAllBtn");
-    const zoomOutBtn = document.getElementById("zoomOutBtn");
-    const zoomInBtn = document.getElementById("zoomInBtn");
-    const zoomResetBtn = document.getElementById("zoomResetBtn");
-    const zoomLabel = document.getElementById("zoomLabel");
-    const zoomNote = document.getElementById("zoomNote");
+    const welcomeScreen = document.getElementById("welcomeScreen");
+    const editorScreen = document.getElementById("editorScreen");
+    const goEditBtn = document.getElementById("goEditBtn");
     const fileInput = document.getElementById("fileInput");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
-    const undoLastBtn = document.getElementById("undoLastBtn");
-    const exportChoices = document.getElementById("exportChoices");
-    const copyImgBtn = document.getElementById("copyImgBtn");
-    const downloadNewBtn = document.getElementById("downloadNewBtn");
+    const exportBar = document.getElementById("exportBar");
+    const copyBtn = document.getElementById("copyBtn");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const themeBtn = document.getElementById("themeBtn");
+    const langBtn = document.getElementById("langBtn");
+    const toastMsg = document.getElementById("toastMsg");
+
+    const toggleStatusBarBtn = document.getElementById("toggleStatusBarBtn");
+    const phoneModelSelect = document.getElementById("phoneModelSelect");
+    const cutoutStyleSelect = document.getElementById("cutoutStyleSelect");
+    const clockInput = document.getElementById("clockInput");
+    const batteryInput = document.getElementById("batteryInput");
+    const signalSelect = document.getElementById("signalSelect");
+    const networkSelect = document.getElementById("networkSelect");
+    const wifiToggleBtn = document.getElementById("wifiToggleBtn");
+    const chargingToggleBtn = document.getElementById("chargingToggleBtn");
+    const brightnessSlider = document.getElementById("brightnessSlider");
+    const brightnessVal = document.getElementById("brightnessVal");
+
     const mainCanvas = document.getElementById("mainCanvas");
     const ctx = mainCanvas.getContext("2d");
-    const syncBox = document.getElementById("syncBox");
-    const syncTextInput = document.getElementById("syncTextInput");
-    const sizeInput = document.getElementById("sizeInput");
-    const sizeDecBtn = document.getElementById("sizeDecBtn");
-    const sizeIncBtn = document.getElementById("sizeIncBtn");
-    const weightInput = document.getElementById("weightInput");
-    const textColorInput = document.getElementById("textColorInput");
-    const bgColorInput = document.getElementById("bgColorInput");
-    const miniSaveBtn = document.getElementById("miniSaveBtn");
-    const miniResetBtn = document.getElementById("miniResetBtn");
-    const miniDeleteBtn = document.getElementById("miniDeleteBtn");
-    const linesPanel = document.getElementById("linesPanel");
-    const linesTitle = document.getElementById("linesTitle");
-    const rescanBtn = document.getElementById("rescanBtn");
     const linesList = document.getElementById("linesList");
-    const hintText = document.getElementById("hintText");
-    const toastMsg = document.getElementById("toastMsg");
+    const addCustomLineBtn = document.getElementById("addCustomLineBtn");
 
     let baseImg = null;
     let sampleCanvas = document.createElement("canvas");
     let sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
 
-    let exportCanvas = document.createElement("canvas");
-    let exportCtx = exportCanvas.getContext("2d");
+    // Status bar state
+    let statusState = {
+      enabled: true,
+      model: "iphone16",
+      cutout: "island",
+      time: "09:41",
+      battery: 85,
+      charging: false,
+      signal: 4,
+      network: "5G",
+      wifi: true,
+      brightness: 100
+    };
 
-    let scannedLines = []; // { x, y, w, h, text, fontSize, fontWeight, textColor, bgColor }
-    let confirmedEdits = [];
-    let hoverBox = null;
-    let liveEdit = null;
-    let ocrToken = 0;
-    let scanAllToken = 0;
+    // Extracted / custom lines: { id, origText, text, x, y, w, h, fontSize, textColor, bgColor, modified }
+    let textLines = [];
+    let focusedLineId = null;
 
     function t(k, ...a) {
       const v = i18n[lang][k];
       return typeof v === "function" ? v(...a) : v;
     }
 
-    function updateButtonsState() {
-      undoLastBtn.disabled = confirmedEdits.length === 0;
+    function showToast(msg) {
+      toastMsg.textContent = msg;
+      setTimeout(() => {
+        if (toastMsg.textContent === msg) toastMsg.textContent = "";
+      }, 3200);
     }
 
-    function applyZoomDisplay() {
-      zoomLabel.textContent = `${Math.round(viewZoom * 100)}%`;
-      if (!baseImg) {
-        mainCanvas.style.width = "100%";
-        mainCanvas.style.maxWidth = "500px";
-        mainCanvas.style.height = "auto";
-        return;
-      }
-      const containerW = Math.max(240, document.getElementById("canvasScroll").clientWidth - 12);
-      const fitScale = Math.min(1, containerW / baseImg.width);
-      const effectiveScale = fitScale * viewZoom;
-      mainCanvas.style.maxWidth = "none";
-      mainCanvas.style.width = `${Math.round(baseImg.width * effectiveScale)}px`;
-      mainCanvas.style.height = `${Math.round(baseImg.height * effectiveScale)}px`;
-    }
-
-    function setZoom(nextZoom) {
-      viewZoom = Math.max(0.5, Math.min(3.5, Number(nextZoom.toFixed(2))));
-      applyZoomDisplay();
-    }
-
-    zoomInBtn.addEventListener("click", () => setZoom(viewZoom + 0.25));
-    zoomOutBtn.addEventListener("click", () => setZoom(viewZoom - 0.25));
-    zoomResetBtn.addEventListener("click", () => setZoom(1.0));
-    window.addEventListener("resize", applyZoomDisplay);
-
-    function applyLang() {
-      document.getElementById("inspectBadge").textContent = t("inspectBadge");
-      document.getElementById("uploadLabel").textContent = t("uploadLabel");
-      document.getElementById("syncTitle").textContent = t("syncTitle");
-      syncTextInput.placeholder = t("syncPlaceholder");
-      document.getElementById("lblOrigSize").textContent = t("lblOrigSize");
-      document.getElementById("lblWeight").textContent = t("lblWeight");
-      document.getElementById("lblTextColor").textContent = t("lblTextColor");
-      document.getElementById("lblBgColor").textContent = t("lblBgColor");
-      linesTitle.textContent = t("linesTitle");
-      rescanBtn.textContent = t("rescanBtn");
-      zoomNote.textContent = t("zoomNote");
-      undoLastBtn.textContent = t("undoBtn");
-      miniDeleteBtn.textContent = t("deleteEditBtn");
-      themeToggleBtn.textContent = theme === "dark" ? t("toLight") : t("toDark");
-      langToggleBtn.textContent = lang === "my" ? t("toEn") : t("toMy");
-      hintText.textContent = baseImg ? t("hintActive") : t("hintInitial");
-      render(true);
-    }
-
-    themeToggleBtn.addEventListener("click", () => {
-      theme = theme === "dark" ? "light" : "dark";
-      document.documentElement.setAttribute("data-theme", theme);
-      themeToggleBtn.textContent = theme === "dark" ? t("toLight") : t("toDark");
+    goEditBtn.addEventListener("click", () => {
+      welcomeScreen.classList.add("hidden");
+      editorScreen.classList.add("active");
+      renderCanvas(true);
     });
 
-    langToggleBtn.addEventListener("click", () => {
+    function applyLang() {
+      document.getElementById("uploadBtnText").textContent = t("uploadBtn");
+      themeBtn.textContent = theme === "dark" ? t("toLight") : t("toDark");
+      langBtn.textContent = lang === "my" ? t("toEn") : t("toMy");
+      document.getElementById("leftPanelTitle").textContent = t("leftTitle");
+      document.getElementById("rightPanelTitle").textContent = t("rightTitle");
+      addCustomLineBtn.textContent = t("addLine");
+      document.getElementById("lblPhone").textContent = t("lblPhone");
+      document.getElementById("lblCutout").textContent = t("lblCutout");
+      document.getElementById("lblClock").textContent = t("lblClock");
+      document.getElementById("lblBattery").textContent = t("lblBattery");
+      document.getElementById("lblSignal").textContent = t("lblSignal");
+      document.getElementById("lblNetwork").textContent = t("lblNetwork");
+      document.getElementById("lblWifi").textContent = t("lblWifi");
+      document.getElementById("lblCharging").textContent = t("lblCharging");
+      document.getElementById("lblPresets").textContent = t("lblPresets");
+      document.getElementById("lblBrightness").textContent = t("lblBrightness");
+      const emptyEl = document.getElementById("emptyStateText");
+      if (emptyEl) emptyEl.textContent = t("emptyMsg");
+    }
+
+    themeBtn.addEventListener("click", () => {
+      theme = theme === "dark" ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", theme);
+      themeBtn.textContent = theme === "dark" ? t("toLight") : t("toDark");
+    });
+
+    langBtn.addEventListener("click", () => {
       lang = lang === "my" ? "en" : "my";
       document.documentElement.setAttribute("lang", lang);
       applyLang();
     });
 
-    function setOcrMode(mode) {
-      ocrMode = mode;
-      modeNumSymBtn.classList.toggle("active", mode === "num_sym");
-      modeAllBtn.classList.toggle("active", mode === "all");
-      if (liveEdit && !liveEdit.isDirty) {
-        const token = ++ocrToken;
-        runAutoOcr({ ...liveEdit }, token);
-      }
-    }
+    // Phone model selection automatically picks appropriate cutout & layout
+    phoneModelSelect.addEventListener("change", () => {
+      statusState.model = phoneModelSelect.value;
+      if (statusState.model === "iphone16") statusState.cutout = "island";
+      else if (statusState.model === "iphoneNotch") statusState.cutout = "notch";
+      else if (statusState.model === "oppo") statusState.cutout = "punch-left";
+      else statusState.cutout = "punch-center";
+      cutoutStyleSelect.value = statusState.cutout;
+      renderCanvas(true);
+    });
 
-    modeNumSymBtn.addEventListener("click", () => setOcrMode("num_sym"));
-    modeAllBtn.addEventListener("click", () => setOcrMode("all"));
+    cutoutStyleSelect.addEventListener("change", () => {
+      statusState.cutout = cutoutStyleSelect.value;
+      renderCanvas(true);
+    });
 
-    function showToast(msg) {
-      toastMsg.textContent = msg;
-      setTimeout(() => {
-        if (toastMsg.textContent === msg) toastMsg.textContent = "";
-      }, 3000);
-    }
+    toggleStatusBarBtn.addEventListener("click", () => {
+      statusState.enabled = !statusState.enabled;
+      toggleStatusBarBtn.classList.toggle("active", statusState.enabled);
+      toggleStatusBarBtn.textContent = `Status Bar: ${statusState.enabled ? "ON" : "OFF"}`;
+      renderCanvas(true);
+    });
+
+    clockInput.addEventListener("input", () => {
+      statusState.time = clockInput.value || "09:41";
+      renderCanvas(true);
+    });
+
+    batteryInput.addEventListener("input", () => {
+      statusState.battery = Math.max(1, Math.min(100, Number(batteryInput.value) || 85));
+      renderCanvas(true);
+    });
+
+    signalSelect.addEventListener("change", () => {
+      statusState.signal = Number(signalSelect.value);
+      renderCanvas(true);
+    });
+
+    networkSelect.addEventListener("change", () => {
+      statusState.network = networkSelect.value;
+      renderCanvas(true);
+    });
+
+    wifiToggleBtn.addEventListener("click", () => {
+      statusState.wifi = !statusState.wifi;
+      wifiToggleBtn.classList.toggle("active", statusState.wifi);
+      wifiToggleBtn.textContent = `Wi-Fi: ${statusState.wifi ? "ON" : "OFF"}`;
+      renderCanvas(true);
+    });
+
+    chargingToggleBtn.addEventListener("click", () => {
+      statusState.charging = !statusState.charging;
+      chargingToggleBtn.classList.toggle("active", statusState.charging);
+      chargingToggleBtn.textContent = `Charging: ${statusState.charging ? "ON ⚡" : "OFF"}`;
+      renderCanvas(true);
+    });
+
+    document.querySelectorAll(".preset-chips .chip-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const bat = Number(btn.dataset.bat);
+        const chg = btn.dataset.chg === "1";
+        statusState.battery = bat;
+        statusState.charging = chg;
+        batteryInput.value = bat;
+        chargingToggleBtn.classList.toggle("active", chg);
+        chargingToggleBtn.textContent = `Charging: ${chg ? "ON ⚡" : "OFF"}`;
+        renderCanvas(true);
+      });
+    });
+
+    brightnessSlider.addEventListener("input", () => {
+      statusState.brightness = Number(brightnessSlider.value);
+      brightnessVal.textContent = `${statusState.brightness}%`;
+      renderCanvas(true);
+    });
 
     function rgbToHex(r, g, b) {
       return "#" + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
     }
 
-    function colorDistSq(c1, c2) {
-      return (c1[0] - c2[0]) ** 2 + (c1[1] - c2[1]) ** 2 + (c1[2] - c2[2]) ** 2;
-    }
-
-    // Snap color toward crisp dark/light ink so anti-aliased edge pixels don't look washed-out grey
-    function sharpenInkColor(fgRgb, bgRgb) {
-      const bgLum = 0.299 * bgRgb[0] + 0.587 * bgRgb[1] + 0.114 * bgRgb[2];
-      const fgLum = 0.299 * fgRgb[0] + 0.587 * fgRgb[1] + 0.114 * fgRgb[2];
-      if (bgLum > 160 && fgLum < 150) {
-        // Dark ink on light background: push toward crisp dark ink
-        const factor = 0.45;
-        return [
-          Math.max(0, fgRgb[0] * factor),
-          Math.max(0, fgRgb[1] * factor),
-          Math.max(0, fgRgb[2] * factor)
-        ];
-      }
-      if (bgLum < 95 && fgLum > 140) {
-        // Light ink on dark background: push toward crisp bright ink
-        const lift = 0.45;
-        return [
-          Math.min(255, fgRgb[0] + (255 - fgRgb[0]) * lift),
-          Math.min(255, fgRgb[1] + (255 - fgRgb[1]) * lift),
-          Math.min(255, fgRgb[2] + (255 - fgRgb[2]) * lift)
-        ];
-      }
-      return fgRgb;
-    }
-
-    function inspectLineAt(cx, cy) {
-      const scaleFactor = baseImg ? Math.max(1, baseImg.width / 540) : 1;
-      const defaultSize = Math.max(11, Math.round(14 * scaleFactor));
-      const fallback = {
-        bgColor: "#ffffff",
-        textColor: "#000000",
-        fontSize: defaultSize,
-        fontWeight: "700",
-        x: Math.max(0, Math.round(cx - 80 * scaleFactor)),
-        y: Math.max(0, Math.round(cy - defaultSize * 0.65)),
-        w: Math.min(mainCanvas.width, Math.round(160 * scaleFactor)),
-        h: Math.round(defaultSize * 1.2)
-      };
-      if (!baseImg) return fallback;
-
-      const scanW = Math.min(sampleCanvas.width, Math.max(180, Math.round(sampleCanvas.width * 0.78)));
-      const maxLineSearchH = Math.max(20, Math.min(52, Math.round(sampleCanvas.height * 0.026)));
-      const scanH = Math.min(sampleCanvas.height, maxLineSearchH);
-      const sx0 = Math.max(0, Math.min(sampleCanvas.width - scanW, Math.round(cx - scanW * 0.35)));
-      const sy0 = Math.max(0, Math.min(sampleCanvas.height - scanH, Math.round(cy - scanH / 2)));
-
+    function sampleRegionColors(x, y, w, h) {
+      const sx = Math.max(0, Math.min(sampleCanvas.width - 1, Math.round(x)));
+      const sy = Math.max(0, Math.min(sampleCanvas.height - 1, Math.round(y)));
+      const sw = Math.max(4, Math.min(sampleCanvas.width - sx, Math.round(w)));
+      const sh = Math.max(4, Math.min(sampleCanvas.height - sy, Math.round(h)));
       try {
-        const imgData = sampleCtx.getImageData(sx0, sy0, scanW, scanH).data;
-
-        const edgeColors = [];
-        for (let x = 0; x < scanW; x += 2) {
-          for (const y of [0, scanH - 1]) {
-            const idx = (y * scanW + x) * 4;
-            edgeColors.push([imgData[idx], imgData[idx + 1], imgData[idx + 2]]);
+        const data = sampleCtx.getImageData(sx, sy, sw, sh).data;
+        const border = [];
+        for (let ix = 0; ix < sw; ix += 2) {
+          for (const iy of [0, sh - 1]) {
+            const p = (iy * sw + ix) * 4;
+            border.push([data[p], data[p + 1], data[p + 2]]);
           }
         }
-        edgeColors.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
-        const bgRgb = edgeColors[Math.floor(edgeColors.length * 0.65)] || [255, 255, 255];
+        border.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
+        const bg = border[Math.floor(border.length / 2)] || [255, 255, 255];
 
-        const midY = Math.max(0, Math.min(scanH - 1, Math.round(cy - sy0)));
-        let topY = midY;
-        let botY = midY;
-
-        const rowHasFg = (y) => {
-          let hits = 0;
-          for (let x = 0; x < scanW; x += 2) {
-            const idx = (y * scanW + x) * 4;
-            const px = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
-            if (colorDistSq(px, bgRgb) > 3000) hits++;
-          }
-          return hits >= 2;
-        };
-
-        let gapUp = 0;
-        for (let y = midY; y >= 0; y--) {
-          if (rowHasFg(y)) { topY = y; gapUp = 0; }
-          else { gapUp++; if (gapUp > 1 && y < midY - 2) break; }
-        }
-        let gapDn = 0;
-        for (let y = midY; y < scanH; y++) {
-          if (rowHasFg(y)) { botY = y; gapDn = 0; }
-          else { gapDn++; if (gapDn > 1 && y > midY + 2) break; }
-        }
-
-        const linePixelH = Math.max(9, botY - topY + 1);
-        const estimatedFontSize = Math.max(9, Math.min(180, Math.round(linePixelH * 0.92)));
-
-        const colHits = new Array(scanW).fill(false);
-        let darkestPx = null;
-        let darkestLum = Infinity;
-        let fgSum = [0, 0, 0];
-        let fgCount = 0;
-        let activePixels = 0;
-
-        for (let x = 0; x < scanW; x++) {
-          for (let y = topY; y <= botY; y++) {
-            const idx = (y * scanW + x) * 4;
-            const px = [imgData[idx], imgData[idx + 1], imgData[idx + 2]];
-            if (colorDistSq(px, bgRgb) > 3000) {
-              colHits[x] = true;
-              activePixels++;
-              fgSum[0] += px[0];
-              fgSum[1] += px[1];
-              fgSum[2] += px[2];
-              fgCount++;
-              const lum = 0.299 * px[0] + 0.587 * px[1] + 0.114 * px[2];
-              if (lum < darkestLum) {
-                darkestLum = lum;
-                darkestPx = px;
-              }
-            }
+        let fgSum = [0, 0, 0], fgN = 0;
+        for (let i = 0; i < data.length; i += 8) {
+          const d = (data[i] - bg[0]) ** 2 + (data[i + 1] - bg[1]) ** 2 + (data[i + 2] - bg[2]) ** 2;
+          if (d > 2400) {
+            fgSum[0] += data[i];
+            fgSum[1] += data[i + 1];
+            fgSum[2] += data[i + 2];
+            fgN++;
           }
         }
-
-        const tapLocalX = Math.max(0, Math.min(scanW - 1, Math.round(cx - sx0)));
-        let leftX = tapLocalX;
-        let rightX = tapLocalX;
-
-        let gap = 0;
-        for (let x = tapLocalX; x >= 0; x--) {
-          if (colHits[x]) { leftX = x; gap = 0; }
-          else { gap++; if (gap > Math.max(4, Math.round(estimatedFontSize * 0.4))) break; }
-        }
-        gap = 0;
-        for (let x = tapLocalX; x < scanW; x++) {
-          if (colHits[x]) { rightX = x; gap = 0; }
-          else { gap++; if (gap > Math.max(4, Math.round(estimatedFontSize * 0.4))) break; }
-        }
-
-        const padX = Math.max(2, Math.round(estimatedFontSize * 0.14));
-        const padY = Math.max(1, Math.round(estimatedFontSize * 0.12));
-
-        let x = sx0 + Math.max(0, leftX - padX);
-        let w = Math.max(50, Math.min(sampleCanvas.width - x, (rightX - leftX) + padX * 2));
-        if (rightX - leftX < 5) {
-          x = Math.max(0, Math.min(sampleCanvas.width - 130, Math.round(cx - 35)));
-          w = Math.min(sampleCanvas.width - x, 130);
-        }
-
-        const absTop = sy0 + topY;
-        const absBot = sy0 + botY;
-        const y = Math.max(0, absTop - padY);
-        const h = Math.min(sampleCanvas.height - y, (absBot - absTop + 1) + padY * 2);
-
-        let fgRgb = (bgRgb[0] + bgRgb[1] + bgRgb[2]) > 380 ? [0, 0, 0] : [255, 255, 255];
-        if (fgCount > 3) {
-          const avgFg = [fgSum[0] / fgCount, fgSum[1] / fgCount, fgSum[2] / fgCount];
-          const bgLum = 0.299 * bgRgb[0] + 0.587 * bgRgb[1] + 0.114 * bgRgb[2];
-          const basePick = (bgLum > 160 && darkestPx) ? darkestPx : avgFg;
-          fgRgb = sharpenInkColor(basePick, bgRgb);
-        }
-
-        const spanW = Math.max(1, rightX - leftX + 1);
-        const density = activePixels / Math.max(1, spanW * linePixelH);
-        const fontWeight = density > 0.36 ? "700" : (density > 0.24 ? "600" : "400");
+        const fg = fgN > 3
+          ? [fgSum[0] / fgN, fgSum[1] / fgN, fgSum[2] / fgN]
+          : (bg[0] + bg[1] + bg[2] > 380 ? [17, 24, 39] : [255, 255, 255]);
 
         return {
-          bgColor: rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]),
-          textColor: rgbToHex(fgRgb[0], fgRgb[1], fgRgb[2]),
-          fontSize: estimatedFontSize,
-          fontWeight,
-          x,
-          y,
-          w,
-          h
+          bgColor: rgbToHex(bg[0], bg[1], bg[2]),
+          textColor: rgbToHex(fg[0], fg[1], fg[2])
         };
       } catch (_) {
-        return fallback;
+        return { bgColor: "#ffffff", textColor: "#111827" };
       }
     }
 
-    function drawAutoAlignedEditOn(targetCtx, item, showOutline, isLive) {
-      const boxH = Math.max(item.h, Math.round(item.fontSize * 1.2));
-      const boxY = item.y;
-      const textX = item.x + Math.max(2, Math.round(item.fontSize * 0.1));
-      const centerY = boxY + boxH / 2;
+    function drawStatusBarOverlay() {
+      if (!statusState.enabled || !baseImg) return;
+      const W = mainCanvas.width;
+      const barH = Math.max(28, Math.round(W * 0.075));
+      const padX = Math.round(W * 0.045);
+      const fontSize = Math.max(11, Math.round(barH * 0.44));
 
-      targetCtx.font = `${item.fontWeight || "700"} ${item.fontSize}px system-ui, -apple-system, sans-serif`;
-      const textW = (item.text && item.text.length > 0) ? targetCtx.measureText(item.text).width : 0;
-      const rightPad = Math.max(6, Math.round(item.fontSize * 0.28));
-      const coverW = Math.min(
-        targetCtx.canvas.width - item.x,
-        Math.max(item.w, Math.ceil((textX - item.x) + textW + rightPad))
-      );
+      // Detect top strip brightness to pick light or dark status icons
+      let isDarkTop = false;
+      try {
+        const px = sampleCtx.getImageData(Math.floor(W * 0.15), Math.min(sampleCanvas.height - 1, Math.floor(barH * 0.5)), 1, 1).data;
+        isDarkTop = (px[0] + px[1] + px[2]) < 360;
+      } catch (_) {}
 
-      if (!isLive || item.isDirty) {
-        targetCtx.fillStyle = item.bgColor;
-        targetCtx.fillRect(item.x, boxY, coverW, boxH);
+      const fg = isDarkTop ? "#ffffff" : "#0f172a";
+      const bg = isDarkTop ? "#0b1120" : "#ffffff";
 
-        if (item.text && item.text.length > 0) {
-          targetCtx.fillStyle = item.textColor;
-          targetCtx.textAlign = "left";
-          targetCtx.textBaseline = "middle";
-          targetCtx.fillText(item.text, textX, centerY);
-          targetCtx.textBaseline = "alphabetic";
+      // Clean status bar strip
+      ctx.save();
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, W, barH);
+
+      // Cutout (Dynamic Island / Notch / Punch-hole)
+      ctx.fillStyle = "#000000";
+      if (statusState.cutout === "island") {
+        const iw = Math.round(W * 0.27);
+        const ih = Math.round(barH * 0.64);
+        const ix = Math.round((W - iw) / 2);
+        const iy = Math.round((barH - ih) / 2);
+        ctx.beginPath();
+        ctx.roundRect(ix, iy, iw, ih, ih / 2);
+        ctx.fill();
+      } else if (statusState.cutout === "notch") {
+        const nw = Math.round(W * 0.42);
+        const nh = Math.round(barH * 0.72);
+        const nx = Math.round((W - nw) / 2);
+        ctx.beginPath();
+        ctx.roundRect(nx, 0, nw, nh, [0, 0, Math.round(nh * 0.45), Math.round(nh * 0.45)]);
+        ctx.fill();
+      } else if (statusState.cutout === "punch-center") {
+        const r = Math.max(4, Math.round(barH * 0.18));
+        ctx.beginPath();
+        ctx.arc(W / 2, barH / 2, r, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (statusState.cutout === "punch-left") {
+        const r = Math.max(4, Math.round(barH * 0.18));
+        ctx.beginPath();
+        ctx.arc(padX + r, barH / 2, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Clock position (shifts right if left punch-hole)
+      const clockX = statusState.cutout === "punch-left" ? padX + Math.round(barH * 0.65) : padX;
+      ctx.fillStyle = fg;
+      ctx.font = `700 ${fontSize}px system-ui, sans-serif`;
+      ctx.textBaseline = "middle";
+      ctx.fillText(statusState.time, clockX, barH / 2);
+
+      // Right cluster: Signal bars + Network + Wi-Fi + Battery
+      let curX = W - padX;
+      const midY = barH / 2;
+
+      // Battery icon
+      const batW = Math.round(fontSize * 1.75);
+      const batH = Math.round(fontSize * 0.88);
+      curX -= batW;
+      ctx.strokeStyle = fg;
+      ctx.lineWidth = Math.max(1.2, W / 320);
+      ctx.strokeRect(curX, midY - batH / 2, batW - 2, batH);
+      ctx.fillStyle = fg;
+      ctx.fillRect(curX + batW - 2, midY - batH * 0.22, 2, batH * 0.44);
+
+      const fillRatio = statusState.battery / 100;
+      ctx.fillStyle = statusState.charging ? "#10b981" : (statusState.battery <= 20 ? "#ef4444" : fg);
+      ctx.fillRect(curX + 2, midY - batH / 2 + 2, Math.max(2, (batW - 6) * fillRatio), batH - 4);
+
+      // Battery % text
+      curX -= 4;
+      ctx.font = `700 ${Math.round(fontSize * 0.82)}px system-ui, sans-serif`;
+      ctx.textAlign = "right";
+      ctx.fillStyle = fg;
+      ctx.fillText(`${statusState.battery}%${statusState.charging ? "⚡" : ""}`, curX, midY);
+      curX -= ctx.measureText(`${statusState.battery}%${statusState.charging ? "⚡" : ""}`).width + 6;
+
+      // Wi-Fi arcs
+      if (statusState.wifi) {
+        const wifiR = Math.round(fontSize * 0.65);
+        curX -= wifiR;
+        ctx.strokeStyle = fg;
+        ctx.lineWidth = Math.max(1.3, W / 300);
+        for (let a = 1; a <= 3; a++) {
+          ctx.beginPath();
+          ctx.arc(curX, midY + wifiR * 0.45, (wifiR * a) / 3, Math.PI * 1.22, Math.PI * 1.78);
+          ctx.stroke();
         }
+        curX -= wifiR + 6;
       }
 
-      if (showOutline) {
-        targetCtx.save();
-        targetCtx.strokeStyle = "#38bdf8";
-        targetCtx.lineWidth = Math.max(1.5, targetCtx.canvas.width / 260);
-        targetCtx.strokeRect(item.x, boxY, coverW, boxH);
-        targetCtx.restore();
+      // Network text (5G / 4G)
+      if (statusState.network) {
+        ctx.font = `700 ${Math.round(fontSize * 0.78)}px system-ui, sans-serif`;
+        ctx.textAlign = "right";
+        ctx.fillStyle = fg;
+        ctx.fillText(statusState.network, curX, midY);
+        curX -= ctx.measureText(statusState.network).width + 6;
       }
+
+      // Signal bars (4 bars)
+      const barGap = 2;
+      const singleW = Math.max(2, Math.round(fontSize * 0.2));
+      const totalSigW = 4 * singleW + 3 * barGap;
+      curX -= totalSigW;
+      for (let b = 0; b < 4; b++) {
+        const bh = Math.round(batH * (0.35 + b * 0.21));
+        ctx.fillStyle = b < statusState.signal ? fg : "rgba(148,163,184,0.35)";
+        ctx.fillRect(curX + b * (singleW + barGap), midY + batH / 2 - bh, singleW, bh);
+      }
+
+      ctx.restore();
     }
 
-    function render(showOutline = true) {
+    function renderCanvas(showHighlight = true) {
       ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
       if (!baseImg) {
-        ctx.fillStyle = theme === "dark" ? "#94a3b8" : "#475569";
+        ctx.fillStyle = "#94a3b8";
         ctx.font = "15px sans-serif";
         ctx.textAlign = "center";
-        ctx.fillText(t("placeholderCanvas"), mainCanvas.width / 2, mainCanvas.height / 2);
+        ctx.fillText("ပုံထည့်ရန် အပေါ်က '+ ပုံထည့်ရန်' ကိုနှိပ်ပါ", mainCanvas.width / 2, mainCanvas.height / 2);
         ctx.textAlign = "start";
         return;
       }
 
+      ctx.save();
+      ctx.filter = `brightness(${statusState.brightness}%)`;
       ctx.drawImage(baseImg, 0, 0, mainCanvas.width, mainCanvas.height);
 
-      if (showOutline && !liveEdit && hoverBox) {
-        ctx.save();
-        ctx.fillStyle = "rgba(56, 189, 248, 0.14)";
-        ctx.fillRect(hoverBox.x, hoverBox.y, hoverBox.w, hoverBox.h);
-        ctx.strokeStyle = "#38bdf8";
-        ctx.lineWidth = Math.max(1.5, mainCanvas.width / 260);
-        ctx.strokeRect(hoverBox.x, hoverBox.y, hoverBox.w, hoverBox.h);
-        ctx.restore();
-      }
+      // Draw modified/deleted lines synced from Right Panel
+      for (const line of textLines) {
+        if (line.modified) {
+          ctx.fillStyle = line.bgColor;
+          ctx.fillRect(line.x - 2, line.y - 2, line.w + 4, line.h + 4);
 
-      for (const item of confirmedEdits) {
-        drawAutoAlignedEditOn(ctx, item, false, false);
-      }
-
-      if (liveEdit) {
-        drawAutoAlignedEditOn(ctx, liveEdit, showOutline, true);
-      }
-    }
-
-    function renderCleanExportCanvas() {
-      exportCanvas.width = baseImg.width;
-      exportCanvas.height = baseImg.height;
-      exportCtx.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
-      exportCtx.drawImage(baseImg, 0, 0, exportCanvas.width, exportCanvas.height);
-      for (const item of confirmedEdits) {
-        drawAutoAlignedEditOn(exportCtx, item, false, false);
-      }
-      if (liveEdit && liveEdit.isDirty) {
-        drawAutoAlignedEditOn(exportCtx, liveEdit, false, false);
-      }
-      return exportCanvas;
-    }
-
-    function cleanOcrOutput(rawText, mode) {
-      let s = (rawText || "").replace(/\s+/g, " ").trim();
-      s = s.replace(/[—–−]/g, "-").replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
-      if (mode === "num_sym") {
-        s = s.replace(/[^\dA-Za-z\-+~,.:/()%$ ]+/g, "").replace(/\s+/g, " ").trim();
-      }
-      return s;
-    }
-
-    async function recognizeBoxText(box, mode) {
-      if (!window.Tesseract) return "";
-      const boxH = Math.max(box.h, Math.round(box.fontSize * 1.2));
-      const boxY = Math.max(0, Math.round(box.y));
-      const pad = 20;
-      const scale = 2.5;
-      const cropCanvas = document.createElement("canvas");
-      cropCanvas.width = Math.max(220, Math.round(box.w * scale) + pad * 2);
-      cropCanvas.height = Math.max(64, Math.round(boxH * scale) + pad * 2);
-      const cCtx = cropCanvas.getContext("2d");
-      cCtx.fillStyle = "#ffffff";
-      cCtx.fillRect(0, 0, cropCanvas.width, cropCanvas.height);
-      cCtx.imageSmoothingEnabled = false;
-      cCtx.drawImage(
-        sampleCanvas,
-        Math.max(0, Math.round(box.x)),
-        boxY,
-        Math.max(8, Math.round(box.w)),
-        Math.max(8, Math.round(boxH)),
-        pad,
-        pad,
-        Math.round(box.w * scale),
-        Math.round(boxH * scale)
-      );
-      const langCode = mode === "num_sym" ? "eng" : "eng+mya";
-      const res = await Tesseract.recognize(cropCanvas.toDataURL("image/png"), langCode);
-      return cleanOcrOutput(res?.data?.text || "", mode);
-    }
-
-    async function runAutoOcr(item, token) {
-      if (!window.Tesseract || !item) return;
-      showToast(t("readingOcr"));
-      try {
-        const detected = await recognizeBoxText(item, ocrMode);
-        if (token !== ocrToken || !liveEdit || liveEdit.isDirty) return;
-        if (detected) {
-          liveEdit.originalText = detected;
-          liveEdit.text = detected;
-          syncTextInput.value = detected;
-          render(true);
-          showToast(t("ocrDone"));
-        } else {
-          showToast("");
+          if (line.text.length > 0) {
+            ctx.fillStyle = line.textColor;
+            ctx.font = `600 ${line.fontSize}px system-ui, sans-serif`;
+            ctx.textBaseline = "middle";
+            ctx.fillText(line.text, line.x + 2, line.y + line.h / 2);
+            ctx.textBaseline = "alphabetic";
+          }
         }
-      } catch (_) {
-        if (token === ocrToken) showToast("");
+
+        if (showHighlight && line.id === focusedLineId) {
+          ctx.save();
+          ctx.strokeStyle = "#38bdf8";
+          ctx.lineWidth = Math.max(1.5, mainCanvas.width / 250);
+          ctx.setLineDash([5, 3]);
+          ctx.strokeRect(line.x - 2, line.y - 2, line.w + 4, line.h + 4);
+          ctx.restore();
+        }
       }
+
+      drawStatusBarOverlay();
+      ctx.restore();
     }
 
-    function renderScannedLinesList() {
-      linesList.innerHTML = "";
-      if (!scannedLines.length) {
-        linesPanel.classList.remove("show");
+    function renderLinesList() {
+      if (!textLines.length) {
+        linesList.innerHTML = `<div class="empty-state" id="emptyStateText">${t("emptyMsg")}</div>`;
         return;
       }
-      linesPanel.classList.add("show");
-      scannedLines.forEach((ln, idx) => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "line-chip";
 
-        const spanText = document.createElement("span");
-        spanText.className = "line-chip-text";
-        spanText.textContent = `${idx + 1}. ${ln.text}`;
+      linesList.innerHTML = "";
+      textLines.forEach((line, index) => {
+        const card = document.createElement("div");
+        card.className = "line-card" + (line.id === focusedLineId ? " focused" : "");
 
-        const spanMeta = document.createElement("span");
-        spanMeta.className = "line-chip-meta";
-        spanMeta.textContent = `Size ${ln.fontSize}px`;
+        const top = document.createElement("div");
+        top.className = "line-card-top";
+        top.innerHTML = `<span>Line ${index + 1}</span><span>${Math.round(line.fontSize)}px</span>`;
 
-        btn.appendChild(spanText);
-        btn.appendChild(spanMeta);
-        btn.addEventListener("click", () => openLineForEdit(ln));
-        linesList.appendChild(btn);
+        const input = document.createElement("input");
+        input.type = "text";
+        input.className = "line-input";
+        input.value = line.text;
+        input.placeholder = "စာဖျက်ရင် ပုံမှာလိုက်ပျက်မည်၊ ရိုက်ရင် လိုက်ပြောင်းမည်...";
+
+        input.addEventListener("focus", () => {
+          focusedLineId = line.id;
+          document.querySelectorAll(".line-card").forEach(c => c.classList.remove("focused"));
+          card.classList.add("focused");
+          renderCanvas(true);
+        });
+
+        input.addEventListener("input", () => {
+          line.text = input.value;
+          line.modified = true;
+          renderCanvas(true);
+        });
+
+        const meta = document.createElement("div");
+        meta.className = "line-meta";
+
+        const szInput = document.createElement("input");
+        szInput.type = "number";
+        szInput.value = line.fontSize;
+        szInput.min = 8;
+        szInput.max = 180;
+        szInput.title = "Font Size";
+        szInput.addEventListener("input", () => {
+          line.fontSize = Number(szInput.value) || 18;
+          line.modified = true;
+          renderCanvas(true);
+        });
+
+        const fgPicker = document.createElement("input");
+        fgPicker.type = "color";
+        fgPicker.value = line.textColor;
+        fgPicker.title = "Text Color";
+        fgPicker.addEventListener("input", () => {
+          line.textColor = fgPicker.value;
+          line.modified = true;
+          renderCanvas(true);
+        });
+
+        const bgPicker = document.createElement("input");
+        bgPicker.type = "color";
+        bgPicker.value = line.bgColor;
+        bgPicker.title = "Background Cover Color";
+        bgPicker.addEventListener("input", () => {
+          line.bgColor = bgPicker.value;
+          line.modified = true;
+          renderCanvas(true);
+        });
+
+        const resetBtn = document.createElement("button");
+        resetBtn.className = "mini-reset-line";
+        resetBtn.textContent = "Reset";
+        resetBtn.addEventListener("click", () => {
+          line.text = line.origText;
+          line.modified = false;
+          input.value = line.origText;
+          renderCanvas(true);
+        });
+
+        meta.append(szInput, fgPicker, bgPicker, resetBtn);
+        card.append(top, input, meta);
+        linesList.appendChild(card);
       });
     }
 
-    // Auto-detects horizontal text bands across the uploaded image so lines appear immediately
-    async function scanAllLinesOnUpload() {
+    async function scanImageLines() {
       if (!baseImg || !window.Tesseract) return;
-      const myToken = ++scanAllToken;
-      scannedLines = [];
-      renderScannedLinesList();
-      showToast(t("scanningAll"));
+      showToast(t("scanning"));
+      try {
+        const res = await Tesseract.recognize(sampleCanvas.toDataURL("image/png"), "eng+mya");
+        const ocrLines = res?.data?.lines || [];
+        const extracted = [];
 
-      const w = sampleCanvas.width;
-      const h = sampleCanvas.height;
-      const imgData = sampleCtx.getImageData(0, 0, w, h).data;
+        ocrLines.forEach((ln, idx) => {
+          const clean = (ln.text || "").replace(/\s+/g, " ").trim();
+          if (!clean) return;
+          const b = ln.bbox;
+          const w = Math.max(20, b.x1 - b.x0);
+          const h = Math.max(14, b.y1 - b.y0);
+          const colors = sampleRegionColors(b.x0, b.y0, w, h);
+          extracted.push({
+            id: "line_" + Date.now() + "_" + idx,
+            origText: clean,
+            text: clean,
+            x: b.x0,
+            y: b.y0,
+            w,
+            h,
+            fontSize: Math.max(12, Math.min(72, Math.round(h * 0.78))),
+            textColor: colors.textColor,
+            bgColor: colors.bgColor,
+            modified: false
+          });
+        });
 
-      // Estimate global background color from corners/edges
-      const bgSamples = [];
-      for (let x = 0; x < w; x += 6) {
-        for (const y of [2, h - 3]) {
-          const i = (y * w + x) * 4;
-          bgSamples.push([imgData[i], imgData[i + 1], imgData[i + 2]]);
-        }
+        textLines = extracted;
+        renderLinesList();
+        renderCanvas(true);
+        showToast(extracted.length ? t("scanDone", extracted.length) : t("scanEmpty"));
+      } catch (_) {
+        showToast(t("scanEmpty"));
       }
-      bgSamples.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
-      const globalBg = bgSamples[Math.floor(bgSamples.length * 0.65)] || [255, 255, 255];
-
-      // Find vertical bands with text activity
-      const activeRows = new Array(h).fill(false);
-      for (let y = 0; y < h; y++) {
-        let hits = 0;
-        for (let x = 0; x < w; x += 3) {
-          const i = (y * w + x) * 4;
-          const px = [imgData[i], imgData[i + 1], imgData[i + 2]];
-          if (colorDistSq(px, globalBg) > 3200) hits++;
-        }
-        if (hits >= 3) activeRows[y] = true;
-      }
-
-      const bands = [];
-      let inBand = false;
-      let startY = 0;
-      let gapCount = 0;
-      for (let y = 0; y < h; y++) {
-        if (activeRows[y]) {
-          if (!inBand) {
-            inBand = true;
-            startY = y;
-          }
-          gapCount = 0;
-        } else if (inBand) {
-          gapCount++;
-          if (gapCount > 2) {
-            const endY = y - gapCount;
-            if (endY - startY >= 8) bands.push({ startY, endY });
-            inBand = false;
-            gapCount = 0;
-          }
-        }
-      }
-      if (inBand && h - 1 - startY >= 8) {
-        bands.push({ startY, endY: h - 1 });
-      }
-
-      // Inspect up to 24 bands and OCR readable lines
-      const maxBands = bands.slice(0, 24);
-      const found = [];
-      for (const b of maxBands) {
-        if (myToken !== scanAllToken) return;
-        const midY = Math.round((b.startY + b.endY) / 2);
-        const midX = Math.round(w * 0.45);
-        const info = inspectLineAt(midX, midY);
-        try {
-          const txt = await recognizeBoxText(info, "all");
-          if (myToken !== scanAllToken) return;
-          if (txt && txt.length >= 1) {
-            found.push({ ...info, text: txt });
-          }
-        } catch (_) {
-          // Ignore unreadable noise bands
-        }
-      }
-
-      if (myToken !== scanAllToken) return;
-      scannedLines = found;
-      renderScannedLinesList();
-      if (found.length > 0) {
-        showToast(t("scanAllDone", found.length));
-      } else {
-        showToast("");
-      }
-    }
-
-    function openLineForEdit(infoOrExisting) {
-      if (!baseImg) return;
-      const existing = findExistingEditAt(
-        infoOrExisting.x + infoOrExisting.w / 2,
-        infoOrExisting.y + infoOrExisting.h / 2
-      );
-      if (existing) {
-        ocrToken++;
-        liveEdit = { ...existing, isDirty: true };
-        syncInputsFromLive();
-        syncBox.classList.add("show");
-        render(true);
-        return;
-      }
-
-      const initialText = infoOrExisting.text || "";
-      liveEdit = {
-        id: Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-        x: infoOrExisting.x,
-        y: infoOrExisting.y,
-        w: infoOrExisting.w,
-        h: infoOrExisting.h,
-        text: initialText,
-        originalText: initialText,
-        fontSize: infoOrExisting.fontSize,
-        fontWeight: infoOrExisting.fontWeight,
-        textColor: infoOrExisting.textColor,
-        bgColor: infoOrExisting.bgColor,
-        isDirty: false
-      };
-
-      syncInputsFromLive();
-      syncBox.classList.add("show");
-      render(true);
-
-      if (!initialText) {
-        const token = ++ocrToken;
-        runAutoOcr({ ...liveEdit }, token);
-      }
-    }
-
-    function syncInputsFromLive() {
-      if (!liveEdit) return;
-      syncTextInput.value = liveEdit.text;
-      sizeInput.value = liveEdit.fontSize;
-      weightInput.value = liveEdit.fontWeight || "700";
-      textColorInput.value = liveEdit.textColor;
-      bgColorInput.value = liveEdit.bgColor;
     }
 
     fileInput.addEventListener("change", (e) => {
@@ -1250,207 +1105,61 @@
           sampleCtx.clearRect(0, 0, sampleCanvas.width, sampleCanvas.height);
           sampleCtx.drawImage(img, 0, 0);
 
-          confirmedEdits = [];
-          scannedLines = [];
-          renderScannedLinesList();
-          hoverBox = null;
-          liveEdit = null;
-          viewZoom = 1.0;
-          applyZoomDisplay();
-          syncBox.classList.remove("show");
-          exportChoices.classList.remove("show");
+          textLines = [];
+          focusedLineId = null;
           mainSaveBtn.disabled = false;
-          updateButtonsState();
-          hintText.textContent = t("hintActive");
-          render(true);
-          scanAllLinesOnUpload();
+          exportBar.classList.remove("show");
+          renderLinesList();
+          renderCanvas(true);
+          scanImageLines();
         };
         img.src = ev.target.result;
       };
       reader.readAsDataURL(file);
     });
 
-    rescanBtn.addEventListener("click", () => {
-      if (baseImg) scanAllLinesOnUpload();
-    });
-
-    syncTextInput.addEventListener("input", () => {
-      ocrToken++;
-      if (!liveEdit) return;
-      liveEdit.isDirty = true;
-      liveEdit.text = syncTextInput.value;
-      render(true);
-    });
-
-    function applySizeValue(nextVal) {
-      if (!liveEdit) return;
-      const clamped = Math.max(6, Math.min(200, Number(nextVal) || liveEdit.fontSize));
-      sizeInput.value = clamped;
-      liveEdit.fontSize = clamped;
-      liveEdit.isDirty = true;
-      render(true);
-    }
-
-    sizeInput.addEventListener("input", () => applySizeValue(sizeInput.value));
-    sizeDecBtn.addEventListener("click", () => applySizeValue((Number(sizeInput.value) || liveEdit?.fontSize || 14) - 1));
-    sizeIncBtn.addEventListener("click", () => applySizeValue((Number(sizeInput.value) || liveEdit?.fontSize || 14) + 1));
-
-    weightInput.addEventListener("change", () => {
-      if (!liveEdit) return;
-      liveEdit.fontWeight = weightInput.value;
-      liveEdit.isDirty = true;
-      render(true);
-    });
-
-    textColorInput.addEventListener("input", () => {
-      if (!liveEdit) return;
-      liveEdit.textColor = textColorInput.value;
-      liveEdit.isDirty = true;
-      render(true);
-    });
-
-    bgColorInput.addEventListener("input", () => {
-      if (!liveEdit) return;
-      liveEdit.bgColor = bgColorInput.value;
-      liveEdit.isDirty = true;
-      render(true);
-    });
-
-    miniSaveBtn.addEventListener("click", () => {
-      if (!liveEdit) return;
-      ocrToken++;
-      const idx = confirmedEdits.findIndex((ed) => ed.id === liveEdit.id);
-      const entry = { ...liveEdit, isDirty: true };
-      if (idx >= 0) confirmedEdits[idx] = entry;
-      else confirmedEdits.push(entry);
-
-      liveEdit = null;
-      hoverBox = null;
-      syncBox.classList.remove("show");
-      updateButtonsState();
-      render(true);
-      showToast(t("confirmed"));
-    });
-
-    miniResetBtn.addEventListener("click", () => {
-      if (!liveEdit) return;
-      ocrToken++;
-      liveEdit.isDirty = false;
-      liveEdit.text = liveEdit.originalText || "";
-      syncTextInput.value = liveEdit.text;
-      render(true);
-      showToast(t("reverted"));
-    });
-
-    miniDeleteBtn.addEventListener("click", () => {
-      if (!liveEdit) return;
-      ocrToken++;
-      confirmedEdits = confirmedEdits.filter((ed) => ed.id !== liveEdit.id);
-      liveEdit = null;
-      hoverBox = null;
-      syncBox.classList.remove("show");
-      updateButtonsState();
-      render(true);
-      showToast(t("deletedEdit"));
-    });
-
-    undoLastBtn.addEventListener("click", () => {
-      if (confirmedEdits.length === 0) return;
-      confirmedEdits.pop();
-      liveEdit = null;
-      syncBox.classList.remove("show");
-      updateButtonsState();
-      render(true);
-      showToast(t("undoneEdit"));
-    });
-
-    function getCoords(clientX, clientY) {
-      const rect = mainCanvas.getBoundingClientRect();
-      return {
-        x: ((clientX - rect.left) / rect.width) * mainCanvas.width,
-        y: ((clientY - rect.top) / rect.height) * mainCanvas.height
-      };
-    }
-
-    function findExistingEditAt(px, py) {
-      for (let i = confirmedEdits.length - 1; i >= 0; i--) {
-        const ed = confirmedEdits[i];
-        const boxH = Math.max(ed.h, Math.round(ed.fontSize * 1.2));
-        if (px >= ed.x && px <= ed.x + ed.w && py >= ed.y && py <= ed.y + boxH) {
-          return ed;
-        }
-      }
-      return null;
-    }
-
-    function findScannedLineAt(px, py) {
-      for (const ln of scannedLines) {
-        const boxH = Math.max(ln.h, Math.round(ln.fontSize * 1.2));
-        if (py >= ln.y - 4 && py <= ln.y + boxH + 4) {
-          return ln;
-        }
-      }
-      return null;
-    }
-
-    mainCanvas.addEventListener("mousemove", (e) => {
-      if (!baseImg || liveEdit) return;
-      const pt = getCoords(e.clientX, e.clientY);
-      hoverBox = findScannedLineAt(pt.x, pt.y) || inspectLineAt(pt.x, pt.y);
-      render(true);
-    });
-
-    mainCanvas.addEventListener("mouseleave", () => {
-      if (hoverBox) {
-        hoverBox = null;
-        render(true);
-      }
-    });
-
-    function selectTargetAt(clientX, clientY) {
+    addCustomLineBtn.addEventListener("click", () => {
       if (!baseImg) return;
-      const pt = getCoords(clientX, clientY);
-      const matchedLine = findScannedLineAt(pt.x, pt.y);
-      if (matchedLine) {
-        openLineForEdit(matchedLine);
-        return;
-      }
-      const info = inspectLineAt(pt.x, pt.y);
-      openLineForEdit(info);
-    }
+      const idx = textLines.length;
+      const y = Math.min(mainCanvas.height - 40, Math.round(mainCanvas.height * 0.25) + idx * 36);
+      const x = Math.round(mainCanvas.width * 0.15);
+      const w = Math.round(mainCanvas.width * 0.7);
+      const h = 28;
+      const colors = sampleRegionColors(x, y, w, h);
 
-    mainCanvas.addEventListener("click", (e) => selectTargetAt(e.clientX, e.clientY));
-    mainCanvas.addEventListener("touchstart", (e) => {
-      if (e.touches.length === 1) {
-        const pt = getCoords(e.touches[0].clientX, e.touches[0].clientY);
-        hoverBox = findScannedLineAt(pt.x, pt.y) || inspectLineAt(pt.x, pt.y);
-        render(true);
-        selectTargetAt(e.touches[0].clientX, e.touches[0].clientY);
-      }
-    }, { passive: true });
+      const newLine = {
+        id: "custom_" + Date.now(),
+        origText: "",
+        text: "",
+        x,
+        y,
+        w,
+        h,
+        fontSize: 20,
+        textColor: colors.textColor,
+        bgColor: colors.bgColor,
+        modified: true
+      };
+      textLines.push(newLine);
+      focusedLineId = newLine.id;
+      renderLinesList();
+      renderCanvas(true);
+    });
 
+    // Main SAVE reveals Copy & Save buttons
     mainSaveBtn.addEventListener("click", () => {
       if (!baseImg) return;
-      if (liveEdit && liveEdit.isDirty) {
-        const idx = confirmedEdits.findIndex((ed) => ed.id === liveEdit.id);
-        const entry = { ...liveEdit };
-        if (idx >= 0) confirmedEdits[idx] = entry;
-        else confirmedEdits.push(entry);
-      }
-      liveEdit = null;
-      hoverBox = null;
-      syncBox.classList.remove("show");
-      updateButtonsState();
-      render(false);
-      exportChoices.classList.add("show");
+      focusedLineId = null;
+      renderCanvas(false);
+      exportBar.classList.add("show");
       showToast(t("chooseExport"));
     });
 
-    copyImgBtn.addEventListener("click", async () => {
+    copyBtn.addEventListener("click", async () => {
       if (!baseImg) return;
       try {
-        const outCanvas = renderCleanExportCanvas();
-        const blob = await new Promise((r) => outCanvas.toBlob(r, "image/png"));
+        renderCanvas(false);
+        const blob = await new Promise((r) => mainCanvas.toBlob(r, "image/png"));
         if (navigator.clipboard && window.ClipboardItem) {
           await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
           showToast(t("copied"));
@@ -1458,24 +1167,22 @@
           showToast(t("copyUnsupported"));
         }
       } catch (_) {
-        showToast(t("copyFailed"));
+        showToast(t("copyUnsupported"));
       }
     });
 
-    downloadNewBtn.addEventListener("click", () => {
+    downloadBtn.addEventListener("click", () => {
       if (!baseImg) return;
-      const outCanvas = renderCleanExportCanvas();
+      renderCanvas(false);
       const stamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
       const a = document.createElement("a");
-      a.download = `edited-${stamp}.png`;
-      a.href = outCanvas.toDataURL("image/png");
+      a.download = `photo-edit-${stamp}.png`;
+      a.href = mainCanvas.toDataURL("image/png");
       a.click();
-      showToast(t("savedNew", a.download));
+      showToast(t("savedFile", a.download));
     });
 
-    updateButtonsState();
     applyLang();
-    applyZoomDisplay();
   </script>
 </body>
 </html>
