@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Photo Edit Studio</title>
+  <title>Photo Edit & History Studio</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root[data-theme="dark"] {
@@ -63,12 +63,11 @@
       font-size: clamp(28px, 6vw, 44px);
       font-weight: 900;
       margin: 0 0 12px;
-      letter-spacing: -0.5px;
     }
     .welcome-sub {
       color: #94a3b8;
       font-size: 14px;
-      max-width: 420px;
+      max-width: 440px;
       margin: 0 0 28px;
       line-height: 1.5;
     }
@@ -82,9 +81,7 @@
       color: #fff;
       cursor: pointer;
       box-shadow: 0 12px 28px rgba(59, 130, 246, 0.35);
-      transition: transform 0.1s ease;
     }
-    .go-edit-btn:active { transform: scale(0.97); }
 
     /* 2. EDITOR WORKSPACE */
     .editor-screen {
@@ -93,12 +90,11 @@
       min-height: 100vh;
       padding: 12px;
       gap: 12px;
-      max-width: 1320px;
+      max-width: 1360px;
       margin: 0 auto;
     }
     .editor-screen.active { display: flex; }
 
-    /* Top Header Bar */
     .top-header {
       display: flex;
       flex-wrap: wrap;
@@ -140,6 +136,12 @@
       font-weight: 700;
       cursor: pointer;
     }
+    .pill-btn.active-tab {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: #fff;
+    }
+
     .btn-main-save {
       padding: 10px 20px;
       border-radius: 10px;
@@ -152,15 +154,41 @@
     }
     .btn-main-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
+    /* Export Bar with Heart & Star + Copy & Save */
     .export-bar {
       display: none;
+      flex-wrap: wrap;
       gap: 8px;
       align-items: center;
+      background: var(--card-2);
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
     }
     .export-bar.show { display: flex; }
+    .rate-btn {
+      padding: 7px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--input-border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .rate-btn.picked-heart {
+      background: #e11d48;
+      border-color: #fb7185;
+      color: #fff;
+    }
+    .rate-btn.picked-star {
+      background: #d97706;
+      border-color: #fbbf24;
+      color: #fff;
+    }
     .btn-copy {
-      padding: 9px 14px;
-      border-radius: 9px;
+      padding: 8px 14px;
+      border-radius: 8px;
       border: none;
       background: #8b5cf6;
       color: #fff;
@@ -169,8 +197,8 @@
       cursor: pointer;
     }
     .btn-download {
-      padding: 9px 14px;
-      border-radius: 9px;
+      padding: 8px 14px;
+      border-radius: 8px;
       border: none;
       background: #059669;
       color: #fff;
@@ -179,14 +207,13 @@
       cursor: pointer;
     }
 
-    /* Split Layout: Left Preview + Device Controls | Right Line-by-Line Draft List */
     .split-grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
       flex: 1;
     }
-    @media (min-width: 900px) {
+    @media (min-width: 920px) {
       .split-grid {
         grid-template-columns: 1.05fr 0.95fr;
         align-items: start;
@@ -209,9 +236,10 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    /* Device & Status Bar Control Grid */
     .device-controls {
       background: var(--card-2);
       border: 1px solid var(--border);
@@ -228,8 +256,11 @@
     }
     .ctrl-row-3 {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 8px;
+    }
+    @media (max-width: 520px) {
+      .ctrl-row-3 { grid-template-columns: 1fr 1fr; }
     }
     .mini-lbl {
       display: block;
@@ -252,14 +283,10 @@
       width: 100%;
       accent-color: #38bdf8;
     }
-    .preset-chips {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-    }
-    .chip-btn {
-      padding: 5px 8px;
-      border-radius: 6px;
+    .toggle-mini-btn {
+      width: 100%;
+      padding: 7px 8px;
+      border-radius: 7px;
       border: 1px solid var(--input-border);
       background: var(--card);
       color: var(--text);
@@ -267,13 +294,16 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .chip-btn.active {
-      background: #2563eb;
-      border-color: #3b82f6;
+    .toggle-mini-btn.on {
+      background: #16a34a;
+      border-color: #22c55e;
       color: #fff;
     }
+    .toggle-mini-btn.off {
+      background: #334155;
+      color: #cbd5e1;
+    }
 
-    /* Left Canvas Stage */
     .canvas-stage {
       background: var(--canvas-bg);
       border: 1px solid var(--border);
@@ -292,7 +322,6 @@
       background: var(--card);
     }
 
-    /* Right Line-by-Line OCR List */
     .lines-list {
       display: flex;
       flex-direction: column;
@@ -312,7 +341,6 @@
     }
     .line-card.focused {
       border-color: #38bdf8;
-      box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
     }
     .line-card-top {
       display: flex;
@@ -331,23 +359,14 @@
       font-size: 14px;
       font-weight: 600;
     }
-    .line-meta {
-      display: grid;
-      grid-template-columns: 70px 44px 44px 1fr;
-      gap: 6px;
+    .line-actions {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-    }
-    input[type="color"] {
-      width: 100%;
-      height: 30px;
-      border: 1px solid var(--input-border);
-      border-radius: 6px;
-      background: var(--card);
-      padding: 1px;
-      cursor: pointer;
+      gap: 8px;
     }
     .mini-reset-line {
-      padding: 6px 8px;
+      padding: 5px 10px;
       border-radius: 6px;
       border: none;
       background: #475569;
@@ -364,6 +383,70 @@
       border: 1px dashed var(--border);
       border-radius: 10px;
     }
+
+    /* HISTORY MODAL / DRAWER */
+    .history-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.78);
+      z-index: 50;
+      padding: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+    .history-modal.open { display: flex; }
+    .history-box {
+      width: 100%;
+      max-width: 720px;
+      max-height: 86vh;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+    }
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .history-tabs {
+      display: flex;
+      gap: 8px;
+    }
+    .history-items {
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .history-entry {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .history-meta {
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .history-badge-heart {
+      color: #fb7185;
+      font-weight: 800;
+    }
+    .history-badge-star {
+      color: #fbbf24;
+      font-weight: 800;
+    }
     .toast {
       font-size: 12px;
       color: #10b981;
@@ -377,9 +460,9 @@
 
   <!-- SCREEN 1: WELCOME -->
   <section class="welcome-screen" id="welcomeScreen">
-    <span class="welcome-badge">PHONE STATUS & LIVE TEXT STUDIO</span>
+    <span class="welcome-badge">LIVE LINE SYNC & STATUS BAR STUDIO</span>
     <h1 class="welcome-title">Welcome to Photo edit</h1>
-    <p class="welcome-sub">ပုံထဲက စာကြောင်းတွေကို စာရင်းလိုက် တိုက်ရိုက်ပြင်ဆင်နိုင်ပြီး ဖုန်းအမျိုးအစားအလိုက် Status Bar အသေးစိတ်ကိုပါ စိတ်ကြိုက်ချိန်ညှိနိုင်ပါသည်။</p>
+    <p class="welcome-sub">ပုံထဲက စာကြောင်းတွေကို မူရင်းနေရာ/ဆိုဒ်အတိုင်း တိုက်ရိုက်အစားထိုးပြင်ဆင်နိုင်ပြီး ဖုန်း Status Bar နှင့် မှတ်တမ်းများကို သိမ်းဆည်းနိုင်ပါသည်။</p>
     <button class="go-edit-btn" id="goEditBtn">Go to edit</button>
   </section>
 
@@ -390,13 +473,17 @@
         <label class="upload-btn-label" for="fileInput" id="uploadBtnText">+ ပုံထည့်ရန်</label>
         <input type="file" id="fileInput" accept="image/*" />
         <button class="btn-main-save" id="mainSaveBtn" disabled>SAVE</button>
+
         <div class="export-bar" id="exportBar">
+          <button class="rate-btn" id="heartBtn" title="ကြိုက်ရင် အသည်းပေးပါ">❤️ အသည်း</button>
+          <button class="rate-btn picked-star" id="starBtn" title="မဟုတ်ရင် ကြယ်ပေးပါ">⭐ ကြယ်</button>
           <button class="btn-copy" id="copyBtn">Copy</button>
           <button class="btn-download" id="downloadBtn">Save</button>
         </div>
       </div>
 
       <div class="header-right">
+        <button class="pill-btn" id="historyOpenBtn">📜 မှတ်တမ်း</button>
         <button class="pill-btn" id="themeBtn">☀️ Light</button>
         <button class="pill-btn" id="langBtn">🌐 English</button>
       </div>
@@ -405,17 +492,17 @@
     <div class="toast" id="toastMsg"></div>
 
     <div class="split-grid">
-      <!-- LEFT: PHONE PREVIEW & STATUS BAR CONTROLS -->
+      <!-- LEFT: PHONE / IMAGE PREVIEW + TOGGLE CONTROLS -->
       <div class="panel">
         <div class="panel-title">
-          <span id="leftPanelTitle">ဘယ်ဘက် — ဖုန်းအမျိုးအစားနှင့် ပုံအကြိုကြည့်ရန်</span>
-          <button class="chip-btn active" id="toggleStatusBarBtn">Status Bar: ON</button>
+          <span id="leftPanelTitle">ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်နှင့် Status Bar ချိန်ညှိရန်</span>
+          <button class="toggle-mini-btn on" id="toggleStatusBarBtn" style="width:auto;padding:5px 10px;">Status Bar: ON</button>
         </div>
 
         <div class="device-controls">
           <div class="ctrl-row-2">
             <div>
-              <span class="mini-lbl" id="lblPhoneModel">ဖုန်းအမျိုးအစား (Phone Model)</span>
+              <span class="mini-lbl" id="lblPhoneModel">ဖုန်းအမျိုးအစား</span>
               <select id="phoneModelSelect">
                 <option value="iphone16">iPhone 16 / 17 / 18 Pro (Dynamic Island)</option>
                 <option value="iphoneNotch">iPhone Classic (Notch)</option>
@@ -426,13 +513,13 @@
               </select>
             </div>
             <div>
-              <span class="mini-lbl" id="lblNotchStyle">Cutout ပုံစံ</span>
+              <span class="mini-lbl" id="lblCutout">Cutout ပုံစံ</span>
               <select id="cutoutStyleSelect">
                 <option value="island">Dynamic Island</option>
                 <option value="notch">Notch</option>
                 <option value="punch-center">Punch-hole (Center)</option>
                 <option value="punch-left">Punch-hole (Left)</option>
-                <option value="none">None (မထည့်ပါ)</option>
+                <option value="none">None</option>
               </select>
             </div>
           </div>
@@ -443,54 +530,60 @@
               <input type="text" id="clockInput" value="09:41" maxlength="8" />
             </div>
             <div>
-              <span class="mini-lbl" id="lblBattery">ဖုန်းအား (%)</span>
+              <span class="mini-lbl" id="lblBattery">ဘက်ထရီ (%)</span>
               <input type="number" id="batteryInput" value="85" min="1" max="100" />
             </div>
             <div>
               <span class="mini-lbl" id="lblSignal">Signal တိုင် (0-4)</span>
               <select id="signalSelect">
-                <option value="4" selected>4 တိုင် (အပြည့်)</option>
+                <option value="4" selected>4 တိုင်</option>
                 <option value="3">3 တိုင်</option>
                 <option value="2">2 တိုင်</option>
                 <option value="1">1 တိုင်</option>
-                <option value="0">လိုင်းမရှိ (0)</option>
+                <option value="0">0 တိုင်</option>
               </select>
+            </div>
+          </div>
+
+          <!-- ON / OFF Buttons for Charging, Signal, Battery, Wi-Fi, Brightness -->
+          <div class="ctrl-row-3">
+            <div>
+              <span class="mini-lbl">အားသွင်း (Charging)</span>
+              <button class="toggle-mini-btn off" id="toggleChargingBtn">OFF</button>
+            </div>
+            <div>
+              <span class="mini-lbl">လိုင်း (Signal)</span>
+              <button class="toggle-mini-btn on" id="toggleSignalBtn">ON</button>
+            </div>
+            <div>
+              <span class="mini-lbl">ဘက်ထရီ (Battery)</span>
+              <button class="toggle-mini-btn on" id="toggleBatteryBtn">ON</button>
             </div>
           </div>
 
           <div class="ctrl-row-3">
             <div>
-              <span class="mini-lbl" id="lblNetwork">လိုင်းအမျိုးအစား</span>
+              <span class="mini-lbl">Wi-Fi</span>
+              <button class="toggle-mini-btn on" id="toggleWifiBtn">ON</button>
+            </div>
+            <div>
+              <span class="mini-lbl">အလင်းအမှောင် (Dim)</span>
+              <button class="toggle-mini-btn on" id="toggleBrightnessBtn">ON</button>
+            </div>
+            <div>
+              <span class="mini-lbl">Network</span>
               <select id="networkSelect">
                 <option value="5G" selected>5G</option>
                 <option value="4G">4G</option>
                 <option value="LTE">LTE</option>
-                <option value="">မပြပါ</option>
+                <option value="">None</option>
               </select>
             </div>
-            <div>
-              <span class="mini-lbl" id="lblWifi">Wi-Fi</span>
-              <button class="chip-btn active" id="wifiToggleBtn" style="width:100%;padding:7px;">Wi-Fi: ON</button>
-            </div>
-            <div>
-              <span class="mini-lbl" id="lblCharging">အားသွင်းမှု</span>
-              <button class="chip-btn" id="chargingToggleBtn" style="width:100%;padding:7px;">Charging: OFF</button>
-            </div>
           </div>
 
           <div>
-            <span class="mini-lbl" id="lblQuickPresets">Quick Presets (တစ်ချက်နှိပ် ချိန်ညှိစရာ)</span>
-            <div class="preset-chips">
-              <button class="chip-btn" data-bat="100" data-chg="0">Battery 100%</button>
-              <button class="chip-btn" data-bat="50" data-chg="0">Battery 50%</button>
-              <button class="chip-btn" data-bat="20" data-chg="0">Battery 20%</button>
-              <button class="chip-btn" data-bat="78" data-chg="1">Charging ⚡</button>
-            </div>
-          </div>
-
-          <div>
-            <span class="mini-lbl"><span id="lblBrightness">ဖုန်းအလင်းအား (Brightness)</span>: <b id="brightnessVal">100%</b></span>
-            <input type="range" id="brightnessSlider" min="35" max="115" value="100" />
+            <span class="mini-lbl"><span id="lblBrightness">အလင်းအမှောင် အလျှော့အတင်း</span>: <b id="brightnessVal">100%</b></span>
+            <input type="range" id="brightnessSlider" min="25" max="125" value="100" />
           </div>
         </div>
 
@@ -499,23 +592,42 @@
         </div>
       </div>
 
-      <!-- RIGHT: LINE-BY-LINE EXTRACTED TEXT LIST -->
+      <!-- RIGHT: EXACT LINE-BY-LINE TEXT LIST -->
       <div class="panel">
         <div class="panel-title">
-          <span id="rightPanelTitle">ညာဘက် — ပုံထဲမှ စာကြောင်းများ (တိုက်ရိုက်ပြင်ရန်)</span>
-          <button class="chip-btn" id="addCustomLineBtn">+ စာကြောင်းထပ်ထည့်</button>
+          <span id="rightPanelTitle">ညာဘက် — ပုံထဲမှ စာကြောင်းများ (မူရင်းနေရာ/ဆိုဒ်အတိုင်း တိုက်ရိုက်အစားထိုးမည်)</span>
         </div>
 
         <div class="lines-list" id="linesList">
           <div class="empty-state" id="emptyStateText">
-            ပုံတစ်ပုံ ထည့်လိုက်တာနဲ့ ပုံထဲက စာကြောင်းတွေကို ဖတ်ပြီး ဒီနေရာမှာ စာရင်းလိုက် ပြပေးပါမယ်။
+            ပုံထည့်လိုက်တာနဲ့ ပုံထဲက စာကြောင်းတွေကို လိုင်းကြောင်းအတိုင်း ဖတ်ပြီး ပြပေးပါမယ်။
           </div>
         </div>
       </div>
     </div>
   </section>
 
+  <!-- HISTORY MODAL -->
+  <div class="history-modal" id="historyModal">
+    <div class="history-box">
+      <div class="history-head">
+        <h3 style="margin:0;font-size:16px;" id="historyModalTitle">📜 လုပ်ဆောင်ခဲ့သော မှတ်တမ်းများ</h3>
+        <button class="pill-btn" id="closeHistoryBtn">✕ ပိတ်ရန်</button>
+      </div>
+
+      <div class="history-tabs">
+        <button class="pill-btn active-tab" data-htab="all" id="tabAll">အားလုံး</button>
+        <button class="pill-btn" data-htab="heart" id="tabHeart">❤️ အသည်းပေးထားသော</button>
+        <button class="pill-btn" data-htab="star" id="tabStar">⭐ ကြယ်ပေးထားသော</button>
+      </div>
+
+      <div class="history-items" id="historyItems"></div>
+    </div>
+  </div>
+
   <script>
+    const HISTORY_STORAGE_KEY = "photo_edit_history_v1";
+
     const i18n = {
       my: {
         uploadBtn: "+ ပုံထည့်ရန်",
@@ -523,27 +635,22 @@
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
-        leftTitle: "ဘယ်ဘက် — ဖုန်းအမျိုးအစားနှင့် ပုံအကြိုကြည့်ရန်",
-        rightTitle: "ညာဘက် — ပုံထဲမှ စာကြောင်းများ (တိုက်ရိုက်ပြင်ရန်)",
-        addLine: "+ စာကြောင်းထပ်ထည့်",
-        lblPhone: "ဖုန်းအမျိုးအစား (Phone Model)",
+        leftTitle: "ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်နှင့် Status Bar ချိန်ညှိရန်",
+        rightTitle: "ညာဘက် — ပုံထဲမှ စာကြောင်းများ (မူရင်းနေရာ/ဆိုဒ်အတိုင်း တိုက်ရိုက်အစားထိုးမည်)",
+        lblPhone: "ဖုန်းအမျိုးအစား",
         lblCutout: "Cutout ပုံစံ",
         lblClock: "နာရီ (Time)",
-        lblBattery: "ဖုန်းအား (%)",
+        lblBattery: "ဘက်ထရီ (%)",
         lblSignal: "Signal တိုင် (0-4)",
-        lblNetwork: "လိုင်းအမျိုးအစား",
-        lblWifi: "Wi-Fi",
-        lblCharging: "အားသွင်းမှု",
-        lblPresets: "Quick Presets (တစ်ချက်နှိပ် ချိန်ညှိစရာ)",
-        lblBrightness: "ဖုန်းအလင်းအား (Brightness)",
-        emptyMsg: "ပုံတစ်ပုံ ထည့်လိုက်တာနဲ့ ပုံထဲက စာကြောင်းတွေကို ဖတ်ပြီး ဒီနေရာမှာ စာရင်းလိုက် ပြပေးပါမယ်။",
-        scanning: "ပုံထဲက စာကြောင်းတွေကို ဖတ်နေပါသည်...",
-        scanDone: (n) => `စာကြောင်း (${n}) ကြောင်း ဖတ်ပြီးပါပြီ — ညာဘက်မှာ တိုက်ရိုက်ပြင်နိုင်ပါပြီ`,
-        scanEmpty: "စာကြောင်း အလိုအလျောက် မတွေ့ပါ — '+ စာကြောင်းထပ်ထည့်' ကိုနှိပ်ပြီး ထည့်နိုင်ပါသည်",
-        chooseExport: "အပေါ်မှ Copy သို့မဟုတ် Save ကို ရွေးပါ",
-        copied: "ပုံကို Copy ကူးပြီးပါပြီ",
+        lblBrightness: "အလင်းအမှောင် အလျှော့အတင်း",
+        emptyMsg: "ပုံထည့်လိုက်တာနဲ့ ပုံထဲက စာကြောင်းတွေကို လိုင်းကြောင်းအတိုင်း ဖတ်ပြီး ပြပေးပါမယ်။",
+        scanning: "ပုံထဲက စာကြောင်းများကို လိုင်းကြောင်းအတိုင်း ဖတ်နေပါသည်...",
+        scanDone: (n) => `စာကြောင်း (${n}) ကြောင်း ဖတ်ပြီးပါပြီ — ညာဘက်မှာ ပြင်/ဖျက်ပြီး တိုက်ရိုက်အစားထိုးနိုင်ပါပြီ`,
+        scanEmpty: "စာကြောင်း အလိုအလျောက် မတွေ့ပါ",
+        copied: "ပုံကို Copy ကူးပြီး မှတ်တမ်းထဲ သိမ်းပြီးပါပြီ",
         copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်ပါ",
-        savedFile: (f) => `ပုံအသစ် (${f}) သိမ်းဆည်းပြီးပါပြီ`
+        savedFile: (f) => `ပုံအသစ် (${f}) သိမ်းဆည်းပြီး မှတ်တမ်းထဲ ထည့်ပြီးပါပြီ`,
+        noHistory: "မှတ်တမ်း မရှိသေးပါ"
       },
       en: {
         uploadBtn: "+ Upload Image",
@@ -551,32 +658,29 @@
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
-        leftTitle: "Left — Phone Frame & Live Preview",
-        rightTitle: "Right — Extracted Text Lines (Live Sync)",
-        addLine: "+ Add Line",
+        leftTitle: "Left — Live Image Preview & Status Bar",
+        rightTitle: "Right — Image Text Lines (Direct Replace at Original Size & Spot)",
         lblPhone: "Phone Model",
         lblCutout: "Cutout Style",
         lblClock: "Clock Time",
         lblBattery: "Battery (%)",
         lblSignal: "Signal Bars (0-4)",
-        lblNetwork: "Network",
-        lblWifi: "Wi-Fi",
-        lblCharging: "Charging",
-        lblPresets: "Quick Presets",
         lblBrightness: "Screen Brightness",
-        emptyMsg: "Upload an image to scan and list its text lines here for live editing.",
+        emptyMsg: "Upload an image to scan its text lines here.",
         scanning: "Scanning text lines from image...",
-        scanDone: (n) => `Detected ${n} text lines — edit on the right to sync live`,
-        scanEmpty: "No lines auto-detected — tap '+ Add Line' to add text",
-        chooseExport: "Choose Copy or Save above",
-        copied: "Image copied to clipboard",
+        scanDone: (n) => `Detected ${n} lines — edit or delete on the right to replace live`,
+        scanEmpty: "No lines auto-detected",
+        copied: "Image copied & recorded in history",
         copyUnsupported: "Copy not supported here; use Save",
-        savedFile: (f) => `Saved new image (${f})`
+        savedFile: (f) => `Saved ${f} & recorded in history`,
+        noHistory: "No history records yet"
       }
     };
 
     let lang = "my";
     let theme = "dark";
+    let selectedRating = "star"; // default auto-star unless user clicks heart
+    let activeHistoryTab = "all";
 
     const welcomeScreen = document.getElementById("welcomeScreen");
     const editorScreen = document.getElementById("editorScreen");
@@ -584,6 +688,8 @@
     const fileInput = document.getElementById("fileInput");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
     const exportBar = document.getElementById("exportBar");
+    const heartBtn = document.getElementById("heartBtn");
+    const starBtn = document.getElementById("starBtn");
     const copyBtn = document.getElementById("copyBtn");
     const downloadBtn = document.getElementById("downloadBtn");
     const themeBtn = document.getElementById("themeBtn");
@@ -597,21 +703,27 @@
     const batteryInput = document.getElementById("batteryInput");
     const signalSelect = document.getElementById("signalSelect");
     const networkSelect = document.getElementById("networkSelect");
-    const wifiToggleBtn = document.getElementById("wifiToggleBtn");
-    const chargingToggleBtn = document.getElementById("chargingToggleBtn");
+    const toggleChargingBtn = document.getElementById("toggleChargingBtn");
+    const toggleSignalBtn = document.getElementById("toggleSignalBtn");
+    const toggleBatteryBtn = document.getElementById("toggleBatteryBtn");
+    const toggleWifiBtn = document.getElementById("toggleWifiBtn");
+    const toggleBrightnessBtn = document.getElementById("toggleBrightnessBtn");
     const brightnessSlider = document.getElementById("brightnessSlider");
     const brightnessVal = document.getElementById("brightnessVal");
 
     const mainCanvas = document.getElementById("mainCanvas");
     const ctx = mainCanvas.getContext("2d");
     const linesList = document.getElementById("linesList");
-    const addCustomLineBtn = document.getElementById("addCustomLineBtn");
+
+    const historyOpenBtn = document.getElementById("historyOpenBtn");
+    const historyModal = document.getElementById("historyModal");
+    const closeHistoryBtn = document.getElementById("closeHistoryBtn");
+    const historyItems = document.getElementById("historyItems");
 
     let baseImg = null;
     let sampleCanvas = document.createElement("canvas");
     let sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
 
-    // Status bar state
     let statusState = {
       enabled: true,
       model: "iphone16",
@@ -619,13 +731,16 @@
       time: "09:41",
       battery: 85,
       charging: false,
+      showSignal: true,
       signal: 4,
       network: "5G",
+      showBattery: true,
       wifi: true,
+      brightnessEnabled: true,
       brightness: 100
     };
 
-    // Extracted / custom lines: { id, origText, text, x, y, w, h, fontSize, textColor, bgColor, modified }
+    // Each line: { id, origText, text, x, y, w, h, fontSize, textColor, bgColor, modified }
     let textLines = [];
     let focusedLineId = null;
 
@@ -644,7 +759,7 @@
     goEditBtn.addEventListener("click", () => {
       welcomeScreen.classList.add("hidden");
       editorScreen.classList.add("active");
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
     function applyLang() {
@@ -653,16 +768,11 @@
       langBtn.textContent = lang === "my" ? t("toEn") : t("toMy");
       document.getElementById("leftPanelTitle").textContent = t("leftTitle");
       document.getElementById("rightPanelTitle").textContent = t("rightTitle");
-      addCustomLineBtn.textContent = t("addLine");
-      document.getElementById("lblPhone").textContent = t("lblPhone");
+      document.getElementById("lblPhoneModel").textContent = t("lblPhone");
       document.getElementById("lblCutout").textContent = t("lblCutout");
       document.getElementById("lblClock").textContent = t("lblClock");
       document.getElementById("lblBattery").textContent = t("lblBattery");
       document.getElementById("lblSignal").textContent = t("lblSignal");
-      document.getElementById("lblNetwork").textContent = t("lblNetwork");
-      document.getElementById("lblWifi").textContent = t("lblWifi");
-      document.getElementById("lblCharging").textContent = t("lblCharging");
-      document.getElementById("lblPresets").textContent = t("lblPresets");
       document.getElementById("lblBrightness").textContent = t("lblBrightness");
       const emptyEl = document.getElementById("emptyStateText");
       if (emptyEl) emptyEl.textContent = t("emptyMsg");
@@ -680,7 +790,21 @@
       applyLang();
     });
 
-    // Phone model selection automatically picks appropriate cutout & layout
+    // Heart & Star Rating buttons
+    function setRating(rating) {
+      selectedRating = rating;
+      heartBtn.classList.toggle("picked-heart", rating === "heart");
+      starBtn.classList.toggle("picked-star", rating === "star");
+    }
+    heartBtn.addEventListener("click", () => setRating("heart"));
+    starBtn.addEventListener("click", () => setRating("star"));
+
+    function setToggleBtn(btn, isOn, labelOn = "ON", labelOff = "OFF") {
+      btn.classList.toggle("on", isOn);
+      btn.classList.toggle("off", !isOn);
+      btn.textContent = isOn ? labelOn : labelOff;
+    }
+
     phoneModelSelect.addEventListener("change", () => {
       statusState.model = phoneModelSelect.value;
       if (statusState.model === "iphone16") statusState.cutout = "island";
@@ -688,72 +812,76 @@
       else if (statusState.model === "oppo") statusState.cutout = "punch-left";
       else statusState.cutout = "punch-center";
       cutoutStyleSelect.value = statusState.cutout;
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
     cutoutStyleSelect.addEventListener("change", () => {
       statusState.cutout = cutoutStyleSelect.value;
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
     toggleStatusBarBtn.addEventListener("click", () => {
       statusState.enabled = !statusState.enabled;
-      toggleStatusBarBtn.classList.toggle("active", statusState.enabled);
+      toggleStatusBarBtn.classList.toggle("on", statusState.enabled);
+      toggleStatusBarBtn.classList.toggle("off", !statusState.enabled);
       toggleStatusBarBtn.textContent = `Status Bar: ${statusState.enabled ? "ON" : "OFF"}`;
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
     clockInput.addEventListener("input", () => {
       statusState.time = clockInput.value || "09:41";
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
     batteryInput.addEventListener("input", () => {
       statusState.battery = Math.max(1, Math.min(100, Number(batteryInput.value) || 85));
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
     signalSelect.addEventListener("change", () => {
       statusState.signal = Number(signalSelect.value);
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
     networkSelect.addEventListener("change", () => {
       statusState.network = networkSelect.value;
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
-    wifiToggleBtn.addEventListener("click", () => {
-      statusState.wifi = !statusState.wifi;
-      wifiToggleBtn.classList.toggle("active", statusState.wifi);
-      wifiToggleBtn.textContent = `Wi-Fi: ${statusState.wifi ? "ON" : "OFF"}`;
-      renderCanvas(true);
-    });
-
-    chargingToggleBtn.addEventListener("click", () => {
+    toggleChargingBtn.addEventListener("click", () => {
       statusState.charging = !statusState.charging;
-      chargingToggleBtn.classList.toggle("active", statusState.charging);
-      chargingToggleBtn.textContent = `Charging: ${statusState.charging ? "ON ⚡" : "OFF"}`;
-      renderCanvas(true);
+      setToggleBtn(toggleChargingBtn, statusState.charging, "ON ⚡", "OFF");
+      renderCanvas(false);
     });
 
-    document.querySelectorAll(".preset-chips .chip-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const bat = Number(btn.dataset.bat);
-        const chg = btn.dataset.chg === "1";
-        statusState.battery = bat;
-        statusState.charging = chg;
-        batteryInput.value = bat;
-        chargingToggleBtn.classList.toggle("active", chg);
-        chargingToggleBtn.textContent = `Charging: ${chg ? "ON ⚡" : "OFF"}`;
-        renderCanvas(true);
-      });
+    toggleSignalBtn.addEventListener("click", () => {
+      statusState.showSignal = !statusState.showSignal;
+      setToggleBtn(toggleSignalBtn, statusState.showSignal);
+      renderCanvas(false);
+    });
+
+    toggleBatteryBtn.addEventListener("click", () => {
+      statusState.showBattery = !statusState.showBattery;
+      setToggleBtn(toggleBatteryBtn, statusState.showBattery);
+      renderCanvas(false);
+    });
+
+    toggleWifiBtn.addEventListener("click", () => {
+      statusState.wifi = !statusState.wifi;
+      setToggleBtn(toggleWifiBtn, statusState.wifi);
+      renderCanvas(false);
+    });
+
+    toggleBrightnessBtn.addEventListener("click", () => {
+      statusState.brightnessEnabled = !statusState.brightnessEnabled;
+      setToggleBtn(toggleBrightnessBtn, statusState.brightnessEnabled);
+      renderCanvas(false);
     });
 
     brightnessSlider.addEventListener("input", () => {
       statusState.brightness = Number(brightnessSlider.value);
       brightnessVal.textContent = `${statusState.brightness}%`;
-      renderCanvas(true);
+      renderCanvas(false);
     });
 
     function rgbToHex(r, g, b) {
@@ -803,11 +931,11 @@
     function drawStatusBarOverlay() {
       if (!statusState.enabled || !baseImg) return;
       const W = mainCanvas.width;
-      const barH = Math.max(28, Math.round(W * 0.075));
+      const barH = Math.max(28, Math.round(W * 0.072));
       const padX = Math.round(W * 0.045);
-      const fontSize = Math.max(11, Math.round(barH * 0.44));
+      const fontSize = Math.max(11, Math.round(barH * 0.43));
+      const midY = barH / 2;
 
-      // Detect top strip brightness to pick light or dark status icons
       let isDarkTop = false;
       try {
         const px = sampleCtx.getImageData(Math.floor(W * 0.15), Math.min(sampleCanvas.height - 1, Math.floor(barH * 0.5)), 1, 1).data;
@@ -817,16 +945,14 @@
       const fg = isDarkTop ? "#ffffff" : "#0f172a";
       const bg = isDarkTop ? "#0b1120" : "#ffffff";
 
-      // Clean status bar strip
       ctx.save();
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, barH);
 
-      // Cutout (Dynamic Island / Notch / Punch-hole)
       ctx.fillStyle = "#000000";
       if (statusState.cutout === "island") {
-        const iw = Math.round(W * 0.27);
-        const ih = Math.round(barH * 0.64);
+        const iw = Math.round(W * 0.26);
+        const ih = Math.round(barH * 0.62);
         const ix = Math.round((W - iw) / 2);
         const iy = Math.round((barH - ih) / 2);
         ctx.beginPath();
@@ -842,51 +968,48 @@
       } else if (statusState.cutout === "punch-center") {
         const r = Math.max(4, Math.round(barH * 0.18));
         ctx.beginPath();
-        ctx.arc(W / 2, barH / 2, r, 0, Math.PI * 2);
+        ctx.arc(W / 2, midY, r, 0, Math.PI * 2);
         ctx.fill();
       } else if (statusState.cutout === "punch-left") {
         const r = Math.max(4, Math.round(barH * 0.18));
         ctx.beginPath();
-        ctx.arc(padX + r, barH / 2, r, 0, Math.PI * 2);
+        ctx.arc(padX + r, midY, r, 0, Math.PI * 2);
         ctx.fill();
       }
 
-      // Clock position (shifts right if left punch-hole)
       const clockX = statusState.cutout === "punch-left" ? padX + Math.round(barH * 0.65) : padX;
       ctx.fillStyle = fg;
       ctx.font = `700 ${fontSize}px system-ui, sans-serif`;
       ctx.textBaseline = "middle";
-      ctx.fillText(statusState.time, clockX, barH / 2);
+      ctx.fillText(statusState.time, clockX, midY);
 
-      // Right cluster: Signal bars + Network + Wi-Fi + Battery
       let curX = W - padX;
-      const midY = barH / 2;
 
-      // Battery icon
-      const batW = Math.round(fontSize * 1.75);
-      const batH = Math.round(fontSize * 0.88);
-      curX -= batW;
-      ctx.strokeStyle = fg;
-      ctx.lineWidth = Math.max(1.2, W / 320);
-      ctx.strokeRect(curX, midY - batH / 2, batW - 2, batH);
-      ctx.fillStyle = fg;
-      ctx.fillRect(curX + batW - 2, midY - batH * 0.22, 2, batH * 0.44);
+      if (statusState.showBattery) {
+        const batW = Math.round(fontSize * 1.7);
+        const batH = Math.round(fontSize * 0.85);
+        curX -= batW;
+        ctx.strokeStyle = fg;
+        ctx.lineWidth = Math.max(1.2, W / 320);
+        ctx.strokeRect(curX, midY - batH / 2, batW - 2, batH);
+        ctx.fillStyle = fg;
+        ctx.fillRect(curX + batW - 2, midY - batH * 0.22, 2, batH * 0.44);
 
-      const fillRatio = statusState.battery / 100;
-      ctx.fillStyle = statusState.charging ? "#10b981" : (statusState.battery <= 20 ? "#ef4444" : fg);
-      ctx.fillRect(curX + 2, midY - batH / 2 + 2, Math.max(2, (batW - 6) * fillRatio), batH - 4);
+        const fillRatio = statusState.battery / 100;
+        ctx.fillStyle = statusState.charging ? "#10b981" : (statusState.battery <= 20 ? "#ef4444" : fg);
+        ctx.fillRect(curX + 2, midY - batH / 2 + 2, Math.max(2, (batW - 6) * fillRatio), batH - 4);
 
-      // Battery % text
-      curX -= 4;
-      ctx.font = `700 ${Math.round(fontSize * 0.82)}px system-ui, sans-serif`;
-      ctx.textAlign = "right";
-      ctx.fillStyle = fg;
-      ctx.fillText(`${statusState.battery}%${statusState.charging ? "⚡" : ""}`, curX, midY);
-      curX -= ctx.measureText(`${statusState.battery}%${statusState.charging ? "⚡" : ""}`).width + 6;
+        const batLabel = `${statusState.battery}%${statusState.charging ? "⚡" : ""}`;
+        curX -= 4;
+        ctx.font = `700 ${Math.round(fontSize * 0.8)}px system-ui, sans-serif`;
+        ctx.textAlign = "right";
+        ctx.fillStyle = fg;
+        ctx.fillText(batLabel, curX, midY);
+        curX -= ctx.measureText(batLabel).width + 6;
+      }
 
-      // Wi-Fi arcs
       if (statusState.wifi) {
-        const wifiR = Math.round(fontSize * 0.65);
+        const wifiR = Math.round(fontSize * 0.62);
         curX -= wifiR;
         ctx.strokeStyle = fg;
         ctx.lineWidth = Math.max(1.3, W / 300);
@@ -898,7 +1021,6 @@
         curX -= wifiR + 6;
       }
 
-      // Network text (5G / 4G)
       if (statusState.network) {
         ctx.font = `700 ${Math.round(fontSize * 0.78)}px system-ui, sans-serif`;
         ctx.textAlign = "right";
@@ -907,21 +1029,23 @@
         curX -= ctx.measureText(statusState.network).width + 6;
       }
 
-      // Signal bars (4 bars)
-      const barGap = 2;
-      const singleW = Math.max(2, Math.round(fontSize * 0.2));
-      const totalSigW = 4 * singleW + 3 * barGap;
-      curX -= totalSigW;
-      for (let b = 0; b < 4; b++) {
-        const bh = Math.round(batH * (0.35 + b * 0.21));
-        ctx.fillStyle = b < statusState.signal ? fg : "rgba(148,163,184,0.35)";
-        ctx.fillRect(curX + b * (singleW + barGap), midY + batH / 2 - bh, singleW, bh);
+      if (statusState.showSignal) {
+        const barGap = 2;
+        const singleW = Math.max(2, Math.round(fontSize * 0.2));
+        const totalSigW = 4 * singleW + 3 * barGap;
+        const batH = Math.round(fontSize * 0.85);
+        curX -= totalSigW;
+        for (let b = 0; b < 4; b++) {
+          const bh = Math.round(batH * (0.35 + b * 0.21));
+          ctx.fillStyle = b < statusState.signal ? fg : "rgba(148,163,184,0.35)";
+          ctx.fillRect(curX + b * (singleW + barGap), midY + batH / 2 - bh, singleW, bh);
+        }
       }
 
       ctx.restore();
     }
 
-    function renderCanvas(showHighlight = true) {
+    function renderCanvas(showFocusOutline = false) {
       ctx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
       if (!baseImg) {
         ctx.fillStyle = "#94a3b8";
@@ -933,30 +1057,30 @@
       }
 
       ctx.save();
-      ctx.filter = `brightness(${statusState.brightness}%)`;
+      const brightVal = statusState.brightnessEnabled ? statusState.brightness : 100;
+      ctx.filter = `brightness(${brightVal}%)`;
       ctx.drawImage(baseImg, 0, 0, mainCanvas.width, mainCanvas.height);
 
-      // Draw modified/deleted lines synced from Right Panel
+      // Direct line-by-line replacement at original position & original fontSize
       for (const line of textLines) {
         if (line.modified) {
           ctx.fillStyle = line.bgColor;
-          ctx.fillRect(line.x - 2, line.y - 2, line.w + 4, line.h + 4);
+          ctx.fillRect(line.x, line.y, line.w, line.h);
 
           if (line.text.length > 0) {
             ctx.fillStyle = line.textColor;
-            ctx.font = `600 ${line.fontSize}px system-ui, sans-serif`;
+            ctx.font = `${line.fontSize}px system-ui, sans-serif`;
             ctx.textBaseline = "middle";
-            ctx.fillText(line.text, line.x + 2, line.y + line.h / 2);
+            ctx.fillText(line.text, line.x + 1, line.y + line.h / 2);
             ctx.textBaseline = "alphabetic";
           }
         }
 
-        if (showHighlight && line.id === focusedLineId) {
+        if (showFocusOutline && line.id === focusedLineId) {
           ctx.save();
           ctx.strokeStyle = "#38bdf8";
-          ctx.lineWidth = Math.max(1.5, mainCanvas.width / 250);
-          ctx.setLineDash([5, 3]);
-          ctx.strokeRect(line.x - 2, line.y - 2, line.w + 4, line.h + 4);
+          ctx.lineWidth = Math.max(1.5, mainCanvas.width / 260);
+          ctx.strokeRect(line.x, line.y, line.w, line.h);
           ctx.restore();
         }
       }
@@ -972,19 +1096,19 @@
       }
 
       linesList.innerHTML = "";
-      textLines.forEach((line, index) => {
+      textLines.forEach((line, idx) => {
         const card = document.createElement("div");
         card.className = "line-card" + (line.id === focusedLineId ? " focused" : "");
 
         const top = document.createElement("div");
         top.className = "line-card-top";
-        top.innerHTML = `<span>Line ${index + 1}</span><span>${Math.round(line.fontSize)}px</span>`;
+        top.innerHTML = `<span>Line ${idx + 1}</span><span>Orig Size: ${line.fontSize}px</span>`;
 
         const input = document.createElement("input");
         input.type = "text";
         input.className = "line-input";
         input.value = line.text;
-        input.placeholder = "စာဖျက်ရင် ပုံမှာလိုက်ပျက်မည်၊ ရိုက်ရင် လိုက်ပြောင်းမည်...";
+        input.placeholder = "စာဖျက်ရင် ပုံမှာလိုက်ပျက်မည်၊ ရိုက်ရင် အစားထိုးမည်...";
 
         input.addEventListener("focus", () => {
           focusedLineId = line.id;
@@ -996,43 +1120,16 @@
         input.addEventListener("input", () => {
           line.text = input.value;
           line.modified = true;
-          renderCanvas(true);
+          renderCanvas(false);
         });
 
-        const meta = document.createElement("div");
-        meta.className = "line-meta";
+        const actions = document.createElement("div");
+        actions.className = "line-actions";
 
-        const szInput = document.createElement("input");
-        szInput.type = "number";
-        szInput.value = line.fontSize;
-        szInput.min = 8;
-        szInput.max = 180;
-        szInput.title = "Font Size";
-        szInput.addEventListener("input", () => {
-          line.fontSize = Number(szInput.value) || 18;
-          line.modified = true;
-          renderCanvas(true);
-        });
-
-        const fgPicker = document.createElement("input");
-        fgPicker.type = "color";
-        fgPicker.value = line.textColor;
-        fgPicker.title = "Text Color";
-        fgPicker.addEventListener("input", () => {
-          line.textColor = fgPicker.value;
-          line.modified = true;
-          renderCanvas(true);
-        });
-
-        const bgPicker = document.createElement("input");
-        bgPicker.type = "color";
-        bgPicker.value = line.bgColor;
-        bgPicker.title = "Background Cover Color";
-        bgPicker.addEventListener("input", () => {
-          line.bgColor = bgPicker.value;
-          line.modified = true;
-          renderCanvas(true);
-        });
+        const origLabel = document.createElement("span");
+        origLabel.style.fontSize = "11px";
+        origLabel.style.color = "var(--muted)";
+        origLabel.textContent = line.origText;
 
         const resetBtn = document.createElement("button");
         resetBtn.className = "mini-reset-line";
@@ -1041,11 +1138,11 @@
           line.text = line.origText;
           line.modified = false;
           input.value = line.origText;
-          renderCanvas(true);
+          renderCanvas(false);
         });
 
-        meta.append(szInput, fgPicker, bgPicker, resetBtn);
-        card.append(top, input, meta);
+        actions.append(origLabel, resetBtn);
+        card.append(top, input, actions);
         linesList.appendChild(card);
       });
     }
@@ -1062,18 +1159,20 @@
           const clean = (ln.text || "").replace(/\s+/g, " ").trim();
           if (!clean) return;
           const b = ln.bbox;
-          const w = Math.max(20, b.x1 - b.x0);
-          const h = Math.max(14, b.y1 - b.y0);
+          const w = Math.max(16, b.x1 - b.x0);
+          const h = Math.max(12, b.y1 - b.y0);
           const colors = sampleRegionColors(b.x0, b.y0, w, h);
+          const origFontSize = Math.max(10, Math.min(48, Math.round(h * 0.78)));
+
           extracted.push({
-            id: "line_" + Date.now() + "_" + idx,
+            id: "ln_" + Date.now() + "_" + idx,
             origText: clean,
             text: clean,
             x: b.x0,
             y: b.y0,
             w,
             h,
-            fontSize: Math.max(12, Math.min(72, Math.round(h * 0.78))),
+            fontSize: origFontSize,
             textColor: colors.textColor,
             bgColor: colors.bgColor,
             modified: false
@@ -1082,7 +1181,7 @@
 
         textLines = extracted;
         renderLinesList();
-        renderCanvas(true);
+        renderCanvas(false);
         showToast(extracted.length ? t("scanDone", extracted.length) : t("scanEmpty"));
       } catch (_) {
         showToast(t("scanEmpty"));
@@ -1109,8 +1208,9 @@
           focusedLineId = null;
           mainSaveBtn.disabled = false;
           exportBar.classList.remove("show");
+          setRating("star");
           renderLinesList();
-          renderCanvas(true);
+          renderCanvas(false);
           scanImageLines();
         };
         img.src = ev.target.result;
@@ -1118,41 +1218,86 @@
       reader.readAsDataURL(file);
     });
 
-    addCustomLineBtn.addEventListener("click", () => {
-      if (!baseImg) return;
-      const idx = textLines.length;
-      const y = Math.min(mainCanvas.height - 40, Math.round(mainCanvas.height * 0.25) + idx * 36);
-      const x = Math.round(mainCanvas.width * 0.15);
-      const w = Math.round(mainCanvas.width * 0.7);
-      const h = 28;
-      const colors = sampleRegionColors(x, y, w, h);
+    // History recording (who/device, where/timezone/location info, date/time, rating heart or star)
+    function recordHistory(actionType, fileName) {
+      const now = new Date();
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "Local";
+      const platform = navigator.platform || "Device";
+      const changedCount = textLines.filter(l => l.modified).length;
 
-      const newLine = {
-        id: "custom_" + Date.now(),
-        origText: "",
-        text: "",
-        x,
-        y,
-        w,
-        h,
-        fontSize: 20,
-        textColor: colors.textColor,
-        bgColor: colors.bgColor,
-        modified: true
+      const entry = {
+        id: "hist_" + Date.now(),
+        rating: selectedRating || "star", // 'heart' or 'star'
+        action: actionType,
+        fileName: fileName || "canvas.png",
+        dateStr: now.toLocaleDateString("my-MM"),
+        timeStr: now.toLocaleTimeString("my-MM"),
+        placeInfo: `${tz} (${platform})`,
+        model: phoneModelSelect.options[phoneModelSelect.selectedIndex]?.text || statusState.model,
+        changedCount
       };
-      textLines.push(newLine);
-      focusedLineId = newLine.id;
-      renderLinesList();
-      renderCanvas(true);
+
+      const existing = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || "[]");
+      existing.unshift(entry);
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(existing.slice(0, 100)));
+    }
+
+    function renderHistoryList() {
+      const all = JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || "[]");
+      const filtered = all.filter((item) => {
+        if (activeHistoryTab === "heart") return item.rating === "heart";
+        if (activeHistoryTab === "star") return item.rating === "star";
+        return true;
+      });
+
+      if (!filtered.length) {
+        historyItems.innerHTML = `<div class="empty-state">${t("noHistory")}</div>`;
+        return;
+      }
+
+      historyItems.innerHTML = "";
+      filtered.forEach((item) => {
+        const div = document.createElement("div");
+        div.className = "history-entry";
+        const badge = item.rating === "heart"
+          ? `<span class="history-badge-heart">❤️ အသည်း (Heart)</span>`
+          : `<span class="history-badge-star">⭐ ကြယ် (Star)</span>`;
+
+        div.innerHTML = `
+          <div class="history-meta">
+            <div>${badge} — <b>${item.action}</b> (${item.fileName})</div>
+            <div>📅 ${item.dateStr} | 🕒 ${item.timeStr} | 📍 ${item.placeInfo}</div>
+            <div>📱 ${item.model} | ပြင်ပြီးစာကြောင်း: ${item.changedCount}</div>
+          </div>
+        `;
+        historyItems.appendChild(div);
+      });
+    }
+
+    historyOpenBtn.addEventListener("click", () => {
+      renderHistoryList();
+      historyModal.classList.add("open");
     });
 
-    // Main SAVE reveals Copy & Save buttons
+    closeHistoryBtn.addEventListener("click", () => {
+      historyModal.classList.remove("open");
+    });
+
+    document.querySelectorAll("[data-htab]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        activeHistoryTab = btn.dataset.htab;
+        document.querySelectorAll("[data-htab]").forEach(b => b.classList.remove("active-tab"));
+        btn.classList.add("active-tab");
+        renderHistoryList();
+      });
+    });
+
     mainSaveBtn.addEventListener("click", () => {
       if (!baseImg) return;
       focusedLineId = null;
       renderCanvas(false);
       exportBar.classList.add("show");
-      showToast(t("chooseExport"));
+      showToast("❤️ အသည်း သို့မဟုတ် ⭐ ကြယ် ရွေးပြီး Copy / Save နှိပ်ပါ");
     });
 
     copyBtn.addEventListener("click", async () => {
@@ -1162,6 +1307,7 @@
         const blob = await new Promise((r) => mainCanvas.toBlob(r, "image/png"));
         if (navigator.clipboard && window.ClipboardItem) {
           await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          recordHistory("Copy", "clipboard.png");
           showToast(t("copied"));
         } else {
           showToast(t("copyUnsupported"));
@@ -1175,11 +1321,13 @@
       if (!baseImg) return;
       renderCanvas(false);
       const stamp = new Date().toISOString().replace(/[-:T]/g, "").slice(0, 14);
+      const fileName = `photo-edit-${stamp}.png`;
       const a = document.createElement("a");
-      a.download = `photo-edit-${stamp}.png`;
+      a.download = fileName;
       a.href = mainCanvas.toDataURL("image/png");
       a.click();
-      showToast(t("savedFile", a.download));
+      recordHistory("Save", fileName);
+      showToast(t("savedFile", fileName));
     });
 
     applyLang();
