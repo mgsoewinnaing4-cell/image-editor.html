@@ -67,9 +67,9 @@
     .welcome-sub {
       color: #94a3b8;
       font-size: 14px;
-      max-width: 440px;
+      max-width: 480px;
       margin: 0 0 28px;
-      line-height: 1.5;
+      line-height: 1.55;
     }
     .go-edit-btn {
       padding: 16px 36px;
@@ -90,7 +90,7 @@
       min-height: 100vh;
       padding: 12px;
       gap: 12px;
-      max-width: 1380px;
+      max-width: 1420px;
       margin: 0 auto;
     }
     .editor-screen.active { display: flex; }
@@ -124,7 +124,23 @@
       font-weight: 700;
       cursor: pointer;
     }
-    #fileInput { display: none; }
+    .overlay-btn-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 9px 13px;
+      border-radius: 10px;
+      background: #0ea5e9;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .overlay-btn-label.disabled-lbl {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+    #fileInput, #overlayFileInput { display: none; }
 
     .pill-btn {
       padding: 8px 12px;
@@ -154,7 +170,7 @@
     }
     .btn-main-save:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Export Bar with Heart & Star + Copy & Save */
+    /* Export Bar */
     .export-bar {
       display: none;
       flex-wrap: wrap;
@@ -213,9 +229,9 @@
       gap: 12px;
       flex: 1;
     }
-    @media (min-width: 960px) {
+    @media (min-width: 980px) {
       .split-grid {
-        grid-template-columns: 1fr 1.12fr;
+        grid-template-columns: 1.05fr 1.15fr;
         align-items: start;
       }
     }
@@ -304,6 +320,57 @@
       color: #cbd5e1;
     }
 
+    /* Interactive Canvas Toolbar (Drag vs Freehand Draw) */
+    .canvas-mode-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .mode-btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .mode-btn {
+      padding: 7px 11px;
+      border-radius: 8px;
+      border: 1px solid var(--input-border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .mode-btn.active-mode {
+      background: #2563eb;
+      border-color: #3b82f6;
+      color: #fff;
+    }
+    .mode-btn.draw-active {
+      background: #e11d48;
+      border-color: #fb7185;
+      color: #fff;
+    }
+
+    .draw-subbar {
+      display: none;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-2);
+      border: 1px solid rgba(225, 29, 72, 0.45);
+      border-radius: 10px;
+      padding: 8px 10px;
+    }
+    .draw-subbar.show { display: flex; }
+
     .canvas-stage {
       background: var(--canvas-bg);
       border: 1px solid var(--border);
@@ -313,16 +380,50 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
     #mainCanvas {
       max-width: 100%;
       max-height: 64vh;
-      border-radius: 12px;
+      border-radius: 10px;
       box-shadow: 0 10px 26px rgba(0,0,0,0.5);
       background: var(--card);
+      touch-action: none;
+      cursor: grab;
+    }
+    #mainCanvas.drawing-cursor {
+      cursor: crosshair;
+    }
+    .canvas-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+      text-align: center;
     }
 
-    /* RIGHT SIDE: SEPARATE LEFT-COLUMN vs RIGHT-COLUMN SECTIONS + GENERAL */
+    /* RIGHT SIDE: ACTION BAR + SEPARATE SECTIONS */
+    .right-action-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .add-text-btn {
+      padding: 8px 13px;
+      border-radius: 9px;
+      border: none;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .add-text-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
     .filter-tabs {
       display: flex;
       gap: 6px;
@@ -348,12 +449,12 @@
     :root[data-theme="light"] .group-section {
       background: #f8fafc;
     }
-    .group-section.left-col-box {
-      border-color: rgba(239, 68, 68, 0.55);
-    }
-    .group-section.right-col-box {
-      border-color: rgba(56, 189, 248, 0.55);
-    }
+    .group-section.overlay-box { border-color: rgba(14, 165, 233, 0.65); }
+    .group-section.stroke-box { border-color: rgba(244, 63, 94, 0.65); }
+    .group-section.custom-box { border-color: rgba(16, 185, 129, 0.65); }
+    .group-section.left-col-box { border-color: rgba(239, 68, 68, 0.55); }
+    .group-section.right-col-box { border-color: rgba(56, 189, 248, 0.55); }
+
     .group-header {
       display: flex;
       justify-content: space-between;
@@ -363,15 +464,12 @@
       padding-bottom: 4px;
       border-bottom: 1px solid var(--border);
     }
-    .tag-left {
-      color: #f87171;
-    }
-    .tag-right {
-      color: #38bdf8;
-    }
-    .tag-other {
-      color: #a78bfa;
-    }
+    .tag-overlay { color: #38bdf8; }
+    .tag-stroke { color: #fb7185; }
+    .tag-custom { color: #34d399; }
+    .tag-left { color: #f87171; }
+    .tag-right { color: #38bdf8; }
+    .tag-other { color: #a78bfa; }
 
     .line-card {
       background: var(--card-2);
@@ -384,7 +482,7 @@
     }
     .line-card.focused {
       border-color: #f59e0b;
-      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.35);
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4);
     }
     .line-card.edited-card {
       border-left: 4px solid #10b981;
@@ -404,24 +502,19 @@
       font-size: 10px;
       font-weight: 800;
     }
-    .side-pill.left {
-      background: rgba(239, 68, 68, 0.18);
-      color: #fca5a5;
-      border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-    .side-pill.right {
-      background: rgba(56, 189, 248, 0.18);
-      color: #7dd3fc;
-      border: 1px solid rgba(56, 189, 248, 0.4);
-    }
-    .side-pill.other {
-      background: rgba(167, 139, 250, 0.18);
-      color: #c4b5fd;
-      border: 1px solid rgba(167, 139, 250, 0.4);
-    }
+    .side-pill.left { background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .side-pill.right { background: rgba(56, 189, 248, 0.18); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .side-pill.other { background: rgba(167, 139, 250, 0.18); color: #c4b5fd; border: 1px solid rgba(167, 139, 250, 0.4); }
+    .side-pill.custom { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); }
+    .side-pill.overlay { background: rgba(14, 165, 233, 0.2); color: #7dd3fc; border: 1px solid rgba(14, 165, 233, 0.45); }
+    .side-pill.stroke { background: rgba(244, 63, 94, 0.2); color: #fda4af; border: 1px solid rgba(244, 63, 94, 0.45); }
+
     :root[data-theme="light"] .side-pill.left { color: #dc2626; }
     :root[data-theme="light"] .side-pill.right { color: #0284c7; }
     :root[data-theme="light"] .side-pill.other { color: #6d28d9; }
+    :root[data-theme="light"] .side-pill.custom { color: #047857; }
+    :root[data-theme="light"] .side-pill.overlay { color: #0369a1; }
+    :root[data-theme="light"] .side-pill.stroke { color: #be123c; }
 
     .line-input {
       width: 100%;
@@ -434,6 +527,17 @@
       font-weight: 600;
     }
 
+    /* Font Family + Background Mode Row */
+    .font-bg-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 6px;
+      align-items: center;
+    }
+    @media (max-width: 520px) {
+      .font-bg-grid { grid-template-columns: 1fr; }
+    }
+
     /* Font Size & Text Color Controls */
     .style-controls-grid {
       display: grid;
@@ -442,9 +546,7 @@
       align-items: center;
     }
     @media (max-width: 560px) {
-      .style-controls-grid {
-        grid-template-columns: 1fr;
-      }
+      .style-controls-grid { grid-template-columns: 1fr; }
     }
 
     .size-control-bar {
@@ -490,11 +592,10 @@
       font-size: 11px;
       font-weight: 800;
       color: #38bdf8;
-      min-width: 34px;
+      min-width: 36px;
       text-align: right;
     }
 
-    /* Color Adjuster Bar */
     .color-control-bar {
       display: flex;
       align-items: center;
@@ -554,6 +655,26 @@
       font-weight: 700;
       cursor: pointer;
     }
+    .mini-danger-btn {
+      padding: 5px 9px;
+      border-radius: 6px;
+      border: none;
+      background: #dc2626;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .mini-restore-btn {
+      padding: 5px 9px;
+      border-radius: 6px;
+      border: none;
+      background: #0284c7;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
     .mini-move-btn {
       padding: 5px 8px;
       border-radius: 6px;
@@ -587,7 +708,7 @@
     .history-modal.open { display: flex; }
     .history-box {
       width: 100%;
-      max-width: 720px;
+      max-width: 760px;
       max-height: 86vh;
       background: var(--card);
       border: 1px solid var(--border);
@@ -627,14 +748,20 @@
     .history-meta {
       font-size: 12px;
       line-height: 1.45;
+      flex: 1;
     }
-    .history-badge-heart {
-      color: #fb7185;
-      font-weight: 800;
-    }
-    .history-badge-star {
-      color: #fbbf24;
-      font-weight: 800;
+    .history-badge-heart { color: #fb7185; font-weight: 800; }
+    .history-badge-star { color: #fbbf24; font-weight: 800; }
+    .btn-reopen-draft {
+      padding: 7px 12px;
+      border-radius: 8px;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
     }
     .toast {
       font-size: 12px;
@@ -649,9 +776,9 @@
 
   <!-- SCREEN 1: WELCOME -->
   <section class="welcome-screen" id="welcomeScreen">
-    <span class="welcome-badge">LIVE LINE SYNC & STATUS BAR STUDIO</span>
+    <span class="welcome-badge">LIVE LINE SYNC, OVERLAY & HANDWRITING STUDIO</span>
     <h1 class="welcome-title">Welcome to Photo edit</h1>
-    <p class="welcome-sub">ပုံထဲက ဘယ်ဘက်/ညာဘက် စာကြောင်းတွေကို သီးသန့်ခွဲထုတ်ပြီး မူရင်းနေရာ၊ စာလုံးဆိုဒ်နှင့် စာအရောင် အလျှော့အတင်းတို့ဖြင့် ထင်ရှားသိသာစွာ တိုက်ရိုက်အစားထိုးပြင်ဆင်နိုင်ပါသည်။</p>
+    <p class="welcome-sub">ပုံထဲက စာကြောင်းတွေကို ဘယ်/ညာ ခွဲထုတ်ပြင်ဆင်ခြင်း၊ ကွက်လက်ထဲ စာအသစ်နှင့် ဖောင့်မျိုးစုံထည့်ခြင်း၊ ထပ်ဆင့်ပုံထည့်ခြင်း၊ ဖုန်းမျက်နှာပြင်ပေါ် လက်နဲ့တိုက်ရိုက်ရေးဆွဲခြင်းနှင့် မှတ်တမ်းမှ ပြန်ခေါ်ပြင်ဆင်ခြင်းတို့ ပြုလုပ်နိုင်ပါသည်။</p>
     <button class="go-edit-btn" id="goEditBtn">Go to edit</button>
   </section>
 
@@ -661,6 +788,10 @@
       <div class="header-left">
         <label class="upload-btn-label" for="fileInput" id="uploadBtnText">+ ပုံထည့်ရန်</label>
         <input type="file" id="fileInput" accept="image/*" />
+
+        <label class="overlay-btn-label disabled-lbl" for="overlayFileInput" id="overlayBtnText">🖼️ ထပ်ဆင့်ပုံထည့်ရန်</label>
+        <input type="file" id="overlayFileInput" accept="image/*" />
+
         <button class="btn-main-save" id="mainSaveBtn" disabled>SAVE</button>
 
         <div class="export-bar" id="exportBar">
@@ -681,121 +812,150 @@
     <div class="toast" id="toastMsg"></div>
 
     <div class="split-grid">
-      <!-- LEFT: PHONE / IMAGE PREVIEW + TOGGLE CONTROLS -->
+      <!-- LEFT: INTERACTIVE CANVAS + STATUS BAR + FREEHAND DRAW -->
       <div class="panel">
         <div class="panel-title">
-          <span id="leftPanelTitle">ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်နှင့် Status Bar ချိန်ညှိရန်</span>
-          <button class="toggle-mini-btn on" id="toggleStatusBarBtn" style="width:auto;padding:5px 10px;">Status Bar: ON</button>
+          <span id="leftPanelTitle">ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်၊ ဆွဲရွှေ့ရန် နှင့် လက်ရေးရေးရန်</span>
+          <button class="toggle-mini-btn off" id="toggleStatusBarBtn" style="width:auto;padding:5px 10px;">Status Bar: OFF</button>
         </div>
 
-        <div class="device-controls">
-          <div class="ctrl-row-2">
-            <div>
-              <span class="mini-lbl" id="lblPhoneModel">ဖုန်းအမျိုးအစား</span>
-              <select id="phoneModelSelect">
-                <option value="iphone16">iPhone 16 / 17 / 18 Pro (Dynamic Island)</option>
-                <option value="iphoneNotch">iPhone Classic (Notch)</option>
-                <option value="samsung">Samsung Galaxy (Center Punch-hole)</option>
-                <option value="xiaomi">Xiaomi / Redmi (Center Punch-hole)</option>
-                <option value="vivo">Vivo (Center Punch-hole)</option>
-                <option value="oppo">Oppo (Left Punch-hole)</option>
-              </select>
-            </div>
-            <div>
-              <span class="mini-lbl" id="lblCutout">Cutout ပုံစံ</span>
-              <select id="cutoutStyleSelect">
-                <option value="island">Dynamic Island</option>
-                <option value="notch">Notch</option>
-                <option value="punch-center">Punch-hole (Center)</option>
-                <option value="punch-left">Punch-hole (Left)</option>
-                <option value="none">None</option>
-              </select>
-            </div>
+        <!-- Canvas Mode Switcher: Drag/Move vs Freehand Draw -->
+        <div class="canvas-mode-bar">
+          <div class="mode-btn-group">
+            <button type="button" class="mode-btn active-mode" id="modeDragBtn">✋ ဆွဲရွှေ့မည် (Drag)</button>
+            <button type="button" class="mode-btn" id="modeDrawBtn">✍️ လက်နဲ့ရေးမည် (Draw)</button>
           </div>
-
-          <div class="ctrl-row-3">
-            <div>
-              <span class="mini-lbl" id="lblClock">နာရီ (Time)</span>
-              <input type="text" id="clockInput" value="09:41" maxlength="8" />
-            </div>
-            <div>
-              <span class="mini-lbl" id="lblBattery">ဘက်ထရီ (%)</span>
-              <input type="number" id="batteryInput" value="85" min="1" max="100" />
-            </div>
-            <div>
-              <span class="mini-lbl" id="lblSignal">Signal တိုင် (0-4)</span>
-              <select id="signalSelect">
-                <option value="4" selected>4 တိုင်</option>
-                <option value="3">3 တိုင်</option>
-                <option value="2">2 တိုင်</option>
-                <option value="1">1 တိုင်</option>
-                <option value="0">0 တိုင်</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="ctrl-row-3">
-            <div>
-              <span class="mini-lbl">အားသွင်း (Charging)</span>
-              <button class="toggle-mini-btn off" id="toggleChargingBtn">OFF</button>
-            </div>
-            <div>
-              <span class="mini-lbl">လိုင်း (Signal)</span>
-              <button class="toggle-mini-btn on" id="toggleSignalBtn">ON</button>
-            </div>
-            <div>
-              <span class="mini-lbl">ဘက်ထရီ (Battery)</span>
-              <button class="toggle-mini-btn on" id="toggleBatteryBtn">ON</button>
-            </div>
-          </div>
-
-          <div class="ctrl-row-3">
-            <div>
-              <span class="mini-lbl">Wi-Fi</span>
-              <button class="toggle-mini-btn on" id="toggleWifiBtn">ON</button>
-            </div>
-            <div>
-              <span class="mini-lbl">အလင်းအမှောင် (Dim)</span>
-              <button class="toggle-mini-btn on" id="toggleBrightnessBtn">ON</button>
-            </div>
-            <div>
-              <span class="mini-lbl">Network</span>
-              <select id="networkSelect">
-                <option value="5G" selected>5G</option>
-                <option value="4G">4G</option>
-                <option value="LTE">LTE</option>
-                <option value="">None</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <span class="mini-lbl"><span id="lblBrightness">အလင်းအမှောင် အလျှော့အတင်း</span>: <b id="brightnessVal">100%</b></span>
-            <input type="range" id="brightnessSlider" min="25" max="125" value="100" />
+          <div class="mode-btn-group">
+            <button type="button" class="mode-btn" id="undoStrokeBtn" title="နောက်ဆုံးလက်ရေးပြန်ဖျက်ရန်">↩️ Undo လက်ရေး</button>
           </div>
         </div>
+
+        <!-- Freehand Handwriting Toolbar -->
+        <div class="draw-subbar" id="drawSubbar">
+          <span class="size-lbl">🎨 အရောင်:</span>
+          <input type="color" id="drawColorPicker" class="color-picker-input" value="#1e3a8a" />
+          <div id="drawSwatches" style="display:flex;gap:4px;align-items:center;"></div>
+          <span class="size-lbl">🖊️ အထူ:</span>
+          <input type="range" id="drawThicknessSlider" min="1" max="14" value="2" style="width:80px;" />
+          <span class="size-val-badge" id="drawThicknessVal">2px</span>
+        </div>
+
+        <details style="background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;">
+          <summary style="font-size:12px;font-weight:700;cursor:pointer;color:var(--muted);">📱 ဖုန်း Status Bar နှင့် အလင်းအမှောင် ချိန်ညှိရန် (နှိပ်၍ဖွင့်ပါ)</summary>
+          <div class="device-controls" style="border:none;padding:8px 0 0;">
+            <div class="ctrl-row-2">
+              <div>
+                <span class="mini-lbl" id="lblPhoneModel">ဖုန်းအမျိုးအစား</span>
+                <select id="phoneModelSelect">
+                  <option value="iphone16">iPhone 16 / 17 / 18 Pro (Dynamic Island)</option>
+                  <option value="iphoneNotch">iPhone Classic (Notch)</option>
+                  <option value="samsung">Samsung Galaxy (Center Punch-hole)</option>
+                  <option value="xiaomi">Xiaomi / Redmi (Center Punch-hole)</option>
+                  <option value="vivo">Vivo (Center Punch-hole)</option>
+                  <option value="oppo">Oppo (Left Punch-hole)</option>
+                </select>
+              </div>
+              <div>
+                <span class="mini-lbl" id="lblCutout">Cutout ပုံစံ</span>
+                <select id="cutoutStyleSelect">
+                  <option value="island">Dynamic Island</option>
+                  <option value="notch">Notch</option>
+                  <option value="punch-center">Punch-hole (Center)</option>
+                  <option value="punch-left">Punch-hole (Left)</option>
+                  <option value="none">None</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="ctrl-row-3">
+              <div>
+                <span class="mini-lbl" id="lblClock">နာရီ (Time)</span>
+                <input type="text" id="clockInput" value="09:41" maxlength="8" />
+              </div>
+              <div>
+                <span class="mini-lbl" id="lblBattery">ဘက်ထရီ (%)</span>
+                <input type="number" id="batteryInput" value="85" min="1" max="100" />
+              </div>
+              <div>
+                <span class="mini-lbl" id="lblSignal">Signal တိုင် (0-4)</span>
+                <select id="signalSelect">
+                  <option value="4" selected>4 တိုင်</option>
+                  <option value="3">3 တိုင်</option>
+                  <option value="2">2 တိုင်</option>
+                  <option value="1">1 တိုင်</option>
+                  <option value="0">0 တိုင်</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="ctrl-row-3">
+              <div>
+                <span class="mini-lbl">အားသွင်း (Charging)</span>
+                <button class="toggle-mini-btn off" id="toggleChargingBtn">OFF</button>
+              </div>
+              <div>
+                <span class="mini-lbl">လိုင်း (Signal)</span>
+                <button class="toggle-mini-btn on" id="toggleSignalBtn">ON</button>
+              </div>
+              <div>
+                <span class="mini-lbl">ဘက်ထရီ (Battery)</span>
+                <button class="toggle-mini-btn on" id="toggleBatteryBtn">ON</button>
+              </div>
+            </div>
+
+            <div class="ctrl-row-3">
+              <div>
+                <span class="mini-lbl">Wi-Fi</span>
+                <button class="toggle-mini-btn on" id="toggleWifiBtn">ON</button>
+              </div>
+              <div>
+                <span class="mini-lbl">အလင်းအမှောင် (Dim)</span>
+                <button class="toggle-mini-btn on" id="toggleBrightnessBtn">ON</button>
+              </div>
+              <div>
+                <span class="mini-lbl">Network</span>
+                <select id="networkSelect">
+                  <option value="5G" selected>5G</option>
+                  <option value="4G">4G</option>
+                  <option value="LTE">LTE</option>
+                  <option value="">None</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <span class="mini-lbl"><span id="lblBrightness">အလင်းအမှောင် အလျှော့အတင်း</span>: <b id="brightnessVal">100%</b></span>
+              <input type="range" id="brightnessSlider" min="25" max="125" value="100" />
+            </div>
+          </div>
+        </details>
 
         <div class="canvas-stage">
-          <canvas id="mainCanvas" width="420" height="760"></canvas>
+          <canvas id="mainCanvas" width="460" height="620"></canvas>
+          <div class="canvas-hint" id="canvasHintText">
+            ✋ စာကြောင်း၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးများကို ပုံပေါ်တွင် တိုက်ရိုက်ဖိဆွဲရွှေ့နိုင်ပါသည်
+          </div>
         </div>
       </div>
 
-      <!-- RIGHT: SEPARATE LEFT & RIGHT COLUMN TEXT LINES + FONT SIZE & COLOR CONTROLS -->
+      <!-- RIGHT: ADD CUSTOM TEXT + OVERLAY CONTROLS + HANDWRITING LAYERS + DETECTED LINES -->
       <div class="panel">
-        <div class="panel-title">
-          <span id="rightPanelTitle">ညာဘက် — ဘယ်/ညာ စာကြောင်းများ၊ စာလုံးဆိုဒ်နှင့် စာအရောင် ချိန်ညှိရန်</span>
+        <div class="right-action-bar">
+          <span class="panel-title" id="rightPanelTitle" style="margin:0;">ညာဘက် — စာကြောင်းများ၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးထိန်းချုပ်ရန်</span>
+          <button type="button" class="add-text-btn" id="addCustomTextBtn" disabled>+ စာကြောင်းအသစ်ထည့်ရန်</button>
         </div>
 
         <div class="filter-tabs" id="columnFilterTabs">
-          <button class="pill-btn active-tab" data-colfilter="all" id="colFilterAll">အားလုံး (All)</button>
-          <button class="pill-btn" data-colfilter="left" id="colFilterLeft">🔴 ဘယ်ဘက်စာ (Labels)</button>
-          <button class="pill-btn" data-colfilter="right" id="colFilterRight">🔵 ညာဘက်စာ (Values)</button>
-          <button class="pill-btn" data-colfilter="other" id="colFilterOther">🟣 အပေါ်/အောက် စာများ</button>
+          <button class="pill-btn active-tab" data-colfilter="all">အားလုံး (All)</button>
+          <button class="pill-btn" data-colfilter="custom">🟢 ကွက်လက်စာသစ်</button>
+          <button class="pill-btn" data-colfilter="left">🔴 ဘယ်ဘက်စာ</button>
+          <button class="pill-btn" data-colfilter="right">🔵 ညာဘက်စာ</button>
+          <button class="pill-btn" data-colfilter="layers">🖼️ ပုံ & ✍️ လက်ရေး</button>
         </div>
 
         <div class="lines-list" id="linesList">
           <div class="empty-state" id="emptyStateText">
-            ပုံထည့်လိုက်တာနဲ့ ဘယ်ဘက်စာကြောင်း (Labels) နဲ့ ညာဘက်စာကြောင်း (Values) တွေကို သီးသန့်စီ ခွဲထုတ်ပြီး ပြပေးပါမယ်။
+            ပုံထည့်လိုက်တာနဲ့ စာကြောင်းတွေကို ဖတ်ပေးမယ့်အပြင် ကွက်လက်ထဲ စာအသစ်ထည့်ခြင်း (+ စာကြောင်းအသစ်ထည့်ရန်)၊ ထပ်ဆင့်ပုံထည့်ခြင်း (🖼️) နှင့် လက်နဲ့ပွတ်ဆွဲရေးခြင်း (✍️) တို့ကို လုပ်ဆောင်နိုင်ပါမည်။
           </div>
         </div>
       </div>
@@ -806,14 +966,14 @@
   <div class="history-modal" id="historyModal">
     <div class="history-box">
       <div class="history-head">
-        <h3 style="margin:0;font-size:16px;" id="historyModalTitle">📜 လုပ်ဆောင်ခဲ့သော မှတ်တမ်းများ</h3>
+        <h3 style="margin:0;font-size:16px;" id="historyModalTitle">📜 လုပ်ဆောင်ခဲ့သော မှတ်တမ်းများ (ပြန်ခေါ်သုံးနိုင်သည်)</h3>
         <button class="pill-btn" id="closeHistoryBtn">✕ ပိတ်ရန်</button>
       </div>
 
       <div class="history-tabs">
-        <button class="pill-btn active-tab" data-htab="all" id="tabAll">အားလုံး</button>
-        <button class="pill-btn" data-htab="heart" id="tabHeart">❤️ အသည်းပေးထားသော</button>
-        <button class="pill-btn" data-htab="star" id="tabStar">⭐ ကြယ်ပေးထားသော</button>
+        <button class="pill-btn active-tab" data-htab="all">အားလုံး</button>
+        <button class="pill-btn" data-htab="heart">❤️ အသည်းပေးထားသော</button>
+        <button class="pill-btn" data-htab="star">⭐ ကြယ်ပေးထားသော</button>
       </div>
 
       <div class="history-items" id="historyItems"></div>
@@ -821,67 +981,89 @@
   </div>
 
   <script>
-    const HISTORY_STORAGE_KEY = "photo_edit_history_v1";
+    const HISTORY_STORAGE_KEY = "photo_edit_history_v2";
     const QUICK_SWATCHES = ["#0f172a", "#1e3a8a", "#dc2626", "#059669", "#d97706", "#ffffff"];
+
+    const FONT_OPTIONS = [
+      { label: "Pyidaungsu / Default", value: '"Pyidaungsu", "Noto Sans Myanmar", system-ui, sans-serif' },
+      { label: "Myanmar Serif (စာအုပ်ပုံစံ)", value: '"Myanmar Text", "Noto Serif Myanmar", Georgia, serif' },
+      { label: "Bold Sans (ထင်ရှား)", value: '"Arial Black", "Segoe UI", sans-serif' },
+      { label: "Monospace (ဂဏန်း/ကုဒ်)", value: '"Courier New", Consolas, monospace' },
+      { label: "Handwriting / Script (လက်ရေးဟန်)", value: '"Comic Sans MS", "Segoe Print", cursive' }
+    ];
 
     const i18n = {
       my: {
         uploadBtn: "+ ပုံထည့်ရန်",
+        overlayBtn: "🖼️ ထပ်ဆင့်ပုံထည့်ရန်",
+        addTextBtn: "+ စာကြောင်းအသစ်ထည့်ရန်",
         toLight: "☀️ Light",
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
-        leftTitle: "ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်နှင့် Status Bar ချိန်ညှိရန်",
-        rightTitle: "ညာဘက် — ဘယ်/ညာ စာကြောင်းများ၊ စာလုံးဆိုဒ်နှင့် စာအရောင် ချိန်ညှိရန်",
+        leftTitle: "ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်၊ ဆွဲရွှေ့ရန် နှင့် လက်ရေးရေးရန်",
+        rightTitle: "ညာဘက် — စာကြောင်းများ၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးထိန်းချုပ်ရန်",
         lblPhone: "ဖုန်းအမျိုးအစား",
         lblCutout: "Cutout ပုံစံ",
         lblClock: "နာရီ (Time)",
         lblBattery: "ဘက်ထရီ (%)",
         lblSignal: "Signal တိုင် (0-4)",
         lblBrightness: "အလင်းအမှောင် အလျှော့အတင်း",
-        emptyMsg: "ပုံထည့်လိုက်တာနဲ့ ဘယ်ဘက်စာကြောင်း (Labels) နဲ့ ညာဘက်စာကြောင်း (Values) တွေကို သီးသန့်စီ ခွဲထုတ်ပြီး ပြပေးပါမယ်။",
-        scanning: "ပုံထဲက ဘယ်/ညာ စာကြောင်းများကို သီးသန့်စီ ခွဲထုတ်ဖတ်နေပါသည်...",
-        scanDone: (l, r, o) => `ဘယ်ဘက် (${l}) ကြောင်း၊ ညာဘက် (${r}) ကြောင်း၊ အခြား (${o}) ကြောင်း သီးသန့်ခွဲပြီးပါပြီ`,
-        scanEmpty: "စာကြောင်း အလိုအလျောက် မတွေ့ပါ",
+        emptyMsg: "ပုံထည့်လိုက်တာနဲ့ စာကြောင်းတွေကို ဖတ်ပေးမယ့်အပြင် ကွက်လက်ထဲ စာအသစ်ထည့်ခြင်း (+ စာကြောင်းအသစ်ထည့်ရန်)၊ ထပ်ဆင့်ပုံထည့်ခြင်း (🖼️) နှင့် လက်နဲ့ပွတ်ဆွဲရေးခြင်း (✍️) တို့ကို လုပ်ဆောင်နိုင်ပါမည်။",
+        scanning: "ပုံထဲက စာကြောင်းများကို ဖတ်နေပါသည်...",
+        scanDone: (l, r, o) => `ဘယ် (${l})၊ ညာ (${r})၊ အခြား (${o}) ဖတ်ပြီးပါပြီ — ကွက်လက်ထဲ စာအသစ်ထည့်နိုင်ပါပြီ`,
+        scanEmpty: "စာကြောင်း အလိုအလျောက် မတွေ့ပါ — '+ စာကြောင်းအသစ်ထည့်ရန်' ကိုနှိပ်ပြီး ဖြည့်နိုင်ပါသည်",
         copied: "ပုံကို Copy ကူးပြီး မှတ်တမ်းထဲ သိမ်းပြီးပါပြီ",
         copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်ပါ",
         savedFile: (f) => `ပုံအသစ် (${f}) သိမ်းဆည်းပြီး မှတ်တမ်းထဲ ထည့်ပြီးပါပြီ`,
         noHistory: "မှတ်တမ်း မရှိသေးပါ",
+        secOverlays: "🖼️ ထပ်ဆင့်ပုံများ (Overlay Images)",
+        secStrokes: "✍️ လက်နဲ့ရေးဆွဲထားသော လိုင်းများ (Handwriting)",
+        secCustom: "🟢 ကွက်လက်ထဲ ထည့်ထားသော စာကြောင်းသစ်များ (Custom Text)",
         secLeft: "🔴 ဘယ်ဘက် စာကြောင်းများ (Left Column)",
         secRight: "🔵 ညာဘက် စာကြောင်းများ (Right Column)",
         secOther: "🟣 အပေါ် / အောက် စာကြောင်းများ (Header / Footer)",
         fontSizeLbl: "ဆိုဒ်",
-        colorLbl: "စာအရောင်",
-        resetBtn: "မူရင်းပြန်ထား"
+        colorLbl: "အရောင်",
+        resetBtn: "မူရင်းပြန်ထား",
+        deleteBtn: "ဖျက်မည်",
+        restoreBtn: "ပြန်ဖော်မည်"
       },
       en: {
-        uploadBtn: "+ Upload Image",
+        uploadBtn: "+ Upload Base Image",
+        overlayBtn: "🖼️ Add Overlay Image",
+        addTextBtn: "+ Add Custom Text",
         toLight: "☀️ Light",
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
-        leftTitle: "Left — Live Image Preview & Status Bar",
-        rightTitle: "Right — Separate Left/Right Columns, Font Size & Text Color",
+        leftTitle: "Left — Interactive Preview, Drag & Handwriting",
+        rightTitle: "Right — Text Lines, Overlay Images & Handwriting Controls",
         lblPhone: "Phone Model",
         lblCutout: "Cutout Style",
         lblClock: "Clock Time",
         lblBattery: "Battery (%)",
         lblSignal: "Signal Bars (0-4)",
         lblBrightness: "Screen Brightness",
-        emptyMsg: "Upload an image to separate Left labels and Right values automatically.",
-        scanning: "Scanning & separating Left vs Right text columns...",
-        scanDone: (l, r, o) => `Separated Left (${l}), Right (${r}), and Other (${o}) text lines`,
-        scanEmpty: "No lines auto-detected",
-        copied: "Image copied & recorded in history",
+        emptyMsg: "Upload a base image, then add custom text into blank fields, place overlay photos, or draw freehand with your finger.",
+        scanning: "Scanning text lines from image...",
+        scanDone: (l, r, o) => `Detected Left (${l}), Right (${r}), Other (${o}) — ready to edit or add text`,
+        scanEmpty: "No lines auto-detected — click '+ Add Custom Text' to fill blanks",
+        copied: "Image copied & draft saved to history",
         copyUnsupported: "Copy not supported here; use Save",
-        savedFile: (f) => `Saved ${f} & recorded in history`,
+        savedFile: (f) => `Saved ${f} & draft stored in history`,
         noHistory: "No history records yet",
-        secLeft: "🔴 Left Side Text Lines (Labels)",
-        secRight: "🔵 Right Side Text Lines (Values)",
-        secOther: "🟣 Top / Bottom Text Lines (Header / Footer)",
+        secOverlays: "🖼️ Overlay Images (Resizable & Restorable)",
+        secStrokes: "✍️ Freehand Drawings / Handwriting",
+        secCustom: "🟢 Custom Added Text (Blank Fillers)",
+        secLeft: "🔴 Left Side Text Lines",
+        secRight: "🔵 Right Side Text Lines",
+        secOther: "🟣 Header / Footer Text Lines",
         fontSizeLbl: "Size",
         colorLbl: "Color",
-        resetBtn: "Reset"
+        resetBtn: "Reset",
+        deleteBtn: "Hide/Delete",
+        restoreBtn: "Restore"
       }
     };
 
@@ -890,11 +1072,15 @@
     let selectedRating = "star";
     let activeHistoryTab = "all";
     let activeColFilter = "all";
+    let interactionMode = "drag"; // "drag" | "draw"
 
     const welcomeScreen = document.getElementById("welcomeScreen");
     const editorScreen = document.getElementById("editorScreen");
     const goEditBtn = document.getElementById("goEditBtn");
     const fileInput = document.getElementById("fileInput");
+    const overlayFileInput = document.getElementById("overlayFileInput");
+    const overlayBtnText = document.getElementById("overlayBtnText");
+    const addCustomTextBtn = document.getElementById("addCustomTextBtn");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
     const exportBar = document.getElementById("exportBar");
     const heartBtn = document.getElementById("heartBtn");
@@ -904,6 +1090,16 @@
     const themeBtn = document.getElementById("themeBtn");
     const langBtn = document.getElementById("langBtn");
     const toastMsg = document.getElementById("toastMsg");
+
+    const modeDragBtn = document.getElementById("modeDragBtn");
+    const modeDrawBtn = document.getElementById("modeDrawBtn");
+    const undoStrokeBtn = document.getElementById("undoStrokeBtn");
+    const drawSubbar = document.getElementById("drawSubbar");
+    const drawColorPicker = document.getElementById("drawColorPicker");
+    const drawSwatches = document.getElementById("drawSwatches");
+    const drawThicknessSlider = document.getElementById("drawThicknessSlider");
+    const drawThicknessVal = document.getElementById("drawThicknessVal");
+    const canvasHintText = document.getElementById("canvasHintText");
 
     const toggleStatusBarBtn = document.getElementById("toggleStatusBarBtn");
     const phoneModelSelect = document.getElementById("phoneModelSelect");
@@ -930,11 +1126,12 @@
     const historyItems = document.getElementById("historyItems");
 
     let baseImg = null;
+    let baseImgDataUrl = "";
     let sampleCanvas = document.createElement("canvas");
     let sampleCtx = sampleCanvas.getContext("2d", { willReadFrequently: true });
 
     let statusState = {
-      enabled: true,
+      enabled: false,
       model: "iphone16",
       cutout: "island",
       time: "09:41",
@@ -949,9 +1146,21 @@
       brightness: 100
     };
 
-    // Each line item tracks original & current text, font size, and text color
+    // Data models:
+    // textLines: { id, side: 'left'|'right'|'other'|'custom', align, origText, text, x, y, w, h, origFontSize, fontSize, fontFamily, origTextColor, textColor, bgColor, bgMode: 'transparent'|'auto'|'white', modified, isCustom }
     let textLines = [];
-    let focusedLineId = null;
+
+    // overlayImages: { id, name, img, dataUrl, x, y, w, h, origW, origH, opacity, visible }
+    let overlayImages = [];
+
+    // freehandStrokes: { id, points: [{x, y}], color, width, visible }
+    let freehandStrokes = [];
+
+    let selectedTarget = null; // { type: 'text'|'overlay'|'stroke', id }
+    let dragState = null;
+    let activeDrawStroke = null;
+    let drawColor = "#1e3a8a";
+    let drawThickness = 2;
 
     function t(k, ...a) {
       const v = i18n[lang][k];
@@ -962,14 +1171,60 @@
       toastMsg.textContent = msg;
       setTimeout(() => {
         if (toastMsg.textContent === msg) toastMsg.textContent = "";
-      }, 3400);
+      }, 3500);
     }
 
+    // Initialize Draw Color Swatches
+    QUICK_SWATCHES.forEach(sw => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "color-swatch-btn";
+      btn.style.background = sw;
+      btn.addEventListener("click", () => {
+        drawColor = sw;
+        drawColorPicker.value = sw;
+      });
+      drawSwatches.appendChild(btn);
+    });
+
+    drawColorPicker.addEventListener("input", () => {
+      drawColor = drawColorPicker.value;
+    });
+
+    drawThicknessSlider.addEventListener("input", () => {
+      drawThickness = Number(drawThicknessSlider.value);
+      drawThicknessVal.textContent = `${drawThickness}px`;
+    });
+
+    function setInteractionMode(mode) {
+      interactionMode = mode;
+      modeDragBtn.classList.toggle("active-mode", mode === "drag");
+      modeDrawBtn.classList.toggle("draw-active", mode === "draw");
+      drawSubbar.classList.toggle("show", mode === "draw");
+      mainCanvas.classList.toggle("drawing-cursor", mode === "draw");
+      canvasHintText.textContent = mode === "draw"
+        ? "✍️ ဖုန်းမျက်နှာပြင်ပေါ် လက်နဲ့ပွတ်ဆွဲပြီး ကွက်လက်ထဲ တိုက်ရိုက်ရေးဆွဲနိုင်ပါသည်"
+        : "✋ စာကြောင်း၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးများကို ပုံပေါ်တွင် တိုက်ရိုက်ဖိဆွဲရွှေ့နိုင်ပါသည်";
+    }
+
+    modeDragBtn.addEventListener("click", () => setInteractionMode("drag"));
+    modeDrawBtn.addEventListener("click", () => setInteractionMode("draw"));
+
+    undoStrokeBtn.addEventListener("click", () => {
+      if (freehandStrokes.length === 0) return;
+      freehandStrokes.pop();
+      renderLinesUI();
+      renderCanvas(false);
+    });
+
     function hasLineChanged(line) {
+      if (line.isCustom) return true;
       const textChanged = line.text !== line.origText;
       const sizeChanged = Math.abs(line.fontSize - line.origFontSize) > 0.4;
       const colorChanged = (line.textColor || "").toLowerCase() !== (line.origTextColor || "").toLowerCase();
-      return textChanged || sizeChanged || colorChanged;
+      const fontChanged = line.fontFamily !== FONT_OPTIONS[0].value;
+      const bgForced = line.bgMode !== "auto";
+      return textChanged || sizeChanged || colorChanged || fontChanged || bgForced;
     }
 
     goEditBtn.addEventListener("click", () => {
@@ -980,6 +1235,8 @@
 
     function applyLang() {
       document.getElementById("uploadBtnText").textContent = t("uploadBtn");
+      overlayBtnText.textContent = t("overlayBtn");
+      addCustomTextBtn.textContent = t("addTextBtn");
       themeBtn.textContent = theme === "dark" ? t("toLight") : t("toDark");
       langBtn.textContent = lang === "my" ? t("toEn") : t("toMy");
       document.getElementById("leftPanelTitle").textContent = t("leftTitle");
@@ -992,7 +1249,7 @@
       document.getElementById("lblBrightness").textContent = t("lblBrightness");
       const emptyEl = document.getElementById("emptyStateText");
       if (emptyEl) emptyEl.textContent = t("emptyMsg");
-      if (textLines.length > 0) renderLinesUI();
+      if (baseImg) renderLinesUI();
     }
 
     themeBtn.addEventListener("click", () => {
@@ -1053,61 +1310,16 @@
       renderCanvas(false);
     });
 
-    clockInput.addEventListener("input", () => {
-      statusState.time = clockInput.value || "09:41";
-      renderCanvas(false);
-    });
-
-    batteryInput.addEventListener("input", () => {
-      statusState.battery = Math.max(1, Math.min(100, Number(batteryInput.value) || 85));
-      renderCanvas(false);
-    });
-
-    signalSelect.addEventListener("change", () => {
-      statusState.signal = Number(signalSelect.value);
-      renderCanvas(false);
-    });
-
-    networkSelect.addEventListener("change", () => {
-      statusState.network = networkSelect.value;
-      renderCanvas(false);
-    });
-
-    toggleChargingBtn.addEventListener("click", () => {
-      statusState.charging = !statusState.charging;
-      setToggleBtn(toggleChargingBtn, statusState.charging, "ON ⚡", "OFF");
-      renderCanvas(false);
-    });
-
-    toggleSignalBtn.addEventListener("click", () => {
-      statusState.showSignal = !statusState.showSignal;
-      setToggleBtn(toggleSignalBtn, statusState.showSignal);
-      renderCanvas(false);
-    });
-
-    toggleBatteryBtn.addEventListener("click", () => {
-      statusState.showBattery = !statusState.showBattery;
-      setToggleBtn(toggleBatteryBtn, statusState.showBattery);
-      renderCanvas(false);
-    });
-
-    toggleWifiBtn.addEventListener("click", () => {
-      statusState.wifi = !statusState.wifi;
-      setToggleBtn(toggleWifiBtn, statusState.wifi);
-      renderCanvas(false);
-    });
-
-    toggleBrightnessBtn.addEventListener("click", () => {
-      statusState.brightnessEnabled = !statusState.brightnessEnabled;
-      setToggleBtn(toggleBrightnessBtn, statusState.brightnessEnabled);
-      renderCanvas(false);
-    });
-
-    brightnessSlider.addEventListener("input", () => {
-      statusState.brightness = Number(brightnessSlider.value);
-      brightnessVal.textContent = `${statusState.brightness}%`;
-      renderCanvas(false);
-    });
+    clockInput.addEventListener("input", () => { statusState.time = clockInput.value || "09:41"; renderCanvas(false); });
+    batteryInput.addEventListener("input", () => { statusState.battery = Math.max(1, Math.min(100, Number(batteryInput.value) || 85)); renderCanvas(false); });
+    signalSelect.addEventListener("change", () => { statusState.signal = Number(signalSelect.value); renderCanvas(false); });
+    networkSelect.addEventListener("change", () => { statusState.network = networkSelect.value; renderCanvas(false); });
+    toggleChargingBtn.addEventListener("click", () => { statusState.charging = !statusState.charging; setToggleBtn(toggleChargingBtn, statusState.charging, "ON ⚡", "OFF"); renderCanvas(false); });
+    toggleSignalBtn.addEventListener("click", () => { statusState.showSignal = !statusState.showSignal; setToggleBtn(toggleSignalBtn, statusState.showSignal); renderCanvas(false); });
+    toggleBatteryBtn.addEventListener("click", () => { statusState.showBattery = !statusState.showBattery; setToggleBtn(toggleBatteryBtn, statusState.showBattery); renderCanvas(false); });
+    toggleWifiBtn.addEventListener("click", () => { statusState.wifi = !statusState.wifi; setToggleBtn(toggleWifiBtn, statusState.wifi); renderCanvas(false); });
+    toggleBrightnessBtn.addEventListener("click", () => { statusState.brightnessEnabled = !statusState.brightnessEnabled; setToggleBtn(toggleBrightnessBtn, statusState.brightnessEnabled); renderCanvas(false); });
+    brightnessSlider.addEventListener("input", () => { statusState.brightness = Number(brightnessSlider.value); brightnessVal.textContent = `${statusState.brightness}%`; renderCanvas(false); });
 
     function rgbToHex(r, g, b) {
       return "#" + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
@@ -1210,26 +1422,21 @@
       ctx.fillText(statusState.time, timeX, midY);
 
       let cursorX = W - padX;
-
       if (statusState.showBattery) {
         const batW = Math.round(fontSize * 1.65);
         const batH = Math.round(fontSize * 0.85);
         const batX = cursorX - batW;
         const batY = Math.round(midY - batH / 2);
-
         ctx.strokeStyle = fg;
         ctx.lineWidth = Math.max(1.2, barH * 0.035);
         ctx.beginPath();
         ctx.roundRect(batX, batY, batW, batH, 3);
         ctx.stroke();
-
         ctx.fillStyle = fg;
         ctx.fillRect(batX + batW + 1, Math.round(midY - batH * 0.22), 2, Math.round(batH * 0.44));
-
         const fillW = Math.max(2, Math.round((batW - 4) * (statusState.battery / 100)));
         ctx.fillStyle = statusState.charging ? "#22c55e" : (statusState.battery <= 20 ? "#ef4444" : fg);
         ctx.fillRect(batX + 2, batY + 2, fillW, batH - 4);
-
         cursorX = batX - Math.round(fontSize * 0.4);
         ctx.fillStyle = fg;
         ctx.font = `700 ${Math.round(fontSize * 0.82)}px sans-serif`;
@@ -1272,8 +1479,23 @@
           ctx.fillRect(bx, by, barW, bh);
         }
       }
-
       ctx.restore();
+    }
+
+    function getStrokeBounds(stroke) {
+      if (!stroke.points || stroke.points.length === 0) return { x: 0, y: 0, w: 0, h: 0 };
+      const xs = stroke.points.map(p => p.x);
+      const ys = stroke.points.map(p => p.y);
+      const minX = Math.min(...xs);
+      const minY = Math.min(...ys);
+      const maxX = Math.max(...xs);
+      const maxY = Math.max(...ys);
+      return {
+        x: minX - 6,
+        y: minY - 6,
+        w: Math.max(16, maxX - minX + 12),
+        h: Math.max(16, maxY - minY + 12)
+      };
     }
 
     function renderCanvas(isExport = false) {
@@ -1291,6 +1513,7 @@
         return;
       }
 
+      // 1. Base Image
       ctx.save();
       if (statusState.brightnessEnabled) {
         ctx.filter = `brightness(${statusState.brightness}%)`;
@@ -1298,47 +1521,63 @@
       ctx.drawImage(baseImg, 0, 0, W, H);
       ctx.restore();
 
-      // Render clearly and cleanly on edited lines (text, size, or color)
+      // 2. Overlay Images (Photo layers)
+      overlayImages.forEach(ov => {
+        if (!ov.visible || !ov.img) return;
+        ctx.save();
+        ctx.globalAlpha = ov.opacity ?? 1;
+        ctx.drawImage(ov.img, ov.x, ov.y, ov.w, ov.h);
+        if (!isExport && selectedTarget?.type === "overlay" && selectedTarget.id === ov.id) {
+          ctx.strokeStyle = "#0ea5e9";
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 3]);
+          ctx.strokeRect(ov.x, ov.y, ov.w, ov.h);
+        }
+        ctx.restore();
+      });
+
+      // 3. Text Lines (Detected + Custom Blank-Fillers)
       textLines.forEach(line => {
         if (!hasLineChanged(line)) return;
 
-        const padX = Math.max(6, line.origFontSize * 0.35);
-        const maxH = Math.max(line.h, line.fontSize * 1.38);
-        const padY = Math.max(4, (maxH - line.h) / 2 + 3);
+        ctx.save();
+        ctx.font = `700 ${line.fontSize}px ${line.fontFamily || FONT_OPTIONS[0].value}`;
+        const measuredW = Math.max(line.w, ctx.measureText(line.text || " ").width);
+        line.renderedW = measuredW;
+
+        const padX = Math.max(5, line.fontSize * 0.25);
+        const maxH = Math.max(line.h, line.fontSize * 1.35);
+        const padY = Math.max(3, (maxH - line.h) / 2 + 2);
 
         const rx = Math.max(0, line.x - padX);
         const ry = Math.max(0, line.y - padY);
-        const rw = Math.min(W - rx, line.w + padX * 2);
+        const rw = Math.min(W - rx, measuredW + padX * 2);
         const rh = Math.min(H - ry, line.h + padY * 2);
 
-        ctx.save();
-        ctx.fillStyle = line.bgColor;
-        ctx.fillRect(rx, ry, rw, rh);
-
-        // Subtle crisp outline so the updated text stands out clearly without looking like a messy sticker
-        if (!isExport) {
-          ctx.strokeStyle = "rgba(16, 185, 129, 0.45)";
-          ctx.lineWidth = 1;
-          ctx.strokeRect(rx + 0.5, ry + 0.5, Math.max(1, rw - 1), Math.max(1, rh - 1));
+        // Smart background handling:
+        // "transparent" -> draws text directly over patterned/pink backgrounds (like NRC card blanks!)
+        // "auto" -> samples surrounding background color to erase old text cleanly
+        // "white" -> clean white fill
+        if (line.bgMode === "auto") {
+          const liveSample = sampleRegionColors(line.x, line.y, Math.max(12, line.w), Math.max(12, line.h));
+          ctx.fillStyle = liveSample.bgColor || line.bgColor;
+          ctx.fillRect(rx, ry, rw, rh);
+        } else if (line.bgMode === "white") {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(rx, ry, rw, rh);
         }
 
         const val = line.text;
         if (val.trim() !== "") {
           ctx.fillStyle = line.textColor;
-          ctx.font = `700 ${line.fontSize}px "Pyidaungsu", "Noto Sans Myanmar", system-ui, -apple-system, sans-serif`;
           ctx.textBaseline = "middle";
-
-          // Subtle contrast shadow when text is bright on light or dark on dark
-          ctx.shadowColor = "rgba(0, 0, 0, 0.14)";
-          ctx.shadowBlur = 1.5;
-          ctx.shadowOffsetY = 0.5;
 
           if (line.align === "right") {
             ctx.textAlign = "right";
-            ctx.fillText(val, line.x + line.w, line.y + line.h / 2);
+            ctx.fillText(val, line.x + measuredW, line.y + line.h / 2);
           } else if (line.align === "center") {
             ctx.textAlign = "center";
-            ctx.fillText(val, line.x + line.w / 2, line.y + line.h / 2);
+            ctx.fillText(val, line.x + measuredW / 2, line.y + line.h / 2);
           } else {
             ctx.textAlign = "left";
             ctx.fillText(val, line.x, line.y + line.h / 2);
@@ -1347,18 +1586,51 @@
         ctx.restore();
       });
 
-      // Highlight focused line during preview
-      if (!isExport && focusedLineId !== null) {
-        const f = textLines.find(l => l.id === focusedLineId);
+      // 4. Freehand Handwriting Strokes (Exact natural hand-drawn path, never auto-replaced)
+      const allStrokes = activeDrawStroke ? [...freehandStrokes, activeDrawStroke] : freehandStrokes;
+      allStrokes.forEach(st => {
+        if (!st.visible || !st.points || st.points.length === 0) return;
+        ctx.save();
+        ctx.strokeStyle = st.color;
+        ctx.lineWidth = st.width;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+        ctx.beginPath();
+        if (st.points.length === 1) {
+          ctx.arc(st.points[0].x, st.points[0].y, st.width / 2, 0, Math.PI * 2);
+          ctx.fillStyle = st.color;
+          ctx.fill();
+        } else {
+          ctx.moveTo(st.points[0].x, st.points[0].y);
+          for (let i = 1; i < st.points.length; i++) {
+            ctx.lineTo(st.points[i].x, st.points[i].y);
+          }
+          ctx.stroke();
+        }
+
+        if (!isExport && selectedTarget?.type === "stroke" && selectedTarget.id === st.id) {
+          const b = getStrokeBounds(st);
+          ctx.strokeStyle = "#fb7185";
+          ctx.lineWidth = 1.5;
+          ctx.setLineDash([4, 3]);
+          ctx.strokeRect(b.x, b.y, b.w, b.h);
+        }
+        ctx.restore();
+      });
+
+      // 5. Selection Highlight Box for Text
+      if (!isExport && selectedTarget?.type === "text") {
+        const f = textLines.find(l => l.id === selectedTarget.id);
         if (f) {
+          const boxW = Math.max(f.w, f.renderedW || f.w);
           ctx.save();
-          ctx.strokeStyle = f.side === "left" ? "#ef4444" : (f.side === "right" ? "#38bdf8" : "#a855f7");
-          ctx.lineWidth = 2.2;
+          ctx.strokeStyle = f.isCustom ? "#10b981" : (f.side === "left" ? "#ef4444" : "#38bdf8");
+          ctx.lineWidth = 2;
           ctx.setLineDash([5, 3]);
           ctx.strokeRect(
             Math.max(1, f.x - 4),
             Math.max(1, f.y - 3),
-            Math.min(W - 2, f.w + 8),
+            Math.min(W - 2, boxW + 8),
             Math.min(H - 2, f.h + 6)
           );
           ctx.restore();
@@ -1368,24 +1640,215 @@
       drawStatusBarOverlay();
     }
 
+    // Canvas Pointer Coordinates Helper
+    function getCanvasCoords(e) {
+      const rect = mainCanvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: (clientX - rect.left) * (mainCanvas.width / rect.width),
+        y: (clientY - rect.top) * (mainCanvas.height / rect.height)
+      };
+    }
+
+    function hitTestCanvas(pt) {
+      // 1. Check Custom & Edited Text Lines (top-most first)
+      for (let i = textLines.length - 1; i >= 0; i--) {
+        const l = textLines[i];
+        const w = Math.max(l.w, l.renderedW || l.w) + 12;
+        const h = Math.max(l.h, l.fontSize * 1.3) + 10;
+        if (pt.x >= l.x - 6 && pt.x <= l.x + w && pt.y >= l.y - 5 && pt.y <= l.y + h) {
+          return { type: "text", item: l };
+        }
+      }
+      // 2. Check Freehand Strokes
+      for (let i = freehandStrokes.length - 1; i >= 0; i--) {
+        const st = freehandStrokes[i];
+        if (!st.visible) continue;
+        const b = getStrokeBounds(st);
+        if (pt.x >= b.x && pt.x <= b.x + b.w && pt.y >= b.y && pt.y <= b.y + b.h) {
+          return { type: "stroke", item: st };
+        }
+      }
+      // 3. Check Overlay Images
+      for (let i = overlayImages.length - 1; i >= 0; i--) {
+        const ov = overlayImages[i];
+        if (!ov.visible) continue;
+        if (pt.x >= ov.x && pt.x <= ov.x + ov.w && pt.y >= ov.y && pt.y <= ov.y + ov.h) {
+          return { type: "overlay", item: ov };
+        }
+      }
+      return null;
+    }
+
+    function onCanvasPointerDown(e) {
+      if (!baseImg) return;
+      const pt = getCanvasCoords(e);
+
+      if (interactionMode === "draw") {
+        e.preventDefault();
+        activeDrawStroke = {
+          id: Date.now() + Math.random(),
+          points: [{ x: pt.x, y: pt.y }],
+          color: drawColor,
+          width: drawThickness,
+          visible: true
+        };
+        selectedTarget = { type: "stroke", id: activeDrawStroke.id };
+        renderCanvas(false);
+        return;
+      }
+
+      // Drag mode
+      const hit = hitTestCanvas(pt);
+      if (hit) {
+        e.preventDefault();
+        selectedTarget = { type: hit.type, id: hit.item.id };
+        dragState = {
+          type: hit.type,
+          item: hit.item,
+          startX: pt.x,
+          startY: pt.y,
+          origX: hit.type === "stroke" ? 0 : hit.item.x,
+          origY: hit.type === "stroke" ? 0 : hit.item.y,
+          origPoints: hit.type === "stroke" ? hit.item.points.map(p => ({ ...p })) : null
+        };
+        renderLinesUI();
+        renderCanvas(false);
+      }
+    }
+
+    function onCanvasPointerMove(e) {
+      if (!baseImg) return;
+      if (interactionMode === "draw" && activeDrawStroke) {
+        e.preventDefault();
+        const pt = getCanvasCoords(e);
+        activeDrawStroke.points.push({ x: pt.x, y: pt.y });
+        renderCanvas(false);
+        return;
+      }
+
+      if (dragState) {
+        e.preventDefault();
+        const pt = getCanvasCoords(e);
+        const dx = pt.x - dragState.startX;
+        const dy = pt.y - dragState.startY;
+
+        if (dragState.type === "text" || dragState.type === "overlay") {
+          dragState.item.x = Math.max(0, Math.min(mainCanvas.width - 10, dragState.origX + dx));
+          dragState.item.y = Math.max(0, Math.min(mainCanvas.height - 10, dragState.origY + dy));
+          if (dragState.type === "text") dragState.item.modified = true;
+        } else if (dragState.type === "stroke") {
+          dragState.item.points = dragState.origPoints.map(p => ({
+            x: p.x + dx,
+            y: p.y + dy
+          }));
+        }
+        renderCanvas(false);
+      }
+    }
+
+    function onCanvasPointerUp() {
+      if (interactionMode === "draw" && activeDrawStroke) {
+        freehandStrokes.push(activeDrawStroke);
+        activeDrawStroke = null;
+        renderLinesUI();
+        renderCanvas(false);
+      }
+      dragState = null;
+    }
+
+    mainCanvas.addEventListener("mousedown", onCanvasPointerDown);
+    window.addEventListener("mousemove", onCanvasPointerMove);
+    window.addEventListener("mouseup", onCanvasPointerUp);
+
+    mainCanvas.addEventListener("touchstart", onCanvasPointerDown, { passive: false });
+    window.addEventListener("touchmove", onCanvasPointerMove, { passive: false });
+    window.addEventListener("touchend", onCanvasPointerUp);
+
+    // Add Custom Blank-Filler Text Line
+    addCustomTextBtn.addEventListener("click", () => {
+      if (!baseImg) return;
+      const id = Date.now() + Math.random();
+      const defaultSize = Math.max(14, Math.round(mainCanvas.width * 0.036));
+      const newLine = {
+        id,
+        side: "custom",
+        align: "left",
+        origText: "",
+        text: "စာသားအသစ်ထည့်ပါ",
+        x: Math.round(mainCanvas.width * 0.52),
+        y: Math.round(mainCanvas.height * 0.25 + (textLines.filter(l => l.isCustom).length * 28) % (mainCanvas.height * 0.5)),
+        w: 140,
+        h: defaultSize + 6,
+        origFontSize: defaultSize,
+        fontSize: defaultSize,
+        fontFamily: FONT_OPTIONS[0].value,
+        origTextColor: "#111827",
+        textColor: "#111827",
+        bgColor: "#ffffff",
+        bgMode: "transparent", // Default transparent so patterned cards (like NRC) stay clean!
+        modified: true,
+        isCustom: true
+      };
+      textLines.unshift(newLine);
+      selectedTarget = { type: "text", id };
+      renderLinesUI();
+      renderCanvas(false);
+    });
+
+    // Add Overlay Image
+    overlayFileInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file || !baseImg) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const dataUrl = ev.target.result;
+        const img = new Image();
+        img.onload = () => {
+          const targetW = Math.round(mainCanvas.width * 0.26);
+          const ratio = img.height / Math.max(1, img.width);
+          const targetH = Math.round(targetW * ratio);
+          const ov = {
+            id: Date.now() + Math.random(),
+            name: file.name || "Overlay Photo",
+            img,
+            dataUrl,
+            x: Math.round(mainCanvas.width * 0.08),
+            y: Math.round(mainCanvas.height * 0.15),
+            w: targetW,
+            h: targetH,
+            origW: targetW,
+            origH: targetH,
+            opacity: 1,
+            visible: true
+          };
+          overlayImages.push(ov);
+          selectedTarget = { type: "overlay", id: ov.id };
+          renderLinesUI();
+          renderCanvas(false);
+          showToast("ထပ်ဆင့်ပုံ ထည့်ပြီးပါပြီ — ပုံပေါ်ဆွဲရွှေ့နိုင်သလို ညာဘက်မှာ အကြီး/အသေး ချိန်နိုင်ပါသည်");
+        };
+        img.src = dataUrl;
+      };
+      reader.readAsDataURL(file);
+      overlayFileInput.value = "";
+    });
+
     function splitRowIntoLeftRightSegments(words, imgW, imgH) {
       if (!words || words.length === 0) return [];
-
       const valid = words
         .filter(w => w && w.text && w.text.trim() && w.bbox)
         .sort((a, b) => a.bbox.x0 - b.bbox.x0);
-
       if (valid.length === 0) return [];
 
       const segments = [];
       let currentGroup = [valid[0]];
-
       for (let i = 1; i < valid.length; i++) {
         const prev = valid[i - 1];
         const curr = valid[i];
         const gap = curr.bbox.x0 - prev.bbox.x1;
         const avgH = Math.max(12, ((prev.bbox.y1 - prev.bbox.y0) + (curr.bbox.y1 - curr.bbox.y0)) / 2);
-
         const crossesCenter = (prev.bbox.x1 < imgW * 0.56) && (curr.bbox.x0 > imgW * 0.44) && (gap > avgH * 1.15);
         if (gap > avgH * 2.2 || crossesCenter) {
           segments.push(currentGroup);
@@ -1410,14 +1873,12 @@
       const centerX = (seg.x0 + seg.x1) / 2;
       const centerY = (seg.y0 + seg.y1) / 2;
       const widthRatio = (seg.x1 - seg.x0) / imgW;
-
-      if (centerY < imgH * 0.27 || centerY > imgH * 0.80 || widthRatio > 0.62) {
+      if (centerY < imgH * 0.25 || centerY > imgH * 0.85 || widthRatio > 0.65) {
         return {
           side: "other",
           align: centerX > imgW * 0.6 ? "right" : (seg.x0 > imgW * 0.28 && seg.x1 < imgW * 0.72 ? "center" : "left")
         };
       }
-
       if (centerX < imgW * 0.50 && seg.x0 < imgW * 0.42) {
         return { side: "left", align: "left" };
       } else {
@@ -1425,10 +1886,138 @@
       }
     }
 
+    function buildOverlayCard(ov, idx) {
+      const card = document.createElement("div");
+      card.className = "line-card" + (selectedTarget?.type === "overlay" && selectedTarget.id === ov.id ? " focused" : "");
+
+      const top = document.createElement("div");
+      top.className = "line-card-top";
+      top.innerHTML = `<span class="side-pill overlay">🖼️ ထပ်ဆင့်ပုံ #${idx + 1}</span><span>${ov.name}</span>`;
+      card.appendChild(top);
+
+      // Resize Slider (- / +)
+      const sizeBar = document.createElement("div");
+      sizeBar.className = "size-control-bar";
+      const lbl = document.createElement("span");
+      lbl.className = "size-lbl";
+      lbl.textContent = "ပုံအရွယ်:";
+
+      const minusBtn = document.createElement("button");
+      minusBtn.type = "button";
+      minusBtn.className = "size-step-btn";
+      minusBtn.textContent = "−";
+
+      const slider = document.createElement("input");
+      slider.type = "range";
+      slider.className = "size-slider";
+      slider.min = "24";
+      slider.max = String(mainCanvas.width);
+      slider.value = String(Math.round(ov.w));
+
+      const plusBtn = document.createElement("button");
+      plusBtn.type = "button";
+      plusBtn.className = "size-step-btn";
+      plusBtn.textContent = "+";
+
+      const valBadge = document.createElement("span");
+      valBadge.className = "size-val-badge";
+      valBadge.textContent = `${Math.round(ov.w)}px`;
+
+      function resizeOverlay(newW) {
+        const clampedW = Math.max(24, Math.min(mainCanvas.width, Math.round(newW)));
+        const ratio = ov.origH / Math.max(1, ov.origW);
+        ov.w = clampedW;
+        ov.h = Math.round(clampedW * ratio);
+        slider.value = String(clampedW);
+        valBadge.textContent = `${clampedW}px`;
+        selectedTarget = { type: "overlay", id: ov.id };
+        renderCanvas(false);
+      }
+
+      minusBtn.addEventListener("click", () => resizeOverlay(ov.w - 8));
+      plusBtn.addEventListener("click", () => resizeOverlay(ov.w + 8));
+      slider.addEventListener("input", () => resizeOverlay(Number(slider.value)));
+
+      sizeBar.append(lbl, minusBtn, slider, plusBtn, valBadge);
+      card.appendChild(sizeBar);
+
+      // Delete / Restore / Reset Size buttons
+      const actions = document.createElement("div");
+      actions.className = "line-actions";
+
+      const resetSizeBtn = document.createElement("button");
+      resetSizeBtn.type = "button";
+      resetSizeBtn.className = "mini-reset-line";
+      resetSizeBtn.textContent = "မူလဆိုဒ်";
+      resetSizeBtn.addEventListener("click", () => resizeOverlay(ov.origW));
+
+      const toggleVisBtn = document.createElement("button");
+      toggleVisBtn.type = "button";
+      toggleVisBtn.className = ov.visible ? "mini-danger-btn" : "mini-restore-btn";
+      toggleVisBtn.textContent = ov.visible ? "🗑️ ပုံဖျက်မည်" : "♻️ ပုံပြန်ဖော်မည်";
+      toggleVisBtn.addEventListener("click", () => {
+        ov.visible = !ov.visible;
+        renderLinesUI();
+        renderCanvas(false);
+      });
+
+      actions.append(resetSizeBtn, toggleVisBtn);
+      card.appendChild(actions);
+      return card;
+    }
+
+    function buildStrokeCard(st, idx) {
+      const card = document.createElement("div");
+      card.className = "line-card" + (selectedTarget?.type === "stroke" && selectedTarget.id === st.id ? " focused" : "");
+
+      const top = document.createElement("div");
+      top.className = "line-card-top";
+      top.innerHTML = `<span class="side-pill stroke">✍️ လက်ရေး #${idx + 1}</span><span>အထူ ${st.width}px</span>`;
+      card.appendChild(top);
+
+      const styleRow = document.createElement("div");
+      styleRow.className = "color-control-bar";
+
+      const cPicker = document.createElement("input");
+      cPicker.type = "color";
+      cPicker.className = "color-picker-input";
+      cPicker.value = st.color;
+      cPicker.addEventListener("input", () => {
+        st.color = cPicker.value;
+        renderCanvas(false);
+      });
+
+      const thickSlider = document.createElement("input");
+      thickSlider.type = "range";
+      thickSlider.className = "size-slider";
+      thickSlider.min = "1";
+      thickSlider.max = "14";
+      thickSlider.value = String(st.width);
+      thickSlider.addEventListener("input", () => {
+        st.width = Number(thickSlider.value);
+        renderCanvas(false);
+      });
+
+      const toggleBtn = document.createElement("button");
+      toggleBtn.type = "button";
+      toggleBtn.className = st.visible ? "mini-danger-btn" : "mini-restore-btn";
+      toggleBtn.textContent = st.visible ? "ဖျက်မည်" : "ပြန်ဖော်မည်";
+      toggleBtn.addEventListener("click", () => {
+        st.visible = !st.visible;
+        renderLinesUI();
+        renderCanvas(false);
+      });
+
+      styleRow.append(cPicker, thickSlider, toggleBtn);
+      card.appendChild(styleRow);
+      return card;
+    }
+
     function buildSingleLineCard(line) {
+      const isSelected = selectedTarget?.type === "text" && selectedTarget.id === line.id;
       const card = document.createElement("div");
       card.className = "line-card"
-        + (line.id === focusedLineId ? " focused" : "")
+        + (isSelected ? " focused" : "")
         + (hasLineChanged(line) ? " edited-card" : "");
 
       const top = document.createElement("div");
@@ -1436,7 +2025,9 @@
 
       const sideBadge = document.createElement("span");
       sideBadge.className = `side-pill ${line.side}`;
-      if (line.side === "left") {
+      if (line.isCustom) {
+        sideBadge.textContent = lang === "my" ? "🟢 ကွက်လက်စာသစ် (Custom)" : "🟢 Custom Field";
+      } else if (line.side === "left") {
         sideBadge.textContent = lang === "my" ? "🔴 ဘယ်ဘက်စာ (Left)" : "🔴 Left Side";
       } else if (line.side === "right") {
         sideBadge.textContent = lang === "my" ? "🔵 ညာဘက်စာ (Right)" : "🔵 Right Side";
@@ -1445,16 +2036,17 @@
       }
 
       const origInfo = document.createElement("span");
-      origInfo.textContent = line.origText.length > 26 ? line.origText.slice(0, 26) + "…" : line.origText;
+      origInfo.textContent = line.isCustom
+        ? "ပုံပေါ်ဆွဲရွှေ့နိုင်သည်"
+        : (line.origText.length > 24 ? line.origText.slice(0, 24) + "…" : line.origText);
 
-      top.appendChild(sideBadge);
-      top.appendChild(origInfo);
+      top.append(sideBadge, origInfo);
 
       const input = document.createElement("input");
       input.type = "text";
       input.className = "line-input";
       input.value = line.text;
-      input.placeholder = lang === "my" ? "စာသားပြင်ရန် (အလွတ်ထားရင် ဖျက်ပေးမည်)" : "Edit text (empty = erase)";
+      input.placeholder = lang === "my" ? "စာသားရိုက်ထည့်ပါ..." : "Enter text...";
 
       function syncCardState() {
         line.modified = hasLineChanged(line);
@@ -1463,7 +2055,7 @@
       }
 
       input.addEventListener("focus", () => {
-        focusedLineId = line.id;
+        selectedTarget = { type: "text", id: line.id };
         renderCanvas(false);
         document.querySelectorAll(".line-card").forEach(c => c.classList.remove("focused"));
         card.classList.add("focused");
@@ -1474,7 +2066,45 @@
         syncCardState();
       });
 
-      // Style Row: Size (- / slider / +) + Color (color picker + quick swatches)
+      // Row 2: Font Family Selector + Background Mode Selector (Transparent vs Auto-Match vs White)
+      const fontBgRow = document.createElement("div");
+      fontBgRow.className = "font-bg-grid";
+
+      const fontSelect = document.createElement("select");
+      FONT_OPTIONS.forEach(opt => {
+        const o = document.createElement("option");
+        o.value = opt.value;
+        o.textContent = opt.label;
+        if ((line.fontFamily || FONT_OPTIONS[0].value) === opt.value) o.selected = true;
+        fontSelect.appendChild(o);
+      });
+      fontSelect.addEventListener("change", () => {
+        line.fontFamily = fontSelect.value;
+        selectedTarget = { type: "text", id: line.id };
+        syncCardState();
+      });
+
+      const bgSelect = document.createElement("select");
+      [
+        { val: "transparent", lbl: "နောက်ခံ: အကြည် (Transparent)" },
+        { val: "auto", lbl: "နောက်ခံ: အလိုအလျောက်ဖုံး (Auto)" },
+        { val: "white", lbl: "နောက်ခံ: အဖြူ (White)" }
+      ].forEach(bOpt => {
+        const o = document.createElement("option");
+        o.value = bOpt.val;
+        o.textContent = bOpt.lbl;
+        if (line.bgMode === bOpt.val) o.selected = true;
+        bgSelect.appendChild(o);
+      });
+      bgSelect.addEventListener("change", () => {
+        line.bgMode = bgSelect.value;
+        selectedTarget = { type: "text", id: line.id };
+        syncCardState();
+      });
+
+      fontBgRow.append(fontSelect, bgSelect);
+
+      // Row 3: Size (- / slider / +) + Color
       const styleGrid = document.createElement("div");
       styleGrid.className = "style-controls-grid";
 
@@ -1489,7 +2119,6 @@
       minusBtn.type = "button";
       minusBtn.className = "size-step-btn";
       minusBtn.textContent = "−";
-      minusBtn.title = "စာလုံးသေးရန် (-1px)";
 
       const slider = document.createElement("input");
       slider.type = "range";
@@ -1503,7 +2132,6 @@
       plusBtn.type = "button";
       plusBtn.className = "size-step-btn";
       plusBtn.textContent = "+";
-      plusBtn.title = "စာလုံးကြီးရန် (+1px)";
 
       const valBadge = document.createElement("span");
       valBadge.className = "size-val-badge";
@@ -1514,7 +2142,7 @@
         line.fontSize = clamped;
         slider.value = String(clamped);
         valBadge.textContent = `${clamped}px`;
-        focusedLineId = line.id;
+        selectedTarget = { type: "text", id: line.id };
         syncCardState();
       }
 
@@ -1522,13 +2150,8 @@
       plusBtn.addEventListener("click", () => updateFontSize(line.fontSize + 1));
       slider.addEventListener("input", () => updateFontSize(Number(slider.value)));
 
-      sizeBar.appendChild(sizeLbl);
-      sizeBar.appendChild(minusBtn);
-      sizeBar.appendChild(slider);
-      sizeBar.appendChild(plusBtn);
-      sizeBar.appendChild(valBadge);
+      sizeBar.append(sizeLbl, minusBtn, slider, plusBtn, valBadge);
 
-      // Color Control Bar
       const colorBar = document.createElement("div");
       colorBar.className = "color-control-bar";
 
@@ -1540,7 +2163,6 @@
       colorPicker.type = "color";
       colorPicker.className = "color-picker-input";
       colorPicker.value = line.textColor || "#0f172a";
-      colorPicker.title = "စာအရောင် ရွေးရန်";
 
       const hexTag = document.createElement("span");
       hexTag.className = "color-hex-tag";
@@ -1550,104 +2172,131 @@
         line.textColor = hex;
         colorPicker.value = hex;
         hexTag.textContent = hex.toUpperCase();
-        focusedLineId = line.id;
+        selectedTarget = { type: "text", id: line.id };
         syncCardState();
       }
 
       colorPicker.addEventListener("input", () => applyTextColor(colorPicker.value));
-
-      colorBar.appendChild(colorLbl);
-      colorBar.appendChild(colorPicker);
+      colorBar.append(colorLbl, colorPicker);
 
       QUICK_SWATCHES.forEach(sw => {
         const dot = document.createElement("button");
         dot.type = "button";
         dot.className = "color-swatch-btn";
         dot.style.background = sw;
-        dot.title = sw;
         dot.addEventListener("click", () => applyTextColor(sw));
         colorBar.appendChild(dot);
       });
 
       colorBar.appendChild(hexTag);
+      styleGrid.append(sizeBar, colorBar);
 
-      styleGrid.appendChild(sizeBar);
-      styleGrid.appendChild(colorBar);
-
-      // Action buttons row
+      // Row 4: Actions
       const actions = document.createElement("div");
       actions.className = "line-actions";
 
       const switchGroup = document.createElement("div");
       switchGroup.className = "line-btn-group";
 
-      const toLeftBtn = document.createElement("button");
-      toLeftBtn.type = "button";
-      toLeftBtn.className = "mini-move-btn";
-      toLeftBtn.textContent = "◀ ဘယ်";
-      toLeftBtn.title = "ဘယ်ဘက်အုပ်စုသို့ ရွှေ့ရန်";
-      toLeftBtn.addEventListener("click", () => {
-        line.side = "left";
-        line.align = "left";
-        renderLinesUI();
-        renderCanvas(false);
-      });
+      if (!line.isCustom) {
+        const toLeftBtn = document.createElement("button");
+        toLeftBtn.type = "button";
+        toLeftBtn.className = "mini-move-btn";
+        toLeftBtn.textContent = "◀ ဘယ်";
+        toLeftBtn.addEventListener("click", () => {
+          line.side = "left";
+          line.align = "left";
+          renderLinesUI();
+          renderCanvas(false);
+        });
 
-      const toRightBtn = document.createElement("button");
-      toRightBtn.type = "button";
-      toRightBtn.className = "mini-move-btn";
-      toRightBtn.textContent = "ညာ ▶";
-      toRightBtn.title = "ညာဘက်အုပ်စုသို့ ရွှေ့ရန်";
-      toRightBtn.addEventListener("click", () => {
-        line.side = "right";
-        line.align = "right";
-        renderLinesUI();
-        renderCanvas(false);
-      });
+        const toRightBtn = document.createElement("button");
+        toRightBtn.type = "button";
+        toRightBtn.className = "mini-move-btn";
+        toRightBtn.textContent = "ညာ ▶";
+        toRightBtn.addEventListener("click", () => {
+          line.side = "right";
+          line.align = "right";
+          renderLinesUI();
+          renderCanvas(false);
+        });
+        switchGroup.append(toLeftBtn, toRightBtn);
+      }
 
-      switchGroup.appendChild(toLeftBtn);
-      switchGroup.appendChild(toRightBtn);
+      const rightBtn = document.createElement("button");
+      rightBtn.type = "button";
+      if (line.isCustom) {
+        rightBtn.className = "mini-danger-btn";
+        rightBtn.textContent = "🗑️ ဖျက်မည်";
+        rightBtn.addEventListener("click", () => {
+          textLines = textLines.filter(l => l.id !== line.id);
+          if (selectedTarget?.id === line.id) selectedTarget = null;
+          renderLinesUI();
+          renderCanvas(false);
+        });
+      } else {
+        rightBtn.className = "mini-reset-line";
+        rightBtn.textContent = t("resetBtn");
+        rightBtn.addEventListener("click", () => {
+          line.text = line.origText;
+          line.fontSize = line.origFontSize;
+          line.textColor = line.origTextColor;
+          line.fontFamily = FONT_OPTIONS[0].value;
+          line.bgMode = "auto";
+          line.modified = false;
+          renderLinesUI();
+          renderCanvas(false);
+        });
+      }
 
-      const resetBtn = document.createElement("button");
-      resetBtn.type = "button";
-      resetBtn.className = "mini-reset-line";
-      resetBtn.textContent = t("resetBtn");
-      resetBtn.addEventListener("click", () => {
-        line.text = line.origText;
-        line.fontSize = line.origFontSize;
-        line.textColor = line.origTextColor;
-        line.modified = false;
-        input.value = line.origText;
-        slider.value = String(Math.round(line.origFontSize));
-        valBadge.textContent = `${Math.round(line.origFontSize)}px`;
-        colorPicker.value = line.origTextColor;
-        hexTag.textContent = line.origTextColor.toUpperCase();
-        syncCardState();
-      });
-
-      actions.appendChild(switchGroup);
-      actions.appendChild(resetBtn);
-
-      card.appendChild(top);
-      card.appendChild(input);
-      card.appendChild(styleGrid);
-      card.appendChild(actions);
+      actions.append(switchGroup, rightBtn);
+      card.append(top, input, fontBgRow, styleGrid, actions);
       return card;
     }
 
     function renderLinesUI() {
       linesList.innerHTML = "";
-      if (textLines.length === 0) {
+      const hasAnything = textLines.length > 0 || overlayImages.length > 0 || freehandStrokes.length > 0;
+      if (!hasAnything) {
         const div = document.createElement("div");
         div.className = "empty-state";
-        div.textContent = t("scanEmpty");
+        div.textContent = baseImg ? t("scanEmpty") : t("emptyMsg");
         linesList.appendChild(div);
         return;
       }
 
-      const leftItems = textLines.filter(l => l.side === "left");
-      const rightItems = textLines.filter(l => l.side === "right");
-      const otherItems = textLines.filter(l => l.side === "other");
+      // 1. Overlay Images Section
+      if ((activeColFilter === "all" || activeColFilter === "layers") && overlayImages.length > 0) {
+        const secEl = document.createElement("div");
+        secEl.className = "group-section overlay-box";
+        secEl.innerHTML = `<div class="group-header"><span class="tag-overlay">${t("secOverlays")}</span><span>(${overlayImages.length})</span></div>`;
+        overlayImages.forEach((ov, idx) => secEl.appendChild(buildOverlayCard(ov, idx)));
+        linesList.appendChild(secEl);
+      }
+
+      // 2. Freehand Handwriting Strokes Section
+      if ((activeColFilter === "all" || activeColFilter === "layers") && freehandStrokes.length > 0) {
+        const secEl = document.createElement("div");
+        secEl.className = "group-section stroke-box";
+        secEl.innerHTML = `<div class="group-header"><span class="tag-stroke">${t("secStrokes")}</span><span>(${freehandStrokes.length})</span></div>`;
+        freehandStrokes.forEach((st, idx) => secEl.appendChild(buildStrokeCard(st, idx)));
+        linesList.appendChild(secEl);
+      }
+
+      // 3. Custom Blank-Filler Text Section
+      const customItems = textLines.filter(l => l.isCustom);
+      if ((activeColFilter === "all" || activeColFilter === "custom") && customItems.length > 0) {
+        const secEl = document.createElement("div");
+        secEl.className = "group-section custom-box";
+        secEl.innerHTML = `<div class="group-header"><span class="tag-custom">${t("secCustom")}</span><span>(${customItems.length})</span></div>`;
+        customItems.forEach(line => secEl.appendChild(buildSingleLineCard(line)));
+        linesList.appendChild(secEl);
+      }
+
+      // 4. Detected Left / Right / Other Sections
+      const leftItems = textLines.filter(l => !l.isCustom && l.side === "left");
+      const rightItems = textLines.filter(l => !l.isCustom && l.side === "right");
+      const otherItems = textLines.filter(l => !l.isCustom && l.side === "other");
 
       const sections = [
         { key: "left", title: t("secLeft"), items: leftItems, boxClass: "left-col-box", tagClass: "tag-left" },
@@ -1661,16 +2310,8 @@
 
         const secEl = document.createElement("div");
         secEl.className = `group-section ${sec.boxClass}`.trim();
-
-        const head = document.createElement("div");
-        head.className = "group-header";
-        head.innerHTML = `<span class="${sec.tagClass}">${sec.title}</span><span>(${sec.items.length})</span>`;
-        secEl.appendChild(head);
-
-        sec.items.forEach(line => {
-          secEl.appendChild(buildSingleLineCard(line));
-        });
-
+        secEl.innerHTML = `<div class="group-header"><span class="${sec.tagClass}">${sec.title}</span><span>(${sec.items.length})</span></div>`;
+        sec.items.forEach(line => secEl.appendChild(buildSingleLineCard(line)));
         linesList.appendChild(secEl);
       });
     }
@@ -1715,10 +2356,13 @@
               h,
               origFontSize: initialFontSize,
               fontSize: initialFontSize,
+              fontFamily: FONT_OPTIONS[0].value,
               origTextColor: colors.textColor,
               textColor: colors.textColor,
               bgColor: colors.bgColor,
-              modified: false
+              bgMode: "auto",
+              modified: false,
+              isCustom: false
             });
           });
         });
@@ -1738,44 +2382,56 @@
       }
     }
 
+    function loadBaseImageFromUrl(dataUrl, onReadyCallback) {
+      const img = new Image();
+      img.onload = () => {
+        baseImg = img;
+        baseImgDataUrl = dataUrl;
+        const maxW = 900;
+        const scale = img.width > maxW ? maxW / img.width : 1;
+        mainCanvas.width = Math.round(img.width * scale);
+        mainCanvas.height = Math.round(img.height * scale);
+
+        sampleCanvas.width = mainCanvas.width;
+        sampleCanvas.height = mainCanvas.height;
+        sampleCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
+
+        mainSaveBtn.disabled = false;
+        addCustomTextBtn.disabled = false;
+        overlayBtnText.classList.remove("disabled-lbl");
+        exportBar.classList.remove("show");
+
+        if (onReadyCallback) {
+          onReadyCallback();
+        } else {
+          textLines = [];
+          overlayImages = [];
+          freehandStrokes = [];
+          selectedTarget = null;
+          setRating("star");
+          renderCanvas(false);
+          autoDetectTextLines(mainCanvas.toDataURL("image/png"));
+        }
+      };
+      img.src = dataUrl;
+    }
+
     fileInput.addEventListener("change", (e) => {
       const file = e.target.files?.[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        const dataUrl = ev.target.result;
-        const img = new Image();
-        img.onload = () => {
-          baseImg = img;
-          const maxW = 900;
-          const scale = img.width > maxW ? maxW / img.width : 1;
-          mainCanvas.width = Math.round(img.width * scale);
-          mainCanvas.height = Math.round(img.height * scale);
-
-          sampleCanvas.width = mainCanvas.width;
-          sampleCanvas.height = mainCanvas.height;
-          sampleCtx.drawImage(img, 0, 0, mainCanvas.width, mainCanvas.height);
-
-          textLines = [];
-          focusedLineId = null;
-          mainSaveBtn.disabled = false;
-          exportBar.classList.remove("show");
-          setRating("star");
-          renderCanvas(false);
-          autoDetectTextLines(mainCanvas.toDataURL("image/png"));
-        };
-        img.src = dataUrl;
-      };
+      reader.onload = (ev) => loadBaseImageFromUrl(ev.target.result);
       reader.readAsDataURL(file);
     });
 
     mainSaveBtn.addEventListener("click", () => {
       if (!baseImg) return;
-      focusedLineId = null;
+      selectedTarget = null;
       renderCanvas(true);
       exportBar.classList.add("show");
     });
 
+    // Save Full Project / Draft State in History so user can Reopen & Resume Editing!
     function getHistoryList() {
       try {
         return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || "[]");
@@ -1785,20 +2441,101 @@
     }
 
     function addHistoryRecord(actionType) {
+      if (!baseImgDataUrl) return;
       const list = getHistoryList();
       const changedLines = textLines
         .filter(l => hasLineChanged(l))
-        .map(l => `${l.origText} → ${l.text || "[ဖျက်]"} (${Math.round(l.fontSize)}px, ${l.textColor})`);
+        .map(l => l.isCustom ? `[စာသစ်] ${l.text}` : `${l.origText} → ${l.text || "[ဖျက်]"}`);
+
+      const summaryParts = [];
+      if (changedLines.length) summaryParts.push(changedLines.join(" | "));
+      if (overlayImages.length) summaryParts.push(`ထပ်ဆင့်ပုံ (${overlayImages.length})`);
+      if (freehandStrokes.length) summaryParts.push(`လက်ရေး (${freehandStrokes.length})`);
+
+      const draftState = {
+        baseImgDataUrl,
+        statusState: { ...statusState },
+        textLines: textLines.map(l => ({ ...l })),
+        overlayImages: overlayImages.map(ov => ({
+          id: ov.id,
+          name: ov.name,
+          dataUrl: ov.dataUrl,
+          x: ov.x,
+          y: ov.y,
+          w: ov.w,
+          h: ov.h,
+          origW: ov.origW,
+          origH: ov.origH,
+          opacity: ov.opacity,
+          visible: ov.visible
+        })),
+        freehandStrokes: freehandStrokes.map(st => ({
+          ...st,
+          points: st.points.map(p => ({ ...p }))
+        }))
+      };
 
       list.unshift({
         id: Date.now(),
         timestamp: new Date().toLocaleString(),
         action: actionType,
         rating: selectedRating,
-        phoneModel: phoneModelSelect.options[phoneModelSelect.selectedIndex].text,
-        summary: changedLines.length ? changedLines.join(" | ") : "ပုံနှင့် Status Bar ချိန်ညှိမှု"
+        summary: summaryParts.length ? summaryParts.join(" • ") : "ပုံပြင်ဆင်မှု Draft",
+        draft: draftState
       });
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 60)));
+
+      try {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 15)));
+      } catch (_) {
+        // Fallback if storage quota is tight: keep latest 4 full drafts
+        try {
+          localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 4)));
+        } catch (__) {}
+      }
+    }
+
+    function restoreDraftFromHistory(record) {
+      if (!record || !record.draft) return;
+      const d = record.draft;
+      statusState = { ...statusState, ...d.statusState };
+      toggleStatusBarBtn.classList.toggle("on", statusState.enabled);
+      toggleStatusBarBtn.classList.toggle("off", !statusState.enabled);
+      toggleStatusBarBtn.textContent = `Status Bar: ${statusState.enabled ? "ON" : "OFF"}`;
+
+      loadBaseImageFromUrl(d.baseImgDataUrl, () => {
+        textLines = (d.textLines || []).map(l => ({ ...l }));
+        freehandStrokes = (d.freehandStrokes || []).map(st => ({
+          ...st,
+          points: st.points.map(p => ({ ...p }))
+        }));
+        selectedTarget = null;
+        setRating(record.rating || "star");
+
+        const savedOverlays = d.overlayImages || [];
+        overlayImages = [];
+        if (savedOverlays.length === 0) {
+          renderLinesUI();
+          renderCanvas(false);
+          historyModal.classList.remove("open");
+          showToast("မှတ်တမ်းထဲမှ Project / Draft ကို ပြန်ခေါ်ပြီးပါပြီ — ဆက်လက်ပြင်ဆင်နိုင်ပါသည်");
+        } else {
+          let loadedCount = 0;
+          savedOverlays.forEach(ovData => {
+            const ovImg = new Image();
+            ovImg.onload = () => {
+              overlayImages.push({ ...ovData, img: ovImg });
+              loadedCount++;
+              if (loadedCount === savedOverlays.length) {
+                renderLinesUI();
+                renderCanvas(false);
+                historyModal.classList.remove("open");
+                showToast("မှတ်တမ်းထဲမှ Project / Draft ကို ပြန်ခေါ်ပြီးပါပြီ — ဆက်လက်ပြင်ဆင်နိုင်ပါသည်");
+              }
+            };
+            ovImg.src = ovData.dataUrl;
+          });
+        }
+      });
     }
 
     function renderHistoryModal() {
@@ -1817,12 +2554,24 @@
         const badge = item.rating === "heart"
           ? `<span class="history-badge-heart">❤️ အသည်း (Heart)</span>`
           : `<span class="history-badge-star">⭐ ကြယ် (Star)</span>`;
-        div.innerHTML = `
-          <div class="history-meta">
-            <div>${badge} • <b>${item.action}</b> • <span style="color:var(--muted)">${item.timestamp}</span></div>
-            <div style="margin-top:4px;">${item.summary}</div>
-          </div>
+
+        const meta = document.createElement("div");
+        meta.className = "history-meta";
+        meta.innerHTML = `
+          <div>${badge} • <b>${item.action}</b> • <span style="color:var(--muted)">${item.timestamp}</span></div>
+          <div style="margin-top:4px;">${item.summary}</div>
         `;
+        div.appendChild(meta);
+
+        if (item.draft) {
+          const reopenBtn = document.createElement("button");
+          reopenBtn.type = "button";
+          reopenBtn.className = "btn-reopen-draft";
+          reopenBtn.textContent = "📂 ပြန်ခေါ်သုံးမည်";
+          reopenBtn.addEventListener("click", () => restoreDraftFromHistory(item));
+          div.appendChild(reopenBtn);
+        }
+
         historyItems.appendChild(div);
       });
     }
@@ -1847,6 +2596,7 @@
 
     copyBtn.addEventListener("click", () => {
       if (!baseImg) return;
+      selectedTarget = null;
       renderCanvas(true);
       mainCanvas.toBlob(async (blob) => {
         if (!blob) return;
@@ -1855,6 +2605,7 @@
           addHistoryRecord("Copy");
           showToast(t("copied"));
         } catch (_) {
+          addHistoryRecord("Copy");
           showToast(t("copyUnsupported"));
         }
       }, "image/png");
@@ -1862,6 +2613,7 @@
 
     downloadBtn.addEventListener("click", () => {
       if (!baseImg) return;
+      selectedTarget = null;
       renderCanvas(true);
       const filename = `edited-photo-${Date.now()}.png`;
       const link = document.createElement("a");
