@@ -9,41 +9,43 @@
     :root {
       --bg: #0f172a;
       --panel: #1e293b;
-      --panel-2: #0b1220;
+      --panel-2: #0f172a;
       --text: #f8fafc;
       --muted: #94a3b8;
       --border: #334155;
       --accent: #38bdf8;
-      --accent-2: #818cf8;
-      --danger: #ef4444;
+      --accent-2: #2563eb;
       --success: #22c55e;
-      --left-tag: #f43f5e;
-      --right-tag: #3b82f6;
-      --custom-tag: #10b981;
-      --overlay-tag: #f59e0b;
-      --stroke-tag: #ec4899;
-      --shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --pro-gold: #fbbf24;
+      --pro-amber: #d97706;
     }
 
-    [data-theme="light"] {
+    :root[data-theme="light"] {
       --bg: #f1f5f9;
       --panel: #ffffff;
-      --panel-2: #e2e8f0;
+      --panel-2: #f8fafc;
       --text: #0f172a;
       --muted: #475569;
       --border: #cbd5e1;
       --accent: #0284c7;
-      --accent-2: #4f46e5;
-      --shadow: 0 14px 32px rgba(15, 23, 42, 0.12);
+      --accent-2: #1d4ed8;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --warning: #d97706;
+      --pro-gold: #b45309;
+      --pro-amber: #d97706;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: "Pyidaungsu", "Noto Sans Myanmar", system-ui, -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       min-height: 100vh;
-      transition: background 0.25s, color 0.25s;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     /* Welcome Screen */
@@ -53,63 +55,57 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
-      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.16), transparent 45%),
-                  radial-gradient(circle at bottom left, rgba(129, 140, 248, 0.18), transparent 45%),
-                  var(--bg);
+      background: radial-gradient(circle at top, rgba(56, 189, 248, 0.16), transparent 60%), var(--bg);
     }
+
     .welcome-screen.hidden { display: none; }
 
     .welcome-card {
-      max-width: 580px;
+      max-width: 560px;
       width: 100%;
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 40px 32px;
+      border-radius: 20px;
+      padding: 36px 28px;
       text-align: center;
-      box-shadow: var(--shadow);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
     }
+
     .welcome-badge {
       display: inline-block;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
       background: rgba(56, 189, 248, 0.15);
       color: var(--accent);
-      margin-bottom: 16px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 999px;
+      margin-bottom: 14px;
     }
-    .welcome-title {
-      font-size: 32px;
-      font-weight: 800;
-      margin-bottom: 12px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .welcome-desc {
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.65;
-      margin-bottom: 28px;
-    }
+
+    .welcome-title { font-size: 26px; font-weight: 800; margin-bottom: 10px; line-height: 1.35; }
+    .welcome-desc { color: var(--muted); font-size: 14px; line-height: 1.7; margin-bottom: 24px; }
+
     .btn-go {
-      border: none;
-      border-radius: 14px;
-      padding: 15px 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #fff;
       font-size: 16px;
       font-weight: 700;
-      color: #fff;
-      background: linear-gradient(135deg, #0284c7, #4f46e5);
+      border: none;
+      border-radius: 12px;
+      padding: 14px 32px;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(79, 70, 229, 0.35);
-      transition: transform 0.15s;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.35);
+      transition: transform 0.15s ease;
     }
     .btn-go:hover { transform: translateY(-2px); }
 
-    /* Main Editor */
-    .editor-screen { display: none; min-height: 100vh; flex-direction: column; }
-    .editor-screen.active { display: flex; }
+    /* Editor & PRO Screens */
+    .editor-screen, .pro-screen { display: none; min-height: 100vh; flex-direction: column; }
+    .editor-screen.active, .pro-screen.active { display: flex; }
 
     .topbar {
       display: flex;
@@ -117,204 +113,206 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      padding: 12px 20px;
+      padding: 12px 18px;
       background: var(--panel);
       border-bottom: 1px solid var(--border);
-      position: sticky;
-      top: 0;
-      z-index: 20;
     }
+
     .topbar-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
     .btn {
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      color: var(--text);
-      padding: 8px 13px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: 0.15s;
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
     }
-    .btn:hover { border-color: var(--accent); }
-    .btn:disabled { opacity: 0.42; cursor: not-allowed; pointer-events: none; }
-    .btn-primary {
-      background: linear-gradient(135deg, #0284c7, #4f46e5);
-      border: none;
+    .btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .btn:disabled, .btn.disabled-lbl { opacity: 0.45; cursor: not-allowed; pointer-events: none; }
+
+    .btn-primary { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+    .btn-primary:hover:not(:disabled) { background: #1d4ed8; color: #fff; }
+
+    .btn-overlay { background: rgba(168, 85, 247, 0.16); border-color: rgba(168, 85, 247, 0.5); color: #d8b4fe; }
+    :root[data-theme="light"] .btn-overlay { color: #6b21a8; background: rgba(168, 85, 247, 0.12); }
+
+    .btn-auto {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-color: #10b981;
       color: #fff;
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
     }
-    .btn-overlay {
-      background: rgba(245, 158, 11, 0.16);
-      border-color: rgba(245, 158, 11, 0.5);
-      color: #fbbf24;
-    }
-    [data-theme="light"] .btn-overlay { color: #b45309; }
-    .btn-save {
-      background: linear-gradient(135deg, #16a34a, #0d9488);
-      border: none;
-      color: #fff;
-      font-weight: 700;
-      padding: 8px 18px;
-    }
+    .btn-auto:hover:not(:disabled) { filter: brightness(1.08); color: #fff; }
+
+    .btn-save { background: var(--success); border-color: var(--success); color: #fff; }
+    .btn-save:hover:not(:disabled) { opacity: 0.92; color: #fff; }
+
     .btn-pro-unlock {
-      background: linear-gradient(135deg, #f59e0b, #ea580c);
-      border: none;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border-color: #f59e0b;
       color: #fff;
       font-weight: 800;
     }
-    .disabled-lbl { opacity: 0.42; pointer-events: none; }
+    .btn-pro-unlock:hover:not(:disabled) { filter: brightness(1.06); color: #fff; }
 
-    /* Export Subbar */
+    .btn-pro-copy { background: #0284c7; border-color: #0284c7; color: #fff; }
+    .btn-pro-save { background: #16a34a; border-color: #16a34a; color: #fff; }
+    .btn-pro-cancel { background: rgba(239, 68, 68, 0.14); border-color: rgba(239, 68, 68, 0.45); color: #fca5a5; }
+    :root[data-theme="light"] .btn-pro-cancel { color: #b91c1c; }
+
+    .badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--accent);
+    }
+
+    /* Export Bar */
     .export-bar {
       display: none;
       flex-wrap: wrap;
       align-items: center;
       gap: 10px;
-      padding: 10px 20px;
-      background: rgba(56, 189, 248, 0.08);
+      padding: 10px 18px;
+      background: var(--panel-2);
       border-bottom: 1px solid var(--border);
     }
     .export-bar.show { display: flex; }
 
     .rating-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       padding: 7px 14px;
       border-radius: 999px;
       border: 1px solid var(--border);
       background: var(--panel);
       color: var(--text);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
     }
-    .rating-btn.picked-heart {
-      border-color: #f43f5e;
-      background: rgba(244, 63, 94, 0.18);
-      color: #fb7185;
-    }
-    .rating-btn.picked-star {
-      border-color: #f59e0b;
-      background: rgba(245, 158, 11, 0.18);
-      color: #fbbf24;
-    }
+    .rating-btn.picked-heart { border-color: #f43f5e; background: rgba(244, 63, 94, 0.16); color: #fda4af; }
+    .rating-btn.picked-star { border-color: #eab308; background: rgba(234, 179, 8, 0.16); color: #fde047; }
+    :root[data-theme="light"] .rating-btn.picked-heart { color: #be123c; }
+    :root[data-theme="light"] .rating-btn.picked-star { color: #a16207; }
 
     .export-opt-group {
       display: inline-flex;
       align-items: center;
       gap: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: 600;
+      border-radius: 8px;
+      padding: 5px 9px;
     }
+
     .export-opt-group select {
       background: var(--panel-2);
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 3px 6px;
+      padding: 2px 6px;
       font-size: 12px;
+      font-weight: 700;
     }
 
-    .status-toast {
-      font-size: 12px;
-      color: var(--accent);
-      margin-left: auto;
-      font-weight: 600;
-    }
+    .status-toast { font-size: 12px; color: var(--success); font-weight: 600; margin-left: auto; }
 
-    /* Split Workspace */
+    /* Workspace */
     .workspace {
-      display: grid;
-      grid-template-columns: 1.08fr 1fr;
-      gap: 18px;
-      padding: 18px 20px;
       flex: 1;
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 14px;
+      padding: 14px 18px 22px;
+      align-items: start;
     }
-    @media (max-width: 980px) {
-      .workspace { grid-template-columns: 1fr; }
-    }
+
+    @media (max-width: 960px) { .workspace { grid-template-columns: 1fr; } }
 
     .panel {
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
+      border-radius: 16px;
+      padding: 14px;
       display: flex;
       flex-direction: column;
-      box-shadow: var(--shadow);
     }
+
     .panel-header {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      margin-bottom: 10px;
-    }
-    .panel-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--muted);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
     }
 
-    /* Tap-to-Replace Quick Input Bar */
+    .panel-title { font-size: 15px; font-weight: 700; }
+
+    /* Quick Tap-to-Replace Bar */
     .quick-tap-bar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 6px;
-      padding: 8px 10px;
-      margin-bottom: 10px;
-      background: rgba(16, 185, 129, 0.08);
+      gap: 8px;
+      padding: 9px 10px;
+      margin-bottom: 8px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.1);
       border: 1px solid rgba(16, 185, 129, 0.35);
-      border-radius: 12px;
       font-size: 12px;
     }
+
     .quick-tap-bar input[type="text"] {
       flex: 1;
-      min-width: 140px;
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: var(--panel);
+      min-width: 150px;
+      background: var(--panel-2);
       color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 10px;
       font-size: 13px;
-      font-weight: 700;
       font-family: inherit;
     }
-    .quick-tap-meta {
-      width: 100%;
-      font-size: 11px;
-      color: var(--muted);
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 6px;
-    }
+    .quick-tap-bar input[type="text"]:focus { outline: none; border-color: #10b981; }
 
-    /* Canvas Interaction & Zoom Bar */
+    .quick-tap-meta { width: 100%; font-size: 11px; color: var(--muted); display: flex; justify-content: space-between; gap: 6px; }
+
+    /* Mode Bar */
     .canvas-mode-bar {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 6px;
-      padding: 7px 10px;
       margin-bottom: 8px;
+      padding: 7px 10px;
+      border-radius: 10px;
       background: var(--panel-2);
       border: 1px solid var(--border);
-      border-radius: 10px;
       font-size: 12px;
     }
+
     .mode-btn {
       padding: 5px 10px;
-      border-radius: 8px;
+      border-radius: 7px;
       border: 1px solid var(--border);
       background: var(--panel);
       color: var(--text);
@@ -322,186 +320,146 @@
       font-weight: 700;
       cursor: pointer;
     }
-    .mode-btn.active-mode {
-      background: rgba(56, 189, 248, 0.18);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
-    .mode-btn.tap-active {
-      background: rgba(16, 185, 129, 0.2);
-      border-color: var(--custom-tag);
-      color: #34d399;
-    }
-    .mode-btn.draw-active {
-      background: rgba(236, 72, 153, 0.18);
-      border-color: var(--stroke-tag);
-      color: #f472b6;
-    }
-    .mode-btn.compare-active {
-      background: rgba(245, 158, 11, 0.22);
-      border-color: #f59e0b;
-      color: #fbbf24;
-    }
+    .mode-btn.tap-active { background: #059669; border-color: #059669; color: #fff; }
+    .mode-btn.active-mode { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+    .mode-btn.draw-active { background: #db2777; border-color: #db2777; color: #fff; }
+    .mode-btn.compare-active { background: #d97706; border-color: #d97706; color: #fff; }
 
     .draw-subbar {
       display: none;
       flex-wrap: wrap;
       align-items: center;
       gap: 8px;
-      padding: 7px 10px;
       margin-bottom: 8px;
-      background: rgba(236, 72, 153, 0.08);
-      border: 1px solid rgba(236, 72, 153, 0.35);
+      padding: 8px 10px;
       border-radius: 10px;
+      background: rgba(219, 39, 119, 0.12);
+      border: 1px solid rgba(219, 39, 119, 0.4);
       font-size: 12px;
     }
     .draw-subbar.show { display: flex; }
 
-    /* Phone Status Bar Control Strip */
+    /* Phone Status Bar Controls */
     .statusbar-controls {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       gap: 6px;
-      padding: 8px 10px;
       margin-bottom: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
       background: var(--panel-2);
       border: 1px solid var(--border);
-      border-radius: 12px;
       font-size: 12px;
     }
+
     .sb-chip {
       display: inline-flex;
       align-items: center;
       gap: 4px;
       background: var(--panel);
       border: 1px solid var(--border);
-      padding: 4px 8px;
-      border-radius: 8px;
-    }
-    .sb-chip input[type="text"],
-    .sb-chip input[type="number"],
-    .sb-chip select {
-      background: transparent;
-      border: none;
-      color: var(--text);
-      font-size: 12px;
+      border-radius: 7px;
+      padding: 3px 7px;
+      font-size: 11px;
       font-weight: 700;
-      outline: none;
     }
-    .sb-chip select option { background: var(--panel); color: var(--text); }
-    .sb-chip input[type="text"] { width: 46px; }
-    .sb-chip input[type="number"] { width: 40px; }
+
+    .sb-chip input[type="text"], .sb-chip input[type="number"], .sb-chip select {
+      background: var(--panel-2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 2px 5px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .sb-chip input[type="text"] { width: 52px; text-align: center; }
+    .sb-chip input[type="number"] { width: 44px; text-align: center; }
     .sb-chip input[type="range"] { width: 64px; accent-color: var(--accent); cursor: pointer; }
 
     .toggle-mini-btn {
-      padding: 4px 8px;
-      border-radius: 7px;
+      padding: 3px 8px;
+      border-radius: 6px;
       border: 1px solid var(--border);
-      background: var(--panel);
-      color: var(--text);
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
     }
-    .toggle-mini-btn.on {
-      background: rgba(34, 197, 94, 0.18);
-      border-color: var(--success);
-      color: var(--success);
-    }
-    .toggle-mini-btn.off {
-      background: rgba(239, 68, 68, 0.14);
-      border-color: var(--danger);
-      color: #f87171;
-    }
+    .toggle-mini-btn.on { background: rgba(34, 197, 94, 0.18); border-color: rgba(34, 197, 94, 0.5); color: #4ade80; }
+    .toggle-mini-btn.off { background: rgba(148, 163, 184, 0.14); color: var(--muted); }
+    :root[data-theme="light"] .toggle-mini-btn.on { color: #15803d; }
 
     .canvas-stage {
-      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
+      min-height: 440px;
       background: var(--panel-2);
       border: 1px dashed var(--border);
       border-radius: 12px;
       padding: 12px;
-      min-height: 460px;
       overflow: auto;
     }
+
     canvas {
       max-width: 100%;
-      max-height: 74vh;
+      height: auto;
       border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
-      cursor: grab;
-      touch-action: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      background: #0b1120;
       transform-origin: center center;
-      transition: transform 0.1s ease-out;
+      transition: transform 0.12s ease;
     }
-    canvas.tap-cursor { cursor: pointer; }
-    canvas.drawing-cursor { cursor: crosshair; }
-    canvas:active { cursor: grabbing; }
+    canvas.tap-cursor { cursor: crosshair; }
+    canvas.drawing-cursor { cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%23ec4899' stroke-width='2.2'><path d='M12 20h9'/><path d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z'/></svg>") 2 20, crosshair; }
 
-    /* Search & Column Filter */
-    .filter-bar {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 10px;
-    }
-    .filter-tabs { display: flex; flex-wrap: wrap; gap: 5px; }
+    /* Filter & Search */
+    .filter-bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .filter-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+
     .filter-tab {
       padding: 5px 10px;
-      border-radius: 999px;
+      border-radius: 8px;
       border: 1px solid var(--border);
       background: var(--panel-2);
       color: var(--muted);
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
     }
-    .filter-tab.active-tab {
-      background: rgba(56, 189, 248, 0.16);
-      border-color: var(--accent);
-      color: var(--accent);
-    }
+    .filter-tab.active-tab { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
 
     .search-box {
-      padding: 6px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
       background: var(--panel-2);
       color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 10px;
       font-size: 12px;
       min-width: 150px;
     }
+    .search-box:focus { outline: none; border-color: var(--accent); }
 
-    .lines-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-height: 75vh;
-      overflow-y: auto;
-      padding-right: 4px;
-    }
+    /* Right Panel Lines */
+    .lines-list { display: flex; flex-direction: column; gap: 10px; max-height: 690px; overflow-y: auto; padding-right: 4px; }
 
     .group-section {
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: 12px;
       padding: 10px;
-      background: rgba(15, 23, 42, 0.25);
+      background: rgba(15, 23, 42, 0.35);
       display: flex;
       flex-direction: column;
       gap: 8px;
     }
-    [data-theme="light"] .group-section { background: #f8fafc; }
+    :root[data-theme="light"] .group-section { background: rgba(241, 245, 249, 0.8); }
 
-    .group-section.left-col-box { border-left: 4px solid var(--left-tag); }
-    .group-section.right-col-box { border-left: 4px solid var(--right-tag); }
-    .group-section.custom-box { border-left: 4px solid var(--custom-tag); }
-    .group-section.overlay-box { border-left: 4px solid var(--overlay-tag); }
-    .group-section.stroke-box { border-left: 4px solid var(--stroke-tag); }
+    .group-section.left-col-box { border-color: rgba(239, 68, 68, 0.45); }
+    .group-section.right-col-box { border-color: rgba(56, 189, 248, 0.45); }
+    .group-section.custom-box { border-color: rgba(34, 197, 94, 0.45); }
+    .group-section.overlay-box { border-color: rgba(168, 85, 247, 0.5); }
+    .group-section.stroke-box { border-color: rgba(236, 72, 153, 0.45); }
 
     .group-header {
       display: flex;
@@ -509,518 +467,337 @@
       justify-content: space-between;
       font-size: 12px;
       font-weight: 800;
-      padding-bottom: 4px;
-      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--border);
     }
-    .tag-left { color: #fb7185; }
-    .tag-right { color: #60a5fa; }
-    .tag-other { color: #a78bfa; }
-    .tag-custom { color: #34d399; }
-    .tag-overlay { color: #fbbf24; }
+
+    .tag-left { color: #f87171; }
+    .tag-right { color: #38bdf8; }
+    .tag-custom { color: #4ade80; }
+    .tag-overlay { color: #c084fc; }
     .tag-stroke { color: #f472b6; }
-    [data-theme="light"] .tag-left { color: #e11d48; }
-    [data-theme="light"] .tag-right { color: #2563eb; }
-    [data-theme="light"] .tag-custom { color: #059669; }
-    [data-theme="light"] .tag-overlay { color: #b45309; }
-    [data-theme="light"] .tag-stroke { color: #db2777; }
+    .tag-other { color: #c084fc; }
+    :root[data-theme="light"] .tag-left { color: #dc2626; }
+    :root[data-theme="light"] .tag-right { color: #0284c7; }
+    :root[data-theme="light"] .tag-custom { color: #15803d; }
+    :root[data-theme="light"] .tag-overlay { color: #7e22ce; }
+    :root[data-theme="light"] .tag-stroke { color: #be185d; }
+    :root[data-theme="light"] .tag-other { color: #7e22ce; }
 
     .line-card {
       background: var(--panel-2);
       border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 9px 11px;
+      border-radius: 10px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       gap: 7px;
+      transition: border-color 0.15s ease;
     }
     .line-card.focused { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
     .line-card.edited-card { border-color: rgba(34, 197, 94, 0.55); }
 
-    .line-card-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      font-size: 11px;
-      color: var(--muted);
-    }
-    .side-pill {
-      padding: 2px 7px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 10px;
-    }
-    .side-pill.left { background: rgba(244, 63, 94, 0.16); color: #fb7185; }
-    .side-pill.right { background: rgba(59, 130, 246, 0.16); color: #60a5fa; }
-    .side-pill.other { background: rgba(167, 139, 250, 0.16); color: #c4b5fd; }
-    .side-pill.custom { background: rgba(16, 185, 129, 0.18); color: #34d399; }
-    .side-pill.overlay { background: rgba(245, 158, 11, 0.18); color: #fbbf24; }
-    .side-pill.stroke { background: rgba(236, 72, 153, 0.18); color: #f472b6; }
-    [data-theme="light"] .side-pill.left { color: #e11d48; }
-    [data-theme="light"] .side-pill.right { color: #2563eb; }
-    [data-theme="light"] .side-pill.other { color: #6d28d9; }
-    [data-theme="light"] .side-pill.custom { color: #059669; }
-    [data-theme="light"] .side-pill.overlay { color: #b45309; }
-    [data-theme="light"] .side-pill.stroke { color: #db2777; }
+    .line-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 11px; color: var(--muted); }
+
+    .side-pill { font-size: 10px; font-weight: 800; padding: 2px 7px; border-radius: 999px; text-transform: uppercase; }
+    .side-pill.left { background: rgba(239, 68, 68, 0.18); color: #fca5a5; }
+    .side-pill.right { background: rgba(56, 189, 248, 0.18); color: #7dd3fc; }
+    .side-pill.custom { background: rgba(34, 197, 94, 0.18); color: #86efac; }
+    .side-pill.overlay { background: rgba(168, 85, 247, 0.2); color: #e9d5ff; }
+    .side-pill.stroke { background: rgba(236, 72, 153, 0.2); color: #fbcfe8; }
+    .side-pill.other { background: rgba(168, 85, 247, 0.18); color: #d8b4fe; }
+    :root[data-theme="light"] .side-pill.left { color: #b91c1c; }
+    :root[data-theme="light"] .side-pill.right { color: #0369a1; }
+    :root[data-theme="light"] .side-pill.custom { color: #15803d; }
+    :root[data-theme="light"] .side-pill.overlay { color: #6b21a8; }
+    :root[data-theme="light"] .side-pill.stroke { color: #9d174d; }
+    :root[data-theme="light"] .side-pill.other { color: #6b21a8; }
 
     .line-input {
       width: 100%;
-      padding: 8px 11px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
       background: var(--panel);
       color: var(--text);
-      font-size: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 13px;
       font-family: inherit;
     }
     .line-input:focus { outline: none; border-color: var(--accent); }
 
-    .font-bg-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-    .font-bg-grid select {
-      width: 100%;
-      padding: 4px 7px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
+    .font-bg-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 6px; }
+    .font-family-sel, .bg-mode-sel {
       background: var(--panel);
       color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 4px 7px;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 700;
+      width: 100%;
     }
 
-    .style-controls-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-    @media (max-width: 640px) {
-      .style-controls-grid, .font-bg-grid { grid-template-columns: 1fr; }
-    }
+    .style-controls-grid { display: flex; flex-direction: column; gap: 6px; padding-top: 2px; }
 
-    .size-control-bar, .color-control-bar {
+    .size-control-bar {
       display: flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 4px 8px;
-      font-size: 11px;
+      padding: 5px 8px;
     }
-    .size-lbl {
-      color: var(--muted);
-      font-weight: 700;
-      white-space: nowrap;
-    }
+    .size-lbl { font-size: 11px; font-weight: 700; color: var(--muted); white-space: nowrap; }
     .size-step-btn {
-      width: 22px;
-      height: 22px;
+      width: 24px;
+      height: 24px;
       border-radius: 6px;
       border: 1px solid var(--border);
       background: var(--panel-2);
       color: var(--text);
+      font-size: 14px;
       font-weight: 800;
-      font-size: 13px;
+      line-height: 1;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
     }
     .size-step-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .size-slider {
-      flex: 1;
-      min-width: 45px;
-      accent-color: var(--accent);
-      cursor: pointer;
-    }
-    .size-val-badge {
-      min-width: 34px;
-      text-align: right;
-      font-weight: 800;
-      color: var(--accent);
-      font-variant-numeric: tabular-nums;
-    }
+    .size-slider { flex: 1; accent-color: var(--accent); cursor: pointer; min-width: 60px; }
+    .size-val-badge { font-size: 11px; font-weight: 800; color: var(--accent); min-width: 38px; text-align: right; }
 
-    .color-picker-input {
-      width: 26px;
-      height: 22px;
-      padding: 0;
-      border: 1px solid var(--border);
-      border-radius: 5px;
-      background: transparent;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-    .color-swatch-btn {
-      width: 16px;
-      height: 16px;
-      border-radius: 4px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      cursor: pointer;
-      flex-shrink: 0;
-      padding: 0;
-    }
-    .color-hex-tag {
-      margin-left: auto;
-      font-size: 10px;
-      font-weight: 700;
-      color: var(--muted);
-      font-family: monospace;
-    }
-
-    .line-actions {
+    .color-control-bar {
       display: flex;
       flex-wrap: wrap;
-      justify-content: space-between;
       align-items: center;
       gap: 6px;
-    }
-    .line-btn-group { display: flex; flex-wrap: wrap; gap: 4px; }
-
-    .mini-move-btn {
-      border: 1px solid var(--border);
       background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 5px 8px;
+    }
+    .color-picker-input { width: 28px; height: 22px; padding: 0; border: 1px solid var(--border); border-radius: 5px; background: transparent; cursor: pointer; }
+    .color-swatch-btn { width: 18px; height: 18px; border-radius: 50%; border: 1px solid rgba(148, 163, 184, 0.55); cursor: pointer; padding: 0; }
+    .color-swatch-btn:hover { transform: scale(1.12); }
+    .color-hex-tag { font-size: 10px; font-weight: 700; color: var(--muted); margin-left: auto; }
+
+    .line-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px; }
+    .line-btn-group { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+
+    .mini-move-btn, .mini-reset-line, .mini-danger-btn, .mini-restore-btn {
+      background: var(--panel);
+      border: 1px solid var(--border);
       color: var(--text);
-      font-size: 10px;
-      font-weight: 600;
-      padding: 3px 7px;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 8px;
       border-radius: 6px;
       cursor: pointer;
     }
     .mini-move-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .mini-move-btn.locked { border-color: #f59e0b; color: #fbbf24; background: rgba(245, 158, 11, 0.15); }
+    .mini-move-btn.locked { background: rgba(245, 158, 11, 0.2); border-color: var(--warning); color: #fcd34d; }
+    .mini-reset-line:hover { border-color: var(--warning); color: var(--warning); }
+    .mini-danger-btn { color: var(--danger); border-color: rgba(239, 68, 68, 0.4); }
+    .mini-danger-btn:hover { background: rgba(239, 68, 68, 0.14); }
+    .mini-restore-btn { color: var(--success); border-color: rgba(34, 197, 94, 0.45); }
 
-    .mini-reset-line {
-      border: 1px solid var(--border);
-      background: transparent;
-      color: var(--muted);
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .mini-reset-line:hover { color: var(--text); border-color: var(--text); }
-
-    .mini-danger-btn {
-      border: 1px solid rgba(239, 68, 68, 0.45);
-      background: rgba(239, 68, 68, 0.14);
-      color: #f87171;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-    .mini-restore-btn {
-      border: 1px solid rgba(34, 197, 94, 0.45);
-      background: rgba(34, 197, 94, 0.14);
-      color: #4ade80;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 36px 16px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.6;
-    }
+    .empty-state { text-align: center; color: var(--muted); padding: 36px 16px; font-size: 13px; line-height: 1.7; }
 
     /* Modals */
     .modal-backdrop {
-      display: none;
       position: fixed;
       inset: 0;
       background: rgba(2, 6, 23, 0.72);
-      z-index: 50;
+      display: none;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 18px;
+      z-index: 50;
     }
     .modal-backdrop.open { display: flex; }
 
     .modal-card {
-      max-width: 720px;
-      width: 100%;
-      max-height: 84vh;
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 20px;
+      border-radius: 16px;
+      max-width: 680px;
+      width: 100%;
+      max-height: 85vh;
       display: flex;
       flex-direction: column;
-      box-shadow: var(--shadow);
+      overflow: hidden;
     }
+
     .modal-header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 12px;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
     }
-    .history-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-    .history-list {
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+
+    .history-tabs { display: flex; gap: 8px; padding: 10px 18px; border-bottom: 1px solid var(--border); background: var(--panel-2); }
+    .history-list { padding: 14px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+
     .history-entry {
-      border: 1px solid var(--border);
-      background: var(--panel-2);
-      border-radius: 12px;
-      padding: 12px;
-      font-size: 13px;
       display: flex;
-      align-items: center;
-      justify-content: space-between;
       gap: 12px;
-    }
-    .history-thumb {
-      width: 54px;
-      height: 70px;
-      object-fit: cover;
-      border-radius: 8px;
+      align-items: center;
+      background: var(--panel-2);
       border: 1px solid var(--border);
-      background: #0f172a;
-      flex-shrink: 0;
+      border-radius: 12px;
+      padding: 10px;
     }
-    .history-meta { flex: 1; min-width: 0; }
+
+    .history-thumb { width: 58px; height: 76px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); flex-shrink: 0; }
+    .history-meta { flex: 1; font-size: 12px; }
     .history-badge-heart { color: #fb7185; font-weight: 700; }
-    .history-badge-star { color: #fbbf24; font-weight: 700; }
+    .history-badge-star { color: #facc15; font-weight: 700; }
 
     .btn-reopen-draft {
+      padding: 6px 10px;
+      border-radius: 8px;
       border: 1px solid rgba(56, 189, 248, 0.5);
       background: rgba(56, 189, 248, 0.14);
       color: var(--accent);
-      padding: 7px 11px;
-      border-radius: 9px;
-      font-size: 12px;
-      font-weight: 700;
+      font-size: 11px;
+      font-weight: 800;
       cursor: pointer;
       white-space: nowrap;
-      flex-shrink: 0;
     }
-    .btn-reopen-draft:hover {
-      background: rgba(56, 189, 248, 0.25);
-    }
+    .btn-reopen-draft:hover { background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
 
     /* PIN Modal */
     .pin-modal-card {
-      max-width: 390px;
-      width: 100%;
       background: var(--panel);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 24px;
-      box-shadow: var(--shadow);
+      border-radius: 18px;
+      max-width: 380px;
+      width: 100%;
+      padding: 24px 20px;
       text-align: center;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
     }
-    .pin-input-row {
-      display: flex;
-      gap: 6px;
-      margin: 14px 0 8px;
-    }
+
+    .pin-input-row { display: flex; gap: 8px; justify-content: center; margin: 14px 0 8px; }
     .pin-input-box {
-      flex: 1;
-      padding: 11px 14px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
+      width: 190px;
       background: var(--panel-2);
       color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
       font-size: 18px;
       font-weight: 800;
-      letter-spacing: 3px;
+      letter-spacing: 4px;
       text-align: center;
     }
-    .pin-error-text {
-      color: #f87171;
-      font-size: 12px;
-      font-weight: 700;
-      min-height: 18px;
-      margin-bottom: 10px;
-    }
+    .pin-input-box:focus { outline: none; border-color: var(--pro-gold); }
+    .pin-error-text { min-height: 18px; font-size: 12px; font-weight: 700; color: var(--danger); margin-bottom: 10px; }
 
-    /* PRO SCREEN: HUB + WORKSPACE */
-    .pro-screen {
-      display: none;
-      min-height: 100vh;
-      flex-direction: column;
-      background: var(--bg);
-    }
-    .pro-screen.active { display: flex; }
+    /* PRO Hub */
+    .pro-hub-container { max-width: 980px; width: 100%; margin: 0 auto; padding: 28px 18px 36px; }
+    .pro-hub-header { text-align: center; margin-bottom: 24px; }
+    .pro-hub-title { font-size: 24px; font-weight: 900; margin-bottom: 6px; }
+    .pro-hub-sub { font-size: 13px; color: var(--muted); }
 
-    .pro-hub-container {
-      max-width: 1160px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 28px 20px 44px;
-    }
-    .pro-hub-header {
-      margin-bottom: 22px;
-    }
-    .pro-hub-title {
-      font-size: 24px;
-      font-weight: 900;
-      margin-bottom: 6px;
-      background: linear-gradient(135deg, #fbbf24, #f97316);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .pro-hub-sub {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.6;
-    }
+    .pro-wallet-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    @media (max-width: 680px) { .pro-wallet-grid { grid-template-columns: 1fr; } }
 
-    .pro-wallet-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
-      gap: 16px;
-    }
     .pro-wallet-card {
       background: var(--panel);
-      border: 1.5px solid var(--border);
-      border-radius: 18px;
+      border: 1px solid var(--border);
+      border-radius: 16px;
       padding: 20px;
-      cursor: pointer;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 16px;
-      box-shadow: var(--shadow);
-      transition: transform 0.15s ease, border-color 0.15s ease;
+      gap: 14px;
+      cursor: pointer;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
     }
     .pro-wallet-card:hover {
       transform: translateY(-3px);
-      border-color: var(--w-accent, #f59e0b);
+      border-color: var(--w-accent, var(--pro-gold));
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.28);
     }
-    .pro-wallet-card-top {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
+
+    .pro-wallet-card-top { display: flex; align-items: center; gap: 14px; }
     .pro-wallet-logo-box {
       width: 54px;
       height: 54px;
       border-radius: 14px;
-      display: grid;
-      place-items: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
       font-weight: 900;
-      font-size: 14px;
-      letter-spacing: 0.4px;
-      color: #ffffff;
-      background: var(--w-accent, #0284c7);
-      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+      color: #fff;
+      background: var(--w-accent, var(--pro-amber));
       flex-shrink: 0;
+      letter-spacing: 0.4px;
     }
-    .pro-wallet-card-name {
-      font-size: 17px;
-      font-weight: 900;
-      color: var(--text);
-    }
-    .pro-wallet-card-desc {
-      font-size: 12px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
+    .pro-wallet-card-name { font-size: 18px; font-weight: 800; }
+    .pro-wallet-card-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
     .pro-wallet-card-footer {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
       font-size: 12px;
       font-weight: 700;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border);
     }
 
+    /* PRO Workspace */
     .pro-workspace {
       display: none;
-      grid-template-columns: 1.05fr 1fr;
-      gap: 18px;
-      padding: 18px 20px;
       flex: 1;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 14px;
+      padding: 14px 18px 22px;
+      align-items: start;
     }
     .pro-workspace.active { display: grid; }
-    @media (max-width: 980px) {
-      .pro-workspace.active { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 960px) { .pro-workspace.active { grid-template-columns: 1fr; } }
 
     .pro-field-card {
       background: var(--panel-2);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 10px 12px;
+      border-radius: 10px;
+      padding: 10px;
       display: flex;
       flex-direction: column;
       gap: 7px;
     }
-    .pro-field-card.selected-field {
-      border-color: #f59e0b;
-      box-shadow: 0 0 0 1px #f59e0b;
-    }
-    .pro-coord-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      align-items: center;
-    }
-    .pro-coord-grid input[type="number"],
-    .pro-coord-grid select {
+    .pro-field-card.selected-field { border-color: var(--pro-gold); box-shadow: 0 0 0 1px var(--pro-gold); }
+
+    .pro-coord-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .pro-coord-grid input, .pro-coord-grid select {
       width: 100%;
-      padding: 5px 7px;
-      border-radius: 7px;
-      border: 1px solid var(--border);
       background: var(--panel);
       color: var(--text);
-      font-size: 12px;
-      font-weight: 700;
-    }
-    .mini-lbl {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 4px 6px;
       font-size: 11px;
-      color: var(--muted);
       font-weight: 700;
-      display: block;
-      margin-bottom: 2px;
     }
-    .btn-pro-cancel {
-      background: rgba(239, 68, 68, 0.16);
-      border-color: rgba(239, 68, 68, 0.5);
-      color: #f87171;
-      font-weight: 800;
-    }
-    .btn-pro-copy {
-      background: linear-gradient(135deg, #0284c7, #2563eb);
-      border: none;
-      color: #fff;
-      font-weight: 800;
-    }
-    .btn-pro-save {
-      background: linear-gradient(135deg, #16a34a, #0d9488);
-      border: none;
-      color: #fff;
-      font-weight: 800;
-    }
+    .mini-lbl { font-size: 10px; color: var(--muted); font-weight: 700; display: block; margin-bottom: 2px; }
   </style>
 </head>
 <body>
   <!-- Welcome Screen -->
   <section class="welcome-screen" id="welcomeScreen">
     <div class="welcome-card">
-      <div class="welcome-badge">OCR AUTO-DETECT • TAP-TO-REPLACE • PRO STUDIO</div>
+      <div class="welcome-badge">OCR AUTO-DETECT • TAP-TO-REPLACE • AUTO LAYOUT • PRO STUDIO</div>
       <h1 class="welcome-title">Photo Edit & History Studio Pro</h1>
       <p class="welcome-desc">
-        ပုံထည့်လိုက်တာနဲ့ စာကြောင်းတွေကို ဘယ်/ညာ/အပေါ်/အောက် ခွဲဖတ်ပေးမယ့်အပြင်၊
-        ပြင်ချင်တဲ့နေရာကို တိုက်ရိုက်နှိပ်ပြီး ဂဏန်း/စာသား အစားထိုးခြင်း၊
-        ထပ်ဆင့်ပုံထည့်ခြင်း (🖼️)၊ လက်ရေးဖြင့် ရေးခြင်း (✍️)၊
-        မှတ်တမ်း/Draft ပြန်ခေါ်ခြင်း နဲ့ PRO Receipt Hub ကို သုံးနိုင်ပါသည်။
+        ပုံထည့်လိုက်တာနဲ့ စာကြောင်းတွေကို ဖတ်ပေးမယ့်အပြင်၊ နေရာနှိပ်ပြီး ဂဏန်း/စာသား အစားထိုးခြင်း၊
+        ထပ်ဆင့်ပုံ (မှတ်ပုံတင်/ပုံ) ထည့်ပြီး ဆွဲရွှေ့/အကြီးအသေး ညှိခြင်း၊ <strong>⚡ အော်တို (Auto)</strong> ခလုတ်ဖြင့်
+        သဘာဝကျကျ နေရာချပေးခြင်း နှင့် PRO ငွေလွှဲပြေစာ Studio တို့ကို သုံးနိုင်ပါသည်။
       </p>
       <button class="btn-go" id="goEditBtn">စတင်ပြင်ဆင်မည် →</button>
     </div>
@@ -1039,6 +816,10 @@
           🖼️ ထပ်ဆင့်ပုံထည့်ရန်
         </label>
         <input type="file" id="overlayFileInput" accept="image/*" hidden />
+
+        <button class="btn btn-auto" id="mainAutoBtn" disabled title="စာသား၊ အရောင်၊ Size နှင့် ထပ်ဆင့်ပုံများကို သဘာဝကျကျ အော်တိုညှိရန်">
+          ⚡ အော်တို (Auto)
+        </button>
 
         <button class="btn btn-save" id="mainSaveBtn" disabled>SAVE</button>
         <button class="btn" id="historyOpenBtn">📜 မှတ်တမ်း</button>
@@ -1089,7 +870,7 @@
 
     <!-- Split Workspace -->
     <main class="workspace">
-      <!-- Left Panel: Tap-to-Replace, Drag, Draw, Status Bar & Canvas -->
+      <!-- Left Panel -->
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title" id="leftPanelTitle">ဘယ်ဘက် — Tap-to-Edit၊ ဆွဲရွှေ့ရန် နှင့် လက်ရေးရေးရန်</div>
@@ -1212,7 +993,7 @@
         </div>
       </div>
 
-      <!-- Right Panel: Detected Text Lines, Custom Fields, Overlays & Strokes -->
+      <!-- Right Panel -->
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title" id="rightPanelTitle">ညာဘက် — စာကြောင်းများ၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးထိန်းချုပ်ရန်</div>
@@ -1292,24 +1073,27 @@
       </div>
     </header>
 
-    <!-- 1. Hub View: Logo + Name + 4 Cards -->
+    <!-- 1. Hub View -->
     <div class="pro-hub-container" id="proHubView">
       <div class="pro-hub-header">
         <h2 class="pro-hub-title">ဝန်ဆောင်မှု ၄ ခု ရွေးချယ်ရန်</h2>
         <p class="pro-hub-sub">
-          K Pay၊ Wave Pay၊ Aye Pay နဲ့ Banking ၄ ခုထဲက တစ်ခုကို နှိပ်ပါ —
-          ကိုယ့်မူကြမ်းပုံ အစစ်ကို တင်ပြီး ဖုန်းနံပါတ်、ငွေပမာဏ、နာမည်、ပြေစာနံပါတ်、ငွေလွဲအချိန်、ရက်စွဲ、မှတ်ချက် များကို စိတ်ကြိုက်ပြင်ဆင် ပုံထုတ်နိုင်ပါသည်။
+          K Pay၊ Wave Pay၊ Aye Pay နဲ့ Banking ၄ ခုထဲက တစ်ခုကို နှိပ်ပါ — အသင့်ပါ ငွေလွှဲပြေစာ နမူနာပေါ်မှာ (သို့မဟုတ် ကိုယ်ပိုင်မူကြမ်းပုံ တင်ပြီး)
+          အချက်အလက်တွေ ရိုက်ထည့်ပြီး <strong>⚡ အော်တို (Auto)</strong> နှိပ်ကာ စိတ်ကြိုက် ပြင်ဆင်ပုံထုတ်နိုင်ပါသည်။
         </p>
       </div>
       <div class="pro-wallet-grid" id="proWalletCardsGrid"></div>
     </div>
 
-    <!-- 2. Workspace View: Template Upload, Live Canvas, Fields & Export -->
+    <!-- 2. Workspace View -->
     <div class="pro-workspace" id="proWorkspaceView">
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title" id="proWorkspaceTitle">ပြေစာမူကြမ်း Preview</div>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
+            <button type="button" class="btn btn-auto" id="proAutoLayoutBtn" style="padding:6px 11px; font-size:12px;">
+              ⚡ အော်တို (Auto)
+            </button>
             <label class="btn btn-primary" style="padding:6px 11px; font-size:12px;">
               🖼️ မူကြမ်းပုံ အစစ် တင်ရန်
               <input type="file" id="proTemplateFileInput" accept="image/*" hidden />
@@ -1326,7 +1110,7 @@
 
         <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; margin-top:10px;">
           <span style="font-size:12px; color:var(--muted);">
-            ပြေစာပေါ်မှ စာသားကို <b>ဆွဲရွှေ့</b> နိုင်သလို <b>Arrow Keys (↑ ↓ ← →)</b> ဖြင့်လည်း တိတိကျကျ ညှိနိုင်ပါသည်။
+            အချက်အလက်ဖြည့်ပြီး <b>⚡ အော်တို (Auto)</b> နှိပ်နိုင်သလို စာသားကို <b>ဆွဲရွှေ့</b> ခြင်း၊ <b>Arrow Keys (↑ ↓ ← →)</b> ဖြင့် ညှိခြင်း လုပ်နိုင်ပါသည်။
           </span>
           <span class="status-toast" id="proToastMsg" style="margin-left:0;"></span>
         </div>
@@ -1335,7 +1119,7 @@
       <div class="panel">
         <div class="panel-header">
           <div class="panel-title">စိတ်ကြိုက် ပြင်ဆင်/ထည့်သွင်းရန် ကွက်လက်များ</div>
-          <span style="font-size:11px; color:var(--muted);">လိုအပ်သည့် ကွက်လက်များကို ဖွင့်/ပိတ် နိုင်သည်</span>
+          <span style="font-size:11px; color:var(--muted);">ဖြည့်ထားသော ကွက်လက်များကို Auto မှ စီစဉ်ပေးသည်</span>
         </div>
         <div class="lines-list" id="proFieldsContainer"></div>
       </div>
@@ -1343,9 +1127,9 @@
   </section>
   <script>
     const PRO_PIN_CODE = "12344321";
-    const HISTORY_STORAGE_KEY = "photo_edit_history_v5";
-    const AUTO_DRAFT_STORAGE_KEY = "photo_edit_autodraft_v1";
-    const PRO_STUDIO_STORAGE_KEY = "photo_edit_pro_studio_v2";
+    const HISTORY_STORAGE_KEY = "photo_edit_history_v6";
+    const AUTO_DRAFT_STORAGE_KEY = "photo_edit_autodraft_v2";
+    const PRO_STUDIO_STORAGE_KEY = "photo_edit_pro_studio_v3";
 
     const FONT_OPTIONS = [
       { label: "Pyidaungsu (မြန်မာ/English)", value: '"Pyidaungsu", "Noto Sans Myanmar", sans-serif' },
@@ -1429,6 +1213,7 @@
     const fileInput = document.getElementById("fileInput");
     const overlayFileInput = document.getElementById("overlayFileInput");
     const overlayBtnText = document.getElementById("overlayBtnText");
+    const mainAutoBtn = document.getElementById("mainAutoBtn");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
     const exportBar = document.getElementById("exportBar");
     const exportFormatSelect = document.getElementById("exportFormatSelect");
@@ -1932,7 +1717,7 @@
       const sy = Math.max(0, Math.floor(y));
       const sw = Math.max(4, Math.min(sampleCanvas.width - sx, Math.floor(w)));
       const sh = Math.max(4, Math.min(sampleCanvas.height - sy, Math.floor(h)));
-      if (sw <= 0 || sh <= 0) return { textColor: "#0f172a", bgColor: "#ffffff" };
+      if (sw <= 0 || sh <= 0) return { textColor: "#0f172a", bgColor: "#ffffff", bgLum: 255 };
 
       const data = sampleCtx.getImageData(sx, sy, sw, sh).data;
       let bgR = 0, bgG = 0, bgB = 0, bgCount = 0;
@@ -1975,9 +1760,84 @@
 
       return {
         textColor: rgbToHex(bestFg[0], bestFg[1], bestFg[2]),
-        bgColor: rgbToHex(avgBg[0], avgBg[1], avgBg[2])
+        bgColor: rgbToHex(avgBg[0], avgBg[1], avgBg[2]),
+        bgLum
       };
     }
+
+    // Main Studio ⚡ အော်တို (Auto) Logic
+    function runMainAutoPolish() {
+      if (!baseImg) return;
+      pushUndoSnapshot();
+
+      const w = mainCanvas.width;
+      const h = mainCanvas.height;
+      let adjustedCount = 0;
+
+      // 1. ပြင်ထားသော စာသား/ဂဏန်းများကို နောက်ခံအလင်းအမှောင်၊ Size နဲ့ ညီညာမှု အော်တိုညှိခြင်း
+      textLines.forEach(line => {
+        if (!hasLineChanged(line) && !line.isCustom) return;
+        const sampled = sampleRegionColors(line.x, line.y, Math.max(40, line.w), Math.max(20, line.h));
+        line.bgColor = sampled.bgColor;
+        // နောက်ခံ မှောင်ရင် စာလုံးအဖြူ/အလင်း၊ လင်းရင် စာလုံးအမှောင်
+        line.textColor = sampled.bgLum < 130 ? "#f8fafc" : "#0f172a";
+        line.fontSize = Math.max(12, Math.min(48, Math.round(line.fontSize || 16)));
+        if (snapEnabled) {
+          const snapped = applySmartSnap(line.x, line.y, line.w, line.h);
+          line.x = Math.max(8, Math.min(w - Math.max(40, line.w) - 8, snapped.x));
+          line.y = Math.max(8, Math.min(h - Math.max(20, line.h) - 8, snapped.y));
+        }
+        line.modified = hasLineChanged(line);
+        adjustedCount++;
+      });
+
+      // 2. ထပ်ဆင့်ပုံများ (Overlay Images - ဥပမာ မှတ်ပုံတင်ပုံ) ကို အကြမ်းမျဉ်းကနေ သဘာဝကျကျ Size & Position ညှိခြင်း
+      overlayImages.forEach(ov => {
+        const baseRatio = (ov.origH || ov.h || 100) / Math.max(1, (ov.origW || ov.w || 100));
+        // ပင်မပုံနဲ့ လိုက်ဖက်မယ့် သင့်တော်တဲ့ အချိုးအစား ညှိပေးခြင်း
+        const idealW = Math.round(Math.min(Math.max(ov.w, w * 0.24), w * 0.68));
+        ov.w = Math.max(36, idealW);
+        ov.h = Math.max(36, Math.round(ov.w * baseRatio));
+        ov.opacity = ov.opacity ?? 1;
+        ov.visible = true;
+
+        // ဘောင်ပြင်ထွက်နေရင် ပင်မပုံထဲ သပ်သပ်ရပ်ရပ် ပြန်ထည့်ပေးခြင်း
+        let nx = Math.max(12, Math.min(w - ov.w - 12, ov.x));
+        let ny = Math.max(12, Math.min(h - ov.h - 12, ov.y));
+        if (snapEnabled) {
+          const snapped = applySmartSnap(nx, ny, ov.w, ov.h);
+          nx = Math.max(12, Math.min(w - ov.w - 12, snapped.x));
+          ny = Math.max(12, Math.min(h - ov.h - 12, snapped.y));
+        }
+        ov.x = Math.round(nx);
+        ov.y = Math.round(ny);
+        adjustedCount++;
+      });
+
+      // 3. လက်ရေးများ ဘောင်ပြင်ထွက်နေရင် သပ်ရပ်အောင် ညှိခြင်း
+      freehandStrokes.forEach(st => {
+        if (!st.points || st.points.length === 0) return;
+        st.visible = true;
+        st.points.forEach(p => {
+          p.x = Math.max(8, Math.min(w - 8, p.x));
+          p.y = Math.max(8, Math.min(h - 8, p.y));
+        });
+        adjustedCount++;
+      });
+
+      snapGuides = { x: null, y: null };
+      renderLinesUI();
+      renderCanvas(false);
+      persistAutoDraft();
+
+      if (adjustedCount > 0) {
+        showToast(`⚡ အော်တိုညှိပြီးပါပြီ (${adjustedCount} ခု) — Undo ဖြင့် နောက်ပြန်ဆုတ်နိုင်ပါသည်`);
+      } else {
+        showToast("စာသား သို့မဟုတ် ထပ်ဆင့်ပုံ အရင်ထည့်/ပြင်ပြီးမှ ⚡ အော်တို နှိပ်ပါ");
+      }
+    }
+
+    mainAutoBtn.addEventListener("click", runMainAutoPolish);
 
     function autoCaptureAtPoint(px, py) {
       const hitLine = textLines.find(l =>
@@ -2110,14 +1970,22 @@
       };
     }
 
-    function hitTestItem(px, py) {
+    // ထပ်ဆင့်ပုံ (Overlay Image) ကို ဦးစားပေး ဖမ်းယူဆွဲရွှေ့နိုင်စေရန်
+    function hitTestOverlayOnly(px, py) {
       for (let i = overlayImages.length - 1; i >= 0; i--) {
         const ov = overlayImages[i];
         if (!ov.visible || ov.locked) continue;
-        if (px >= ov.x && px <= ov.x + ov.w && py >= ov.y && py <= ov.y + ov.h) {
+        if (px >= ov.x - 6 && px <= ov.x + ov.w + 6 && py >= ov.y - 6 && py <= ov.y + ov.h + 6) {
           return { type: "overlay", id: ov.id, offsetX: px - ov.x, offsetY: py - ov.y };
         }
       }
+      return null;
+    }
+
+    function hitTestItem(px, py) {
+      const ovHit = hitTestOverlayOnly(px, py);
+      if (ovHit) return ovHit;
+
       for (let i = textLines.length - 1; i >= 0; i--) {
         const l = textLines[i];
         if (l.locked) continue;
@@ -2169,11 +2037,6 @@
       if (!baseImg) return;
       const pt = getCanvasCoords(e);
 
-      if (canvasMode === "tap") {
-        autoCaptureAtPoint(pt.x, pt.y);
-        return;
-      }
-
       if (canvasMode === "draw") {
         pushUndoSnapshot();
         activeStroke = {
@@ -2187,6 +2050,21 @@
         freehandStrokes.push(activeStroke);
         selectedTarget = { type: "stroke", id: activeStroke.id };
         renderCanvas(false);
+        return;
+      }
+
+      // Tap Mode မှာတောင် ထပ်ဆင့်ပုံ (Overlay) ပေါ် တိုက်ရိုက်နှိပ်ဆွဲရင် ရွှေ့လို့ရအောင် ခွင့်ပြုထားသည်
+      if (canvasMode === "tap") {
+        const ovHit = hitTestOverlayOnly(pt.x, pt.y);
+        if (ovHit) {
+          pushUndoSnapshot();
+          selectedTarget = { type: "overlay", id: ovHit.id };
+          dragState = ovHit;
+          renderLinesUI();
+          renderCanvas(false);
+          return;
+        }
+        autoCaptureAtPoint(pt.x, pt.y);
         return;
       }
 
@@ -2655,6 +2533,7 @@
       updateUndoRedoButtons();
       resetCapturedPresetToDefault();
 
+      mainAutoBtn.disabled = false;
       mainSaveBtn.disabled = false;
       addCustomTextBtn.disabled = false;
       resetAllEditsBtn.disabled = false;
@@ -2708,7 +2587,7 @@
           renderLinesUI();
           renderCanvas(false);
           persistAutoDraft();
-          showToast(`ထပ်ဆင့်ပုံ "${ov.name}" ထည့်ပြီးပါပြီ`);
+          showToast(`ထပ်ဆင့်ပုံ "${ov.name}" ထည့်ပြီးပါပြီ — ဆွဲရွှေ့/အကြီးအသေး ညှိနိုင်ပါသည်`);
         };
         img.src = ev.target.result;
       };
@@ -2964,18 +2843,34 @@
             <span class="side-pill overlay">OVERLAY</span>
             <strong>${escapeHtml(ov.name)}</strong>
           </div>
-          <span>X:${Math.round(ov.x)}, Y:${Math.round(ov.y)}</span>
+          <span>X:${Math.round(ov.x)}, Y:${Math.round(ov.y)} • ${ov.w}×${ov.h}</span>
         </div>
         <div class="style-controls-grid">
           <div class="size-control-bar">
-            <span class="size-lbl">Scale</span>
+            <span class="size-lbl">အကြီးအသေး</span>
+            <button type="button" class="size-step-btn ov-sz-dec">−</button>
             <input type="range" class="ov-scale" min="15" max="250" value="${scalePct}" />
+            <button type="button" class="size-step-btn ov-sz-inc">+</button>
             <span class="size-val-badge">${scalePct}%</span>
           </div>
           <div class="size-control-bar">
             <span class="size-lbl">Alpha</span>
             <input type="range" class="ov-alpha" min="10" max="100" value="${opPct}" />
             <span class="size-val-badge">${opPct}%</span>
+          </div>
+        </div>
+        <div class="pro-coord-grid">
+          <div>
+            <span class="mini-lbl">နေရာ X</span>
+            <input type="number" class="ov-x-inp" value="${Math.round(ov.x)}" />
+          </div>
+          <div>
+            <span class="mini-lbl">နေရာ Y</span>
+            <input type="number" class="ov-y-inp" value="${Math.round(ov.y)}" />
+          </div>
+          <div>
+            <span class="mini-lbl">အကျယ် W</span>
+            <input type="number" class="ov-w-inp" min="16" max="1200" value="${Math.round(ov.w)}" />
           </div>
         </div>
         <div class="line-actions">
@@ -2999,12 +2894,27 @@
       });
 
       const scaleEl = card.querySelector(".ov-scale");
-      scaleEl.addEventListener("input", () => {
-        const ratio = Number(scaleEl.value) / 100;
+      const applyOverlayScale = (pctVal) => {
+        const clampedPct = Math.max(15, Math.min(250, Math.round(pctVal)));
+        const ratio = clampedPct / 100;
         ov.w = Math.max(16, Math.round(ov.origW * ratio));
         ov.h = Math.max(16, Math.round(ov.origH * ratio));
-        card.querySelectorAll(".size-val-badge")[0].textContent = `${scaleEl.value}%`;
+        scaleEl.value = String(clampedPct);
+        card.querySelectorAll(".size-val-badge")[0].textContent = `${clampedPct}%`;
         renderCanvas(false);
+        persistAutoDraft();
+      };
+
+      scaleEl.addEventListener("input", () => applyOverlayScale(Number(scaleEl.value)));
+      card.querySelector(".ov-sz-dec").addEventListener("click", (e) => {
+        e.stopPropagation();
+        pushUndoSnapshot();
+        applyOverlayScale(Number(scaleEl.value) - 5);
+      });
+      card.querySelector(".ov-sz-inc").addEventListener("click", (e) => {
+        e.stopPropagation();
+        pushUndoSnapshot();
+        applyOverlayScale(Number(scaleEl.value) + 5);
       });
 
       const alphaEl = card.querySelector(".ov-alpha");
@@ -3012,6 +2922,34 @@
         ov.opacity = Number(alphaEl.value) / 100;
         card.querySelectorAll(".size-val-badge")[1].textContent = `${alphaEl.value}%`;
         renderCanvas(false);
+        persistAutoDraft();
+      });
+
+      const ovXInp = card.querySelector(".ov-x-inp");
+      const ovYInp = card.querySelector(".ov-y-inp");
+      const ovWInp = card.querySelector(".ov-w-inp");
+      ovXInp.addEventListener("change", () => {
+        pushUndoSnapshot();
+        ov.x = Number(ovXInp.value) || 0;
+        renderLinesUI();
+        renderCanvas(false);
+        persistAutoDraft();
+      });
+      ovYInp.addEventListener("change", () => {
+        pushUndoSnapshot();
+        ov.y = Number(ovYInp.value) || 0;
+        renderLinesUI();
+        renderCanvas(false);
+        persistAutoDraft();
+      });
+      ovWInp.addEventListener("change", () => {
+        pushUndoSnapshot();
+        const aspect = (ov.origH || ov.h) / Math.max(1, (ov.origW || ov.w));
+        ov.w = Math.max(16, Math.min(1200, Number(ovWInp.value) || ov.w));
+        ov.h = Math.max(16, Math.round(ov.w * aspect));
+        renderLinesUI();
+        renderCanvas(false);
+        persistAutoDraft();
       });
 
       const moveOv = (dx, dy) => {
@@ -3019,11 +2957,12 @@
         pushUndoSnapshot();
         ov.x += dx; ov.y += dy;
         renderLinesUI(); renderCanvas(false);
+        persistAutoDraft();
       };
-      card.querySelector(".ov-up").addEventListener("click", (e) => { e.stopPropagation(); moveOv(0, -3); });
-      card.querySelector(".ov-down").addEventListener("click", (e) => { e.stopPropagation(); moveOv(0, 3); });
-      card.querySelector(".ov-left").addEventListener("click", (e) => { e.stopPropagation(); moveOv(-3, 0); });
-      card.querySelector(".ov-right").addEventListener("click", (e) => { e.stopPropagation(); moveOv(3, 0); });
+      card.querySelector(".ov-up").addEventListener("click", (e) => { e.stopPropagation(); moveOv(0, -4); });
+      card.querySelector(".ov-down").addEventListener("click", (e) => { e.stopPropagation(); moveOv(0, 4); });
+      card.querySelector(".ov-left").addEventListener("click", (e) => { e.stopPropagation(); moveOv(-4, 0); });
+      card.querySelector(".ov-right").addEventListener("click", (e) => { e.stopPropagation(); moveOv(4, 0); });
 
       card.querySelector(".ov-lock").addEventListener("click", (e) => {
         e.stopPropagation();
@@ -3035,12 +2974,14 @@
         pushUndoSnapshot();
         ov.visible = !ov.visible;
         renderLinesUI(); renderCanvas(false);
+        persistAutoDraft();
       });
       card.querySelector(".ov-del").addEventListener("click", (e) => {
         e.stopPropagation();
         pushUndoSnapshot();
         overlayImages = overlayImages.filter(x => x.id !== ov.id);
         renderLinesUI(); renderCanvas(false);
+        persistAutoDraft();
       });
 
       return card;
@@ -3295,6 +3236,7 @@
         sampleCtx.clearRect(0, 0, sampleCanvas.width, sampleCanvas.height);
         sampleCtx.drawImage(baseImg, 0, 0, sampleCanvas.width, sampleCanvas.height);
 
+        mainAutoBtn.disabled = false;
         mainSaveBtn.disabled = false;
         addCustomTextBtn.disabled = false;
         resetAllEditsBtn.disabled = false;
@@ -3365,8 +3307,9 @@
         renderHistory();
       });
     });
+
     // =========================================================================
-    // PRO PIN MODAL + PRO HUB & WORKSPACE LOGIC
+    // PRO PIN MODAL + SAMPLE RECEIPT MOCKUPS + ⚡ အော်တို (AUTO) + WORKSPACE
     // =========================================================================
     const openProPinBtn = document.getElementById("openProPinBtn");
     const proPinModal = document.getElementById("proPinModal");
@@ -3384,6 +3327,7 @@
     const proWorkspaceView = document.getElementById("proWorkspaceView");
     const proWalletCardsGrid = document.getElementById("proWalletCardsGrid");
     const proWorkspaceTitle = document.getElementById("proWorkspaceTitle");
+    const proAutoLayoutBtn = document.getElementById("proAutoLayoutBtn");
     const proTemplateFileInput = document.getElementById("proTemplateFileInput");
     const proClearValuesBtn = document.getElementById("proClearValuesBtn");
     const proCopyBtn = document.getElementById("proCopyBtn");
@@ -3394,21 +3338,101 @@
     const proToastMsg = document.getElementById("proToastMsg");
 
     const PRO_WALLETS = [
-      { id: "kpay",    name: "K Pay",    short: "K PAY",   color: "#0055b8", desc: "KBZPay Receipt Template" },
-      { id: "wavepay", name: "Wave Pay", short: "WAVE",    color: "#d97706", desc: "WavePay Receipt Template" },
-      { id: "ayepay",  name: "Aye Pay",  short: "AYE PAY", color: "#dc2626", desc: "AYA Pay Receipt Template" },
-      { id: "banking", name: "Banking",  short: "BANK",    color: "#0f766e", desc: "Bank Transfer Receipt Template" }
+      { id: "kpay",    name: "K Pay",    short: "K PAY",   color: "#0055b8", softBg: "#eff6ff", desc: "KBZPay Transfer Receipt Sample" },
+      { id: "wavepay", name: "Wave Pay", short: "WAVE",    color: "#d97706", softBg: "#fffbeb", desc: "WavePay Transfer Receipt Sample" },
+      { id: "ayepay",  name: "Aye Pay",  short: "AYE PAY", color: "#dc2626", softBg: "#fef2f2", desc: "AYA Pay Transfer Receipt Sample" },
+      { id: "banking", name: "Banking",  short: "BANK",    color: "#0f766e", softBg: "#f0fdfa", desc: "Bank Transfer Receipt Sample" }
     ];
+
+    // ဝန်ဆောင်မှု ၄ ခုအတွက် အသင့်မြင်ရမည့် ငွေလွှဲပြေစာ နမူနာပုံ (Sample Receipt Canvas) ဖန်တီးခြင်း
+    function generateDefaultReceiptSampleDataUrl(wallet) {
+      const c = document.createElement("canvas");
+      c.width = 460;
+      c.height = 640;
+      const g = c.getContext("2d");
+
+      g.fillStyle = "#f1f5f9";
+      g.fillRect(0, 0, c.width, c.height);
+
+      // Receipt Card Frame
+      g.fillStyle = "#ffffff";
+      g.beginPath();
+      g.roundRect(24, 24, c.width - 48, c.height - 48, 22);
+      g.fill();
+
+      // Header Banner
+      g.fillStyle = wallet.color;
+      g.beginPath();
+      g.roundRect(24, 24, c.width - 48, 92, [22, 22, 0, 0]);
+      g.fill();
+
+      g.fillStyle = "#ffffff";
+      g.font = "800 20px system-ui, sans-serif";
+      g.textAlign = "center";
+      g.fillText(`${wallet.name} — ငွေလွှဲပြေစာ (SAMPLE)`, c.width / 2, 64);
+
+      g.fillStyle = "rgba(255,255,255,0.88)";
+      g.font = "600 12px system-ui, sans-serif";
+      g.fillText("ကွက်လက်ဖြည့်ပြီး ⚡ အော်တို (Auto) နှိပ်၍ စိတ်ကြိုက်ပြင်ဆင်နိုင်ပါသည်", c.width / 2, 90);
+
+      // Amount Highlight Box
+      g.fillStyle = wallet.softBg;
+      g.beginPath();
+      g.roundRect(44, 136, c.width - 88, 68, 14);
+      g.fill();
+      g.strokeStyle = wallet.color;
+      g.lineWidth = 1.2;
+      g.stroke();
+
+      g.fillStyle = "#475569";
+      g.font = "700 12px system-ui, sans-serif";
+      g.textAlign = "left";
+      g.fillText("ငွေပမာဏ (Amount)", 62, 160);
+
+      // Rows Guide Lines (ဖုန်းနံပါတ်၊ နာမည်၊ ပြေစာနံပါတ်၊ အချိန်၊ ရက်စွဲ၊ မှတ်ချက်)
+      const rows = [
+        { label: "ဖုန်းနံပါတ် (Phone)", y: 242 },
+        { label: "နာမည် (Name)", y: 298 },
+        { label: "ပြေစာနံပါတ် (Receipt No.)", y: 354 },
+        { label: "ငွေလွဲအချိန် (Time)", y: 410 },
+        { label: "ရက်စွဲ (Date)", y: 466 },
+        { label: "မှတ်ချက် (Note)", y: 522 }
+      ];
+
+      rows.forEach((r, idx) => {
+        if (idx > 0) {
+          g.strokeStyle = "#e2e8f0";
+          g.lineWidth = 1;
+          g.setLineDash([4, 4]);
+          g.beginPath();
+          g.moveTo(44, r.y - 28);
+          g.lineTo(c.width - 44, r.y - 28);
+          g.stroke();
+          g.setLineDash([]);
+        }
+        g.fillStyle = "#64748b";
+        g.font = "600 13px system-ui, sans-serif";
+        g.textAlign = "left";
+        g.fillText(r.label, 52, r.y);
+      });
+
+      g.fillStyle = "#94a3b8";
+      g.font = "600 11px system-ui, sans-serif";
+      g.textAlign = "center";
+      g.fillText("Sample Receipt Mockup • ကိုယ်ပိုင်မူကြမ်းပုံ အစစ်လည်း တင်နိုင်ပါသည်", c.width / 2, 588);
+
+      return c.toDataURL("image/png");
+    }
 
     function buildDefaultProFields(accentColor) {
       return [
-        { key: "phone",     label: "ဖုန်းနံပါတ် (Phone)",          enabled: true, value: "", x: 420, y: 150, fontSize: 18, color: "#0f172a", align: "right" },
-        { key: "amount",    label: "ငွေပမာဏ (Amount)",            enabled: true, value: "", x: 420, y: 205, fontSize: 25, color: accentColor, align: "right" },
-        { key: "name",      label: "နာမည် (Name)",                enabled: true, value: "", x: 420, y: 260, fontSize: 18, color: "#0f172a", align: "right" },
-        { key: "receiptNo", label: "ပြေစာနံပါတ် (Receipt No.)",    enabled: true, value: "", x: 420, y: 315, fontSize: 15, color: "#1e293b", align: "right" },
-        { key: "time",      label: "ငွေလွဲအချိန် (Transfer Time)", enabled: true, value: "", x: 420, y: 370, fontSize: 15, color: "#334155", align: "right" },
-        { key: "date",      label: "ရက်စွဲ (Date)",                enabled: true, value: "", x: 420, y: 425, fontSize: 15, color: "#334155", align: "right" },
-        { key: "note",      label: "မှတ်ချက် (Note)",              enabled: true, value: "", x: 420, y: 480, fontSize: 14, color: "#475569", align: "right" }
+        { key: "phone",     label: "ဖုန်းနံပါတ် (Phone)",          enabled: true, value: "", x: 416, y: 242, fontSize: 17, color: "#0f172a", align: "right" },
+        { key: "amount",    label: "ငွေပမာဏ (Amount)",            enabled: true, value: "", x: 416, y: 172, fontSize: 25, color: accentColor, align: "right" },
+        { key: "name",      label: "နာမည် (Name)",                enabled: true, value: "", x: 416, y: 298, fontSize: 17, color: "#0f172a", align: "right" },
+        { key: "receiptNo", label: "ပြေစာနံပါတ် (Receipt No.)",    enabled: true, value: "", x: 416, y: 354, fontSize: 15, color: "#1e293b", align: "right" },
+        { key: "time",      label: "ငွေလွဲအချိန် (Transfer Time)", enabled: true, value: "", x: 416, y: 410, fontSize: 15, color: "#334155", align: "right" },
+        { key: "date",      label: "ရက်စွဲ (Date)",                enabled: true, value: "", x: 416, y: 466, fontSize: 15, color: "#334155", align: "right" },
+        { key: "note",      label: "မှတ်ချက် (Note)",              enabled: true, value: "", x: 416, y: 522, fontSize: 14, color: "#475569", align: "right" }
       ];
     }
 
@@ -3416,7 +3440,7 @@
       const obj = {};
       PRO_WALLETS.forEach(w => {
         obj[w.id] = {
-          templateDataUrl: "",
+          templateDataUrl: generateDefaultReceiptSampleDataUrl(w),
           fields: buildDefaultProFields(w.color)
         };
       });
@@ -3433,7 +3457,7 @@
       proToastMsg.textContent = msg;
       setTimeout(() => {
         if (proToastMsg.textContent === msg) proToastMsg.textContent = "";
-      }, 2800);
+      }, 3000);
     }
 
     function saveProTemplatesAndLayout() {
@@ -3456,7 +3480,9 @@
         const parsed = JSON.parse(raw);
         PRO_WALLETS.forEach(w => {
           if (parsed[w.id]) {
-            proState[w.id].templateDataUrl = parsed[w.id].templateDataUrl || "";
+            if (parsed[w.id].templateDataUrl) {
+              proState[w.id].templateDataUrl = parsed[w.id].templateDataUrl;
+            }
             if (Array.isArray(parsed[w.id].fields) && parsed[w.id].fields.length > 0) {
               proState[w.id].fields = parsed[w.id].fields.map(f => ({ ...f, value: "" }));
             }
@@ -3464,6 +3490,73 @@
         });
       } catch (_) {}
     }
+
+    // PRO ⚡ အော်တို (Auto) — ဖြည့်ထားသော ကွက်လက်များကိုသာ ဝန်ဆောင်မှု/ပုံအချိုးအစားအလိုက် အလိုအလျောက် စီစဉ်ချပေးခြင်း
+    function runProAutoArrange() {
+      if (!proActiveWalletId) return;
+      const walletMeta = PRO_WALLETS.find(w => w.id === proActiveWalletId);
+      const data = proState[proActiveWalletId];
+      const cw = proCanvas.width;
+      const ch = proCanvas.height;
+      const rightX = Math.round(cw * 0.90);
+      const baseScale = Math.max(0.75, Math.min(1.6, cw / 460));
+
+      const filledFields = data.fields.filter(f => f.enabled && f.value && f.value.trim() !== "");
+      if (filledFields.length === 0) {
+        showProToast("ကွက်လက်ထဲတွင် စာသား/ဂဏန်း အရင်ရိုက်ထည့်ပြီးမှ ⚡ အော်တို နှိပ်ပါ");
+        return;
+      }
+
+      // ဗလာဖြစ်နေသော ကွက်လက်များကို ပိတ်ထားပြီး ဖြည့်ထားသော ကွက်လက်များကိုသာ ဖွင့်ထားမည်
+      data.fields.forEach(f => {
+        const hasVal = Boolean(f.value && f.value.trim() !== "");
+        if (!hasVal) {
+          f.enabled = false;
+          return;
+        }
+        f.enabled = true;
+        f.align = "right";
+        f.x = rightX;
+
+        if (f.key === "amount") {
+          f.y = Math.round(ch * 0.268);
+          f.fontSize = Math.round(25 * baseScale);
+          f.color = walletMeta ? walletMeta.color : "#0055b8";
+        } else if (f.key === "phone") {
+          f.y = Math.round(ch * 0.378);
+          f.fontSize = Math.round(17 * baseScale);
+          f.color = "#0f172a";
+        } else if (f.key === "name") {
+          f.y = Math.round(ch * 0.465);
+          f.fontSize = Math.round(17 * baseScale);
+          f.color = "#0f172a";
+        } else if (f.key === "receiptNo") {
+          f.y = Math.round(ch * 0.553);
+          f.fontSize = Math.round(15 * baseScale);
+          f.color = "#1e293b";
+        } else if (f.key === "time") {
+          f.y = Math.round(ch * 0.640);
+          f.fontSize = Math.round(15 * baseScale);
+          f.color = "#334155";
+        } else if (f.key === "date") {
+          f.y = Math.round(ch * 0.728);
+          f.fontSize = Math.round(15 * baseScale);
+          f.color = "#334155";
+        } else if (f.key === "note") {
+          f.y = Math.round(ch * 0.815);
+          f.fontSize = Math.round(14 * baseScale);
+          f.color = "#475569";
+        }
+      });
+
+      proSelectedFieldKey = filledFields[0].key;
+      saveProTemplatesAndLayout();
+      renderProFieldsList();
+      renderProCanvas(false);
+      showProToast(`⚡ အော်တို စီစဉ်ပြီးပါပြီ (ဖြည့်ထားသော ${filledFields.length} ခုကို နေရာချထားသည်)`);
+    }
+
+    proAutoLayoutBtn.addEventListener("click", runProAutoArrange);
 
     function openPinModal() {
       proPinInput.value = "";
@@ -3535,8 +3628,8 @@
             </div>
           </div>
           <div class="pro-wallet-card-footer">
-            <span style="color:${hasTpl ? "var(--success)" : "var(--muted)"};">
-              ${hasTpl ? "✓ မူကြမ်းပုံ တင်ထားပြီး" : "+ မူကြမ်းပုံ တင်ရန် အဆင်သင့်"}
+            <span style="color:var(--success);">
+              ${hasTpl ? "✓ ငွေလွှဲပြေစာ နမူနာပုံ အသင့်ရှိသည်" : "+ မူကြမ်းပုံ တင်ရန် အဆင်သင့်"}
             </span>
             <span style="color:${w.color};">ဖွင့်မည် →</span>
           </div>
@@ -3566,27 +3659,21 @@
       proActiveWalletId = walletId;
       const meta = PRO_WALLETS.find(w => w.id === walletId);
       const data = proState[walletId];
+      if (!data.templateDataUrl) {
+        data.templateDataUrl = generateDefaultReceiptSampleDataUrl(meta);
+      }
       proSelectedFieldKey = data.fields[1]?.key || data.fields[0].key;
 
       proHubView.style.display = "none";
       proWorkspaceView.classList.add("active");
       proBackToHubBtn.style.display = "inline-flex";
       proCurrentBadge.textContent = meta.name;
-      proWorkspaceTitle.textContent = `${meta.name} — ပြေစာမူကြမ်း Preview`;
+      proWorkspaceTitle.textContent = `${meta.name} — ငွေလွှဲပြေစာ Preview`;
 
-      if (!data.templateDataUrl) {
-        proCanvas.width = 460;
-        proCanvas.height = 640;
-        proLoadedTemplateImg = null;
+      loadProTemplateImage(data.templateDataUrl, () => {
         renderProFieldsList();
         renderProCanvas(false);
-        showProToast(`${meta.name} အတွက် '🖼️ မူကြမ်းပုံ အစစ် တင်ရန်' ကို နှိပ်ပြီး ပုံတင်ပါ`);
-      } else {
-        loadProTemplateImage(data.templateDataUrl, () => {
-          renderProFieldsList();
-          renderProCanvas(false);
-        });
-      }
+      });
     }
 
     proBackToHubBtn.addEventListener("click", () => {
@@ -3606,7 +3693,10 @@
 
     proClearValuesBtn.addEventListener("click", () => {
       if (!proActiveWalletId) return;
-      proState[proActiveWalletId].fields.forEach(f => { f.value = ""; });
+      proState[proActiveWalletId].fields.forEach(f => {
+        f.value = "";
+        f.enabled = true;
+      });
       renderProFieldsList();
       renderProCanvas(false);
       showProToast("ထည့်ထားသော စာသားများ ရှင်းလင်းပြီးပါပြီ");
@@ -3703,6 +3793,7 @@
         });
         valEl.addEventListener("input", () => {
           f.value = valEl.value;
+          if (f.value.trim() !== "") f.enabled = true;
           renderProCanvas(false);
         });
         sizeEl.addEventListener("input", () => {
@@ -3756,10 +3847,6 @@
       } else {
         proCtx.fillStyle = "#f8fafc";
         proCtx.fillRect(0, 0, proCanvas.width, proCanvas.height);
-        proCtx.fillStyle = "#64748b";
-        proCtx.font = "700 15px system-ui, sans-serif";
-        proCtx.textAlign = "center";
-        proCtx.fillText("မူကြမ်းပုံ အစစ် တင်ရန် '🖼️ မူကြမ်းပုံ အစစ် တင်ရန်' ကို နှိပ်ပါ", proCanvas.width / 2, proCanvas.height / 2);
       }
 
       const fields = proState[proActiveWalletId].fields;
