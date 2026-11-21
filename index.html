@@ -67,9 +67,9 @@
     .welcome-sub {
       color: #94a3b8;
       font-size: 14px;
-      max-width: 560px;
+      max-width: 600px;
       margin: 0 0 28px;
-      line-height: 1.6;
+      line-height: 1.65;
     }
     .go-edit-btn {
       padding: 16px 36px;
@@ -90,7 +90,7 @@
       min-height: 100vh;
       padding: 12px;
       gap: 12px;
-      max-width: 1480px;
+      max-width: 1520px;
       margin: 0 auto;
     }
     .editor-screen.active { display: flex; }
@@ -140,7 +140,7 @@
       opacity: 0.45;
       pointer-events: none;
     }
-    #fileInput, #overlayFileInput { display: none; }
+    #fileInput, #overlayFileInput, #proTemplateFileInput { display: none; }
 
     .pill-btn {
       padding: 8px 12px;
@@ -157,6 +157,17 @@
       background: #2563eb;
       border-color: #3b82f6;
       color: #fff;
+    }
+    .pro-entry-btn {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 158, 11, 0.65);
+      background: linear-gradient(135deg, #d97706, #b45309);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(217, 119, 6, 0.25);
     }
 
     .btn-main-save {
@@ -178,7 +189,7 @@
       gap: 8px;
       align-items: center;
       background: var(--card-2);
-      padding: 7px 10px;
+      padding: 8px 10px;
       border-radius: 10px;
       border: 1px solid var(--border);
     }
@@ -265,7 +276,7 @@
       padding: 9px 10px;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 7px;
     }
     .quick-tap-row {
       display: flex;
@@ -324,7 +335,7 @@
       margin-bottom: 3px;
       font-weight: 600;
     }
-    select, input[type="text"], input[type="number"] {
+    select, input[type="text"], input[type="number"], input[type="password"] {
       width: 100%;
       padding: 7px 8px;
       border-radius: 7px;
@@ -402,6 +413,11 @@
       border-color: #fb7185;
       color: #fff;
     }
+    .mode-btn.compare-active {
+      background: #d97706;
+      border-color: #fbbf24;
+      color: #fff;
+    }
 
     .draw-subbar {
       display: none;
@@ -427,7 +443,7 @@
       position: relative;
       overflow: auto;
     }
-    #mainCanvas {
+    #mainCanvas, #proCanvas {
       max-width: 100%;
       max-height: 64vh;
       border-radius: 10px;
@@ -438,7 +454,7 @@
       transition: transform 0.12s ease;
       transform-origin: center center;
     }
-    #mainCanvas.tap-cursor { cursor: cell; }
+    #mainCanvas.tap-cursor, #proCanvas.tap-cursor { cursor: cell; }
     #mainCanvas.drawing-cursor { cursor: crosshair; }
     .canvas-hint {
       font-size: 11px;
@@ -467,10 +483,16 @@
     }
     .add-text-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
+    .filter-search-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
     .filter-tabs {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
+      align-items: center;
     }
     .lines-list {
       display: flex;
@@ -520,10 +542,11 @@
       display: flex;
       flex-direction: column;
       gap: 7px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
     }
     .line-card.focused {
       border-color: #f59e0b;
-      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.45);
+      box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.35);
     }
     .line-card.edited-card { border-left: 4px solid #10b981; }
 
@@ -715,6 +738,11 @@
       font-weight: 700;
       cursor: pointer;
     }
+    .mini-move-btn.locked {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: #f59e0b;
+      color: #fbbf24;
+    }
     .empty-state {
       text-align: center;
       color: var(--muted);
@@ -724,13 +752,13 @@
       border-radius: 10px;
     }
 
-    /* HISTORY MODAL */
+    /* MODALS (History & PIN) */
     .history-modal {
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(2, 6, 23, 0.78);
-      z-index: 50;
+      background: rgba(2, 6, 23, 0.82);
+      z-index: 60;
       padding: 16px;
       align-items: center;
       justify-content: center;
@@ -738,7 +766,7 @@
     .history-modal.open { display: flex; }
     .history-box {
       width: 100%;
-      max-width: 780px;
+      max-width: 820px;
       max-height: 86vh;
       background: var(--card);
       border: 1px solid var(--border);
@@ -748,6 +776,17 @@
       flex-direction: column;
       gap: 12px;
       overflow: hidden;
+    }
+    .pin-box {
+      width: 100%;
+      max-width: 400px;
+      background: var(--card);
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      border-radius: 14px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
     .history-head {
       display: flex;
@@ -778,10 +817,20 @@
       gap: 10px;
       flex-wrap: wrap;
     }
+    .history-thumb {
+      width: 54px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--canvas-bg);
+      flex-shrink: 0;
+    }
     .history-meta {
       font-size: 12px;
       line-height: 1.45;
       flex: 1;
+      min-width: 180px;
     }
     .history-badge-heart { color: #fb7185; font-weight: 800; }
     .history-badge-star { color: #fbbf24; font-weight: 800; }
@@ -796,6 +845,100 @@
       cursor: pointer;
       white-space: nowrap;
     }
+
+    /* 3. PRO RECEIPT STUDIO SCREEN */
+    .pro-screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 12px;
+      gap: 12px;
+      max-width: 1520px;
+      margin: 0 auto;
+    }
+    .pro-screen.active { display: flex; }
+    .wallet-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .wallet-btn {
+      padding: 9px 15px;
+      border-radius: 10px;
+      border: 1px solid var(--input-border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .wallet-btn.active-wallet {
+      background: linear-gradient(135deg, #2563eb, #0ea5e9);
+      border-color: #38bdf8;
+      color: #fff;
+    }
+    .pro-field-card {
+      background: var(--card-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .pro-field-card.selected-field {
+      border-color: #f59e0b;
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.45);
+    }
+    .pro-action-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      padding-top: 6px;
+      border-top: 1px solid var(--border);
+    }
+    .pro-btn-copy {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      background: #8b5cf6;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .pro-btn-save {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: none;
+      background: #10b981;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .pro-btn-cancel {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--input-border);
+      background: var(--card-2);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .pro-btn-exit {
+      padding: 9px 14px;
+      border-radius: 10px;
+      border: none;
+      background: #dc2626;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
     .toast {
       font-size: 12px;
       color: #10b981;
@@ -809,13 +952,13 @@
 
   <!-- SCREEN 1: WELCOME -->
   <section class="welcome-screen" id="welcomeScreen">
-    <span class="welcome-badge">PRO AUTO-CAPTURE, SNAP, UNDO/REDO & HISTORY STUDIO</span>
+    <span class="welcome-badge">PRO AUTO-CAPTURE, SNAP, UNDO/REDO, RECEIPT PRO & HISTORY STUDIO</span>
     <h1 class="welcome-title">Welcome to Photo edit Pro</h1>
-    <p class="welcome-sub">ပြင်ချင်တဲ့နေရာကို တစ်ချက်နှိပ်ပြီး ဂဏန်း/စာသားရိုက်ထည့်ရုံဖြင့် မူလ Size၊ အရောင်နှင့် နေရာကို အလိုအလျောက်ဖမ်းယူပြီး ပြင်ပြီးတာနဲ့ မူလအခြေအနေသို့ ပြန်ရောက်သွားစေမည့် ပရော်ဖက်ရှင်နယ် Studio ဖြစ်ပါသည်။</p>
+    <p class="welcome-sub">ပြင်ချင်တဲ့နေရာကို တစ်ချက်နှိပ်ပြီး ဂဏန်း/စာသားရိုက်ထည့်ရုံဖြင့် မူလ Size၊ အရောင်နှင့် နေရာကို အလိုအလျောက်ဖမ်းယူပြီး ပြင်ပြီးတာနဲ့ မူလအခြေအနေသို့ ပြန်ရောက်သွားစေမည့် ပရော်ဖက်ရှင်နယ် Studio နှင့် K Pay / Wave Pay / Aye Pay / Banking Pro စနစ် ပါဝင်ပါသည်။</p>
     <button class="go-edit-btn" id="goEditBtn">Go to edit</button>
   </section>
 
-  <!-- SCREEN 2: WORKSPACE -->
+  <!-- SCREEN 2: MAIN WORKSPACE -->
   <section class="editor-screen" id="editorScreen">
     <header class="top-header">
       <div class="header-left">
@@ -825,8 +968,9 @@
         <label class="overlay-btn-label disabled-lbl" for="overlayFileInput" id="overlayBtnText">🖼️ ထပ်ဆင့်ပုံထည့်ရန်</label>
         <input type="file" id="overlayFileInput" accept="image/*" />
 
-        <button type="button" class="pill-btn" id="undoBtn" disabled title="နောက်ပြန်ဆုတ်ရန် (Undo)">↩️ Undo</button>
-        <button type="button" class="pill-btn" id="redoBtn" disabled title="ရှေ့တိုးရန် (Redo)">↪️ Redo</button>
+        <button type="button" class="pill-btn" id="undoBtn" disabled title="နောက်ပြန်ဆုတ်ရန် (Ctrl+Z)">↩️ Undo</button>
+        <button type="button" class="pill-btn" id="redoBtn" disabled title="ရှေ့တိုးရန် (Ctrl+Y)">↪️ Redo</button>
+        <button type="button" class="pill-btn" id="resetAllEditsBtn" disabled title="ပြင်ထားသမျှ မူရင်းပြန်ထားမည်">🔄 Reset All</button>
 
         <button class="btn-main-save" id="mainSaveBtn" disabled>SAVE</button>
 
@@ -835,6 +979,11 @@
             <option value="image/png">PNG (High Quality)</option>
             <option value="image/jpeg">JPEG (Compact)</option>
           </select>
+          <div id="jpegQualityWrap" style="display:none;align-items:center;gap:4px;">
+            <span class="size-lbl">Q:</span>
+            <input type="range" id="jpegQualitySlider" min="50" max="100" value="92" style="width:65px;" />
+            <span class="size-val-badge" id="jpegQualityVal" style="min-width:30px;">92%</span>
+          </div>
           <select id="exportScaleSelect" style="width:auto;padding:6px 8px;">
             <option value="1">1x Scale</option>
             <option value="1.5">1.5x HD</option>
@@ -848,6 +997,7 @@
       </div>
 
       <div class="header-right">
+        <button type="button" class="pro-entry-btn" id="openProPinBtn">👑 Pro</button>
         <button class="pill-btn" id="historyOpenBtn">📜 မှတ်တမ်း</button>
         <button class="pill-btn" id="themeBtn">☀️ Light</button>
         <button class="pill-btn" id="langBtn">🌐 English</button>
@@ -857,7 +1007,7 @@
     <div class="toast" id="toastMsg"></div>
 
     <div class="split-grid">
-      <!-- LEFT: INTERACTIVE CANVAS + TAP-TO-EDIT + SNAP/ZOOM + STATUS BAR -->
+      <!-- LEFT: INTERACTIVE CANVAS + TAP-TO-EDIT + SIZE STEPPER + COMPARE/SNAP/ZOOM + STATUS BAR -->
       <div class="panel">
         <div class="panel-title">
           <span id="leftPanelTitle">ဘယ်ဘက် — Tap-to-Edit၊ ဆွဲရွှေ့ရန် နှင့် လက်ရေးရေးရန်</span>
@@ -870,13 +1020,19 @@
           </div>
         </div>
 
-        <!-- Tap-to-Replace Auto-Capture Box -->
+        <!-- Tap-to-Replace Auto-Capture Box with Direct Size (−/+) -->
         <div class="quick-tap-box">
           <div style="font-size:11px;font-weight:800;color:#34d399;">
             ⚡ Tap-to-Replace (မူလ Size / အရောင် / နေရာ ဖမ်းယူပြီး ပြီးတာနဲ့ မူလပြန်ထားမည်)
           </div>
           <div class="quick-tap-row">
             <input type="text" id="quickTapInput" class="quick-tap-input" placeholder="ပုံပေါ်နှိပ်ပြီး ဂဏန်း/စာသားရိုက်ပါ (ဥပမာ- 125,000)..." />
+            <div class="size-control-bar" style="padding:4px 6px;">
+              <span class="size-lbl">Size:</span>
+              <button type="button" class="size-step-btn" id="tapSizeMinusBtn">−</button>
+              <span class="size-val-badge" id="tapSizeValBadge" style="min-width:34px;text-align:center;">16px</span>
+              <button type="button" class="size-step-btn" id="tapSizePlusBtn">+</button>
+            </div>
             <button type="button" class="quick-tap-apply" id="quickTapApplyBtn">အစားထိုး & Reset</button>
           </div>
           <div id="capturedStyleInfo" style="font-size:11px;color:var(--muted);">
@@ -884,13 +1040,14 @@
           </div>
         </div>
 
-        <!-- Canvas Mode Switcher: Tap-Edit vs Drag vs Freehand Draw -->
+        <!-- Canvas Mode Switcher: Tap-Edit vs Drag vs Freehand Draw + Snap + Before/After -->
         <div class="canvas-mode-bar">
           <div class="mode-btn-group">
             <button type="button" class="mode-btn tap-active" id="modeTapBtn">🎯 နှိပ်ပြင်မည် (Tap)</button>
             <button type="button" class="mode-btn" id="modeDragBtn">✋ ဆွဲရွှေ့မည် (Drag)</button>
             <button type="button" class="mode-btn" id="modeDrawBtn">✍️ လက်ရေး (Draw)</button>
             <button type="button" class="mode-btn active-mode" id="snapToggleBtn" title="Smart Snap Guides">🧲 Snap: ON</button>
+            <button type="button" class="mode-btn" id="compareBeforeBtn" title="မူရင်းပုံနဲ့ ခဏယှဉ်ကြည့်ရန်">👁️ Before/After</button>
           </div>
           <div class="mode-btn-group">
             <button type="button" class="mode-btn" id="undoStrokeBtn" title="နောက်ဆုံးလက်ရေးပြန်ဖျက်ရန်">↩️ Undo လက်ရေး</button>
@@ -1003,21 +1160,34 @@
             🎯 ပြင်ချင်တဲ့ ဂဏန်း/စာသားနေရာကို နှိပ်ပါ — Size နဲ့ အရောင်ကို မူလအတိုင်း အလိုအလျောက်ဖမ်းယူပေးပါမည်
           </div>
         </div>
+
+        <details style="background:var(--card-2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;">
+          <summary style="font-size:12px;font-weight:700;cursor:pointer;color:var(--muted);">⌨️ ကီးဘုတ် ဖြတ်လမ်းညွှန် (Shortcuts)</summary>
+          <div style="font-size:11px;color:var(--muted);padding-top:6px;line-height:1.6;">
+            • <b>Ctrl+Z</b> / <b>Ctrl+Y</b>: Undo / Redo &nbsp;|&nbsp;
+            • <b>Arrow Keys</b>: 1px ရွှေ့ (<b>Shift+Arrow</b>: 5px) &nbsp;|&nbsp;
+            • <b>Enter</b>: Tap-to-Replace ချက်ချင်း အစားထိုး
+          </div>
+        </details>
       </div>
 
-      <!-- RIGHT: ADD CUSTOM TEXT + OVERLAY CONTROLS + HANDWRITING LAYERS + DETECTED LINES -->
+      <!-- RIGHT: ADD CUSTOM TEXT + SEARCH/FILTER + DETECTED LINES -->
       <div class="panel">
         <div class="right-action-bar">
           <span class="panel-title" id="rightPanelTitle" style="margin:0;">ညာဘက် — စာကြောင်းများ၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးထိန်းချုပ်ရန်</span>
           <button type="button" class="add-text-btn" id="addCustomTextBtn" disabled>+ စာကြောင်းအသစ်ထည့်ရန်</button>
         </div>
 
-        <div class="filter-tabs" id="columnFilterTabs">
-          <button class="pill-btn active-tab" data-colfilter="all">အားလုံး (All)</button>
-          <button class="pill-btn" data-colfilter="custom">🟢 ကွက်လက်စာသစ်</button>
-          <button class="pill-btn" data-colfilter="left">🔴 ဘယ်ဘက်စာ</button>
-          <button class="pill-btn" data-colfilter="right">🔵 ညာဘက်စာ</button>
-          <button class="pill-btn" data-colfilter="layers">🖼️ ပုံ & ✍️ လက်ရေး</button>
+        <div class="filter-search-bar">
+          <div class="filter-tabs" id="columnFilterTabs">
+            <button class="pill-btn active-tab" data-colfilter="all">အားလုံး (All)</button>
+            <button class="pill-btn" data-colfilter="edited">✏️ ပြင်ပြီးသား</button>
+            <button class="pill-btn" data-colfilter="custom">🟢 ကွက်လက်စာသစ်</button>
+            <button class="pill-btn" data-colfilter="left">🔴 ဘယ်ဘက်စာ</button>
+            <button class="pill-btn" data-colfilter="right">🔵 ညာဘက်စာ</button>
+            <button class="pill-btn" data-colfilter="layers">🖼️ ပုံ & ✍️ လက်ရေး</button>
+          </div>
+          <input type="text" id="lineSearchInput" placeholder="🔍 စာသား သို့မဟုတ် ဂဏန်း ရှာဖွေရန်..." />
         </div>
 
         <div class="lines-list" id="linesList">
@@ -1028,6 +1198,85 @@
       </div>
     </div>
   </section>
+
+  <!-- SCREEN 3: PRO RECEIPT MODE (K PAY / WAVE PAY / AYE PAY / BANKING) -->
+  <section class="pro-screen" id="proScreen">
+    <header class="top-header">
+      <div class="header-left">
+        <span style="font-size:15px;font-weight:900;color:#fbbf24;">👑 PRO RECEIPT STUDIO</span>
+        <div class="wallet-tabs" id="proWalletTabs">
+          <button type="button" class="wallet-btn active-wallet" data-wallet="kpay">K Pay</button>
+          <button type="button" class="wallet-btn" data-wallet="wavepay">Wave Pay</button>
+          <button type="button" class="wallet-btn" data-wallet="ayepay">Aye Pay</button>
+          <button type="button" class="wallet-btn" data-wallet="banking">Banking</button>
+        </div>
+      </div>
+      <div class="header-right">
+        <label class="overlay-btn-label" for="proTemplateFileInput" style="padding:7px 12px;font-size:12px;">🖼️ မူကြမ်းပုံပြောင်းရန်</label>
+        <input type="file" id="proTemplateFileInput" accept="image/*" />
+        <button type="button" class="pill-btn" id="proSavePresetBtn">💾 မူကြမ်းသိမ်း</button>
+        <button type="button" class="pill-btn" id="proResetPresetBtn">↺ မူလမူကြမ်း</button>
+        <button type="button" class="pro-btn-exit" id="proExitBtn">🚪 ပြန်ထွက်ရန် (Exit)</button>
+      </div>
+    </header>
+
+    <div class="toast" id="proToastMsg"></div>
+
+    <div class="split-grid">
+      <div class="panel">
+        <div class="panel-title">
+          <span id="proCanvasTitle">ပြေစာမူကြမ်း Preview — နေရာကို နှိပ်/ဆွဲပြီး Size၊ နေရာ၊ အရောင် တိတိကျကျ ညှိနိုင်သည်</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button type="button" class="mode-btn active-mode" id="proModeSelectBtn">🎯 နေရာရွေး/ဆွဲ</button>
+            <button type="button" class="mode-btn" id="proModePickCoordBtn">📍 နေရာအသစ်သတ်မှတ်</button>
+          </div>
+        </div>
+        <div class="canvas-stage">
+          <canvas id="proCanvas" width="460" height="640" class="tap-cursor"></canvas>
+          <div class="canvas-hint" id="proCanvasHint">
+            ပြေစာပေါ်မှ field တစ်ခုကို ရွေးပြီး ဖိဆွဲရွှေ့နိုင်သလို Arrow Keys ဖြင့်လည်း 1px စီ တိတိကျကျ ညှိနိုင်ပါသည်
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">
+          <span id="proFormTitle">နေရာအလိုက် ဂဏန်း / စာသား ထည့်သွင်းရန်</span>
+          <span id="proActivePresetBadge" style="font-size:11px;color:#34d399;">Preset: Built-in</span>
+        </div>
+
+        <div id="proFieldsContainer" style="display:flex;flex-direction:column;gap:9px;max-height:72vh;overflow-y:auto;padding-right:3px;"></div>
+
+        <div class="pro-action-bar">
+          <button type="button" class="pro-btn-copy" id="proCopyBtn">📋 Copy & Reset</button>
+          <button type="button" class="pro-btn-save" id="proSaveBtn">💾 Save & Reset</button>
+          <button type="button" class="pro-btn-cancel" id="proCancelBtn">✕ Cancel</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PIN MODAL FOR PRO MODE -->
+  <div class="history-modal" id="proPinModal">
+    <div class="pin-box">
+      <div class="history-head">
+        <h3 style="margin:0;font-size:16px;color:#fbbf24;">🔐 Pro Mode စကားဝှက် (PIN)</h3>
+        <button type="button" class="pill-btn" id="closePinModalBtn">✕</button>
+      </div>
+      <p style="margin:0;font-size:12px;color:var(--muted);line-height:1.5;">
+        Pro စာမျက်နှာသို့ ဝင်ရောက်ရန် စကားဝှက် ရိုက်ထည့်ပါ။
+      </p>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="password" id="proPinInput" placeholder="စကားဝှက် ရိုက်ထည့်ပါ..." autocomplete="off" />
+        <button type="button" class="pill-btn" id="togglePinVisBtn" title="ကြည့်/ဝှက်">👁️</button>
+      </div>
+      <div id="proPinError" style="font-size:12px;color:#f87171;min-height:16px;font-weight:700;"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button type="button" class="pill-btn" id="cancelPinModalBtn">မလုပ်တော့ပါ</button>
+        <button type="button" class="pro-entry-btn" id="submitPinBtn">ဝင်မည် (Enter)</button>
+      </div>
+    </div>
+  </div>
 
   <!-- HISTORY MODAL -->
   <div class="history-modal" id="historyModal">
@@ -1050,7 +1299,10 @@
     </div>
   </div>
   <script>
-    const HISTORY_STORAGE_KEY = "photo_edit_history_pro_v3";
+    const HISTORY_STORAGE_KEY = "photo_edit_history_pro_v4";
+    const AUTO_DRAFT_STORAGE_KEY = "photo_edit_auto_draft_v4";
+    const PRO_PRESET_STORAGE_KEY = "photo_edit_pro_presets_v4";
+    const PRO_PIN_CODE = "12344321";
     const QUICK_SWATCHES = ["#0f172a", "#1e3a8a", "#dc2626", "#059669", "#d97706", "#ffffff"];
 
     const FONT_OPTIONS = [
@@ -1150,8 +1402,10 @@
     let selectedRating = "star";
     let activeHistoryTab = "all";
     let activeColFilter = "all";
+    let searchQuery = "";
     let interactionMode = "tap"; // "tap" | "drag" | "draw"
     let snapEnabled = true;
+    let compareBeforeActive = false;
     let zoomLevel = 1;
 
     const welcomeScreen = document.getElementById("welcomeScreen");
@@ -1163,9 +1417,13 @@
     const addCustomTextBtn = document.getElementById("addCustomTextBtn");
     const undoBtn = document.getElementById("undoBtn");
     const redoBtn = document.getElementById("redoBtn");
+    const resetAllEditsBtn = document.getElementById("resetAllEditsBtn");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
     const exportBar = document.getElementById("exportBar");
     const exportFormatSelect = document.getElementById("exportFormatSelect");
+    const jpegQualityWrap = document.getElementById("jpegQualityWrap");
+    const jpegQualitySlider = document.getElementById("jpegQualitySlider");
+    const jpegQualityVal = document.getElementById("jpegQualityVal");
     const exportScaleSelect = document.getElementById("exportScaleSelect");
     const heartBtn = document.getElementById("heartBtn");
     const starBtn = document.getElementById("starBtn");
@@ -1173,6 +1431,7 @@
     const downloadBtn = document.getElementById("downloadBtn");
     const themeBtn = document.getElementById("themeBtn");
     const langBtn = document.getElementById("langBtn");
+    const lineSearchInput = document.getElementById("lineSearchInput");
     const toastMsg = document.getElementById("toastMsg");
 
     const zoomOutBtn = document.getElementById("zoomOutBtn");
@@ -1182,12 +1441,16 @@
 
     const quickTapInput = document.getElementById("quickTapInput");
     const quickTapApplyBtn = document.getElementById("quickTapApplyBtn");
+    const tapSizeMinusBtn = document.getElementById("tapSizeMinusBtn");
+    const tapSizePlusBtn = document.getElementById("tapSizePlusBtn");
+    const tapSizeValBadge = document.getElementById("tapSizeValBadge");
     const capturedStyleInfo = document.getElementById("capturedStyleInfo");
 
     const modeTapBtn = document.getElementById("modeTapBtn");
     const modeDragBtn = document.getElementById("modeDragBtn");
     const modeDrawBtn = document.getElementById("modeDrawBtn");
     const snapToggleBtn = document.getElementById("snapToggleBtn");
+    const compareBeforeBtn = document.getElementById("compareBeforeBtn");
     const undoStrokeBtn = document.getElementById("undoStrokeBtn");
     const drawSubbar = document.getElementById("drawSubbar");
     const drawColorPicker = document.getElementById("drawColorPicker");
@@ -1271,6 +1534,67 @@
     let redoStack = [];
     let isApplyingHistory = false;
 
+    function syncTapSizeBadge() {
+      const sz = capturedPreset.active ? capturedPreset.fontSize : DEFAULT_CAPTURE_PRESET.fontSize;
+      tapSizeValBadge.textContent = `${sz}px`;
+    }
+
+    function adjustTapSize(delta) {
+      if (!capturedPreset.active) {
+        capturedPreset.fontSize = Math.max(8, Math.min(96, DEFAULT_CAPTURE_PRESET.fontSize + delta));
+        DEFAULT_CAPTURE_PRESET.fontSize = capturedPreset.fontSize;
+      } else {
+        capturedPreset.fontSize = Math.max(8, Math.min(96, capturedPreset.fontSize + delta));
+        if (activeTapTargetLineId !== null) {
+          const targetLine = textLines.find(l => l.id === activeTapTargetLineId);
+          if (targetLine) {
+            targetLine.fontSize = capturedPreset.fontSize;
+            targetLine.modified = true;
+            renderLinesUI();
+          }
+        }
+      }
+      syncTapSizeBadge();
+      if (capturedPreset.active) {
+        capturedStyleInfo.textContent = `ဖမ်းယူပြီး: Size ${capturedPreset.fontSize}px • အရောင် ${capturedPreset.textColor} • နေရာ (${capturedPreset.x}, ${capturedPreset.y})`;
+      }
+      renderCanvas(false);
+    }
+
+    tapSizeMinusBtn.addEventListener("click", () => adjustTapSize(-1));
+    tapSizePlusBtn.addEventListener("click", () => adjustTapSize(1));
+
+    function persistAutoDraft() {
+      if (!baseImgDataUrl) return;
+      try {
+        const draftPayload = {
+          savedAt: new Date().toLocaleString(),
+          baseImgDataUrl,
+          statusState: { ...statusState },
+          textLines: textLines.map(l => ({ ...l })),
+          overlayImages: overlayImages.map(ov => ({
+            id: ov.id,
+            name: ov.name,
+            dataUrl: ov.dataUrl,
+            x: ov.x,
+            y: ov.y,
+            w: ov.w,
+            h: ov.h,
+            origW: ov.origW,
+            origH: ov.origH,
+            opacity: ov.opacity,
+            visible: ov.visible,
+            locked: !!ov.locked
+          })),
+          freehandStrokes: freehandStrokes.map(st => ({
+            ...st,
+            points: st.points.map(p => ({ ...p }))
+          }))
+        };
+        localStorage.setItem(AUTO_DRAFT_STORAGE_KEY, JSON.stringify(draftPayload));
+      } catch (_) {}
+    }
+
     function cloneStateSnapshot() {
       return {
         statusState: { ...statusState },
@@ -1286,7 +1610,8 @@
           origW: ov.origW,
           origH: ov.origH,
           opacity: ov.opacity,
-          visible: ov.visible
+          visible: ov.visible,
+          locked: !!ov.locked
         })),
         freehandStrokes: freehandStrokes.map(st => ({
           ...st,
@@ -1301,11 +1626,13 @@
       if (undoStack.length > 35) undoStack.shift();
       redoStack = [];
       updateUndoRedoButtons();
+      persistAutoDraft();
     }
 
     function updateUndoRedoButtons() {
       undoBtn.disabled = undoStack.length === 0;
       redoBtn.disabled = redoStack.length === 0;
+      resetAllEditsBtn.disabled = !baseImg;
     }
 
     function applySnapshot(snap) {
@@ -1326,6 +1653,7 @@
         renderLinesUI();
         renderCanvas(false);
         updateUndoRedoButtons();
+        persistAutoDraft();
         return;
       }
 
@@ -1342,26 +1670,66 @@
             renderLinesUI();
             renderCanvas(false);
             updateUndoRedoButtons();
+            persistAutoDraft();
           }
         };
         im.src = ovData.dataUrl;
       });
     }
 
-    undoBtn.addEventListener("click", () => {
+    function triggerUndo() {
       if (undoStack.length === 0) return;
       redoStack.push(cloneStateSnapshot());
       const prev = undoStack.pop();
       applySnapshot(prev);
       updateUndoRedoButtons();
-    });
+    }
 
-    redoBtn.addEventListener("click", () => {
+    function triggerRedo() {
       if (redoStack.length === 0) return;
       undoStack.push(cloneStateSnapshot());
       const next = redoStack.pop();
       applySnapshot(next);
       updateUndoRedoButtons();
+    }
+
+    undoBtn.addEventListener("click", triggerUndo);
+    redoBtn.addEventListener("click", triggerRedo);
+
+    resetAllEditsBtn.addEventListener("click", () => {
+      if (!baseImg) return;
+      pushUndoSnapshot();
+      textLines = textLines
+        .filter(l => !l.isCustom)
+        .map(l => ({
+          ...l,
+          text: l.origText,
+          x: l.origX ?? l.x,
+          y: l.origY ?? l.y,
+          fontSize: l.origFontSize,
+          fontFamily: FONT_OPTIONS[0].value,
+          textColor: l.origTextColor,
+          bgMode: "auto",
+          modified: false
+        }));
+      overlayImages = [];
+      freehandStrokes = [];
+      statusState.enabled = false;
+      statusState.brightness = 100;
+      syncStatusControlsToUI();
+      resetCapturedPresetToDefault();
+      selectedTarget = null;
+      renderLinesUI();
+      renderCanvas(false);
+      persistAutoDraft();
+      showToast("ပြင်ထားသမျှ အားလုံး မူရင်းအတိုင်း ပြန်ထားပြီးပါပြီ");
+    });
+
+    exportFormatSelect.addEventListener("change", () => {
+      jpegQualityWrap.style.display = exportFormatSelect.value === "image/jpeg" ? "inline-flex" : "none";
+    });
+    jpegQualitySlider.addEventListener("input", () => {
+      jpegQualityVal.textContent = `${jpegQualitySlider.value}%`;
     });
 
     function t(k, ...a) {
@@ -1425,6 +1793,13 @@
     modeDragBtn.addEventListener("click", () => setInteractionMode("drag"));
     modeDrawBtn.addEventListener("click", () => setInteractionMode("draw"));
 
+    compareBeforeBtn.addEventListener("click", () => {
+      if (!baseImg) return;
+      compareBeforeActive = !compareBeforeActive;
+      compareBeforeBtn.classList.toggle("compare-active", compareBeforeActive);
+      renderCanvas(false);
+    });
+
     snapToggleBtn.addEventListener("click", () => {
       snapEnabled = !snapEnabled;
       snapToggleBtn.textContent = `🧲 Snap: ${snapEnabled ? "ON" : "OFF"}`;
@@ -1450,7 +1825,9 @@
       const colorChanged = (line.textColor || "").toLowerCase() !== (line.origTextColor || "").toLowerCase();
       const fontChanged = line.fontFamily !== FONT_OPTIONS[0].value;
       const bgForced = line.bgMode !== "auto";
-      return textChanged || sizeChanged || colorChanged || fontChanged || bgForced;
+      const posMoved = (line.origX !== undefined && Math.abs(line.x - line.origX) > 1) ||
+                       (line.origY !== undefined && Math.abs(line.y - line.origY) > 1);
+      return textChanged || sizeChanged || colorChanged || fontChanged || bgForced || posMoved;
     }
 
     goEditBtn.addEventListener("click", () => {
@@ -1497,6 +1874,11 @@
         activeColFilter = btn.dataset.colfilter;
         renderLinesUI();
       });
+    });
+
+    lineSearchInput.addEventListener("input", () => {
+      searchQuery = lineSearchInput.value.trim().toLowerCase();
+      renderLinesUI();
     });
 
     function setRating(rating) {
@@ -1640,6 +2022,7 @@
     function resetCapturedPresetToDefault() {
       capturedPreset = { ...DEFAULT_CAPTURE_PRESET };
       activeTapTargetLineId = null;
+      syncTapSizeBadge();
       capturedStyleInfo.textContent = "မူလအခြေအနေသို့ ပြန်ရောက်ပြီးပါပြီ — နောက်ထပ်ပြင်ချင်တဲ့နေရာကို နှိပ်ပါ";
     }
 
@@ -1670,7 +2053,9 @@
           origText: "",
           text: trimmed,
           x: capturedPreset.x,
+          origX: capturedPreset.x,
           y: capturedPreset.y,
+          origY: capturedPreset.y,
           w: Math.max(60, capturedPreset.w),
           h: capturedPreset.h,
           origFontSize: capturedPreset.fontSize,
@@ -1681,7 +2066,8 @@
           bgColor: capturedPreset.bgColor,
           bgMode: capturedPreset.bgMode,
           modified: true,
-          isCustom: true
+          isCustom: true,
+          locked: false
         };
         textLines.unshift(line);
         selectedTarget = { type: "text", id };
@@ -1691,6 +2077,7 @@
       resetCapturedPresetToDefault();
       renderLinesUI();
       renderCanvas(false);
+      persistAutoDraft();
       showToast("ပရော်ဖက်ရှင်နယ် အစားထိုးပြီး မူလအခြေအနေသို့ ပြန်ညှိပြီးပါပြီ");
     }
 
@@ -1906,13 +2293,26 @@
       ctx.drawImage(baseImg, 0, 0, W, H);
       ctx.restore();
 
+      if (compareBeforeActive && !isExport) {
+        ctx.save();
+        ctx.fillStyle = "rgba(15, 23, 42, 0.85)";
+        ctx.fillRect(10, 10, 150, 26);
+        ctx.fillStyle = "#fbbf24";
+        ctx.font = "700 12px sans-serif";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText("👁️ BEFORE (မူရင်းပုံ)", 18, 23);
+        ctx.restore();
+        return;
+      }
+
       overlayImages.forEach(ov => {
         if (!ov.visible || !ov.img) return;
         ctx.save();
         ctx.globalAlpha = ov.opacity ?? 1;
         ctx.drawImage(ov.img, ov.x, ov.y, ov.w, ov.h);
         if (!isExport && selectedTarget?.type === "overlay" && selectedTarget.id === ov.id) {
-          ctx.strokeStyle = "#0ea5e9";
+          ctx.strokeStyle = ov.locked ? "#f59e0b" : "#0ea5e9";
           ctx.lineWidth = 2;
           ctx.setLineDash([5, 3]);
           ctx.strokeRect(ov.x, ov.y, ov.w, ov.h);
@@ -1920,16 +2320,27 @@
         ctx.restore();
       });
 
+      // Auto-Fit Width / Overflow Guard + Clean Background Masking
       textLines.forEach(line => {
         if (!hasLineChanged(line)) return;
 
         ctx.save();
-        ctx.font = `700 ${line.fontSize}px ${line.fontFamily || FONT_OPTIONS[0].value}`;
-        const measuredW = Math.max(line.w, ctx.measureText(line.text || " ").width);
+        let activeSize = line.fontSize;
+        const maxAllowedW = Math.max(40, W - Math.max(12, line.x) - 10);
+        ctx.font = `700 ${activeSize}px ${line.fontFamily || FONT_OPTIONS[0].value}`;
+        let measuredW = Math.max(line.w, ctx.measureText(line.text || " ").width);
+
+        if (line.autoFitWidth !== false && measuredW > maxAllowedW && (line.text || "").length > 0) {
+          while (measuredW > maxAllowedW && activeSize > 9) {
+            activeSize -= 1;
+            ctx.font = `700 ${activeSize}px ${line.fontFamily || FONT_OPTIONS[0].value}`;
+            measuredW = Math.max(line.w * 0.75, ctx.measureText(line.text).width);
+          }
+        }
         line.renderedW = measuredW;
 
-        const padX = Math.max(6, line.fontSize * 0.28);
-        const maxH = Math.max(line.h, line.fontSize * 1.35);
+        const padX = Math.max(6, activeSize * 0.28);
+        const maxH = Math.max(line.h, activeSize * 1.35);
         const padY = Math.max(3, (maxH - line.h) / 2 + 2);
 
         const rx = Math.max(0, line.x - padX);
@@ -1992,7 +2403,7 @@
 
         if (!isExport && selectedTarget?.type === "stroke" && selectedTarget.id === st.id) {
           const b = getStrokeBounds(st);
-          ctx.strokeStyle = "#fb7185";
+          ctx.strokeStyle = st.locked ? "#f59e0b" : "#fb7185";
           ctx.lineWidth = 1.5;
           ctx.setLineDash([4, 3]);
           ctx.strokeRect(b.x, b.y, b.w, b.h);
@@ -2019,7 +2430,7 @@
         if (f) {
           const boxW = Math.max(f.w, f.renderedW || f.w);
           ctx.save();
-          ctx.strokeStyle = f.isCustom ? "#10b981" : (f.side === "left" ? "#ef4444" : "#38bdf8");
+          ctx.strokeStyle = f.locked ? "#f59e0b" : (f.isCustom ? "#10b981" : (f.side === "left" ? "#ef4444" : "#38bdf8"));
           ctx.lineWidth = 2;
           ctx.setLineDash([5, 3]);
           ctx.strokeRect(
@@ -2100,6 +2511,17 @@
       return null;
     }
 
+    function scrollToCardForLine(lineId) {
+      const cardEl = linesList.querySelector(`[data-line-id="${lineId}"]`);
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        const inp = cardEl.querySelector(".line-input");
+        if (inp && interactionMode === "tap") {
+          inp.focus();
+        }
+      }
+    }
+
     function applySmartSnap(x, y, boxW, boxH) {
       if (!snapEnabled) return { x, y };
       const W = mainCanvas.width;
@@ -2129,7 +2551,7 @@
     }
 
     function onCanvasPointerDown(e) {
-      if (!baseImg) return;
+      if (!baseImg || compareBeforeActive) return;
       const pt = getCanvasCoords(e);
 
       if (interactionMode === "tap") {
@@ -2150,9 +2572,12 @@
           };
           activeTapTargetLineId = line.id;
           selectedTarget = { type: "text", id: line.id };
+          syncTapSizeBadge();
           quickTapInput.value = line.text;
           quickTapInput.focus();
           quickTapInput.select();
+          renderLinesUI();
+          scrollToCardForLine(line.id);
         } else {
           const spot = inspectSpotAtPoint(pt);
           capturedPreset = {
@@ -2160,6 +2585,7 @@
             ...spot
           };
           activeTapTargetLineId = null;
+          syncTapSizeBadge();
           quickTapInput.value = "";
           quickTapInput.focus();
         }
@@ -2176,7 +2602,8 @@
           points: [{ x: pt.x, y: pt.y }],
           color: drawColor,
           width: drawThickness,
-          visible: true
+          visible: true,
+          locked: false
         };
         selectedTarget = { type: "stroke", id: activeDrawStroke.id };
         renderCanvas(false);
@@ -2186,8 +2613,14 @@
       const hit = hitTestCanvas(pt);
       if (hit) {
         e.preventDefault();
-        pushUndoSnapshot();
         selectedTarget = { type: hit.type, id: hit.item.id };
+        if (hit.item.locked) {
+          showToast("🔒 ဒီ Layer ကို Lock ချထားပါသည် (Unlock ဖြည်ပြီးမှ ရွှေ့ပါ)");
+          renderLinesUI();
+          renderCanvas(false);
+          return;
+        }
+        pushUndoSnapshot();
         dragState = {
           type: hit.type,
           item: hit.item,
@@ -2203,7 +2636,7 @@
     }
 
     function onCanvasPointerMove(e) {
-      if (!baseImg) return;
+      if (!baseImg || compareBeforeActive) return;
       if (interactionMode === "draw" && activeDrawStroke) {
         e.preventDefault();
         const pt = getCanvasCoords(e);
@@ -2243,8 +2676,10 @@
         activeDrawStroke = null;
         renderLinesUI();
         renderCanvas(false);
+        persistAutoDraft();
       }
       snapGuides = { x: null, y: null };
+      if (dragState) persistAutoDraft();
       dragState = null;
       renderCanvas(false);
     }
@@ -2257,9 +2692,22 @@
     window.addEventListener("touchend", onCanvasPointerUp);
 
     window.addEventListener("keydown", (e) => {
-      if (!baseImg || !selectedTarget) return;
       const tag = document.activeElement?.tagName;
-      if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+      const isTyping = tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA";
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z" && !isTyping) {
+        e.preventDefault();
+        if (e.shiftKey) triggerRedo();
+        else triggerUndo();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y" && !isTyping) {
+        e.preventDefault();
+        triggerRedo();
+        return;
+      }
+
+      if (!baseImg || !selectedTarget || isTyping) return;
       const step = e.shiftKey ? 5 : 1;
       let dx = 0, dy = 0;
       if (e.key === "ArrowLeft") dx = -step;
@@ -2269,30 +2717,33 @@
       else return;
 
       e.preventDefault();
-      pushUndoSnapshot();
 
       if (selectedTarget.type === "text") {
         const l = textLines.find(item => item.id === selectedTarget.id);
-        if (l) {
+        if (l && !l.locked) {
+          pushUndoSnapshot();
           l.x = Math.max(0, Math.min(mainCanvas.width - 10, l.x + dx));
           l.y = Math.max(0, Math.min(mainCanvas.height - 10, l.y + dy));
           l.modified = true;
         }
       } else if (selectedTarget.type === "overlay") {
         const ov = overlayImages.find(item => item.id === selectedTarget.id);
-        if (ov) {
+        if (ov && !ov.locked) {
+          pushUndoSnapshot();
           ov.x = Math.max(0, Math.min(mainCanvas.width - 10, ov.x + dx));
           ov.y = Math.max(0, Math.min(mainCanvas.height - 10, ov.y + dy));
         }
       } else if (selectedTarget.type === "stroke") {
         const st = freehandStrokes.find(item => item.id === selectedTarget.id);
-        if (st) {
+        if (st && !st.locked) {
+          pushUndoSnapshot();
           st.points = st.points.map(p => ({ x: p.x + dx, y: p.y + dy }));
         }
       }
       renderCanvas(false);
     });
-    // Add Custom Blank-Filler Text Line
+  </script>
+  // Add Custom Blank-Filler Text Line
     addCustomTextBtn.addEventListener("click", () => {
       if (!baseImg) return;
       pushUndoSnapshot();
@@ -2305,7 +2756,9 @@
         origText: "",
         text: "စာသားအသစ်ထည့်ပါ",
         x: Math.round(mainCanvas.width * 0.52),
+        origX: Math.round(mainCanvas.width * 0.52),
         y: Math.round(mainCanvas.height * 0.25 + (textLines.filter(l => l.isCustom).length * 28) % (mainCanvas.height * 0.5)),
+        origY: Math.round(mainCanvas.height * 0.25 + (textLines.filter(l => l.isCustom).length * 28) % (mainCanvas.height * 0.5)),
         w: 140,
         h: defaultSize + 6,
         origFontSize: defaultSize,
@@ -2315,13 +2768,16 @@
         textColor: "#111827",
         bgColor: "#ffffff",
         bgMode: "transparent",
+        autoFitWidth: true,
         modified: true,
-        isCustom: true
+        isCustom: true,
+        locked: false
       };
       textLines.unshift(newLine);
       selectedTarget = { type: "text", id };
       renderLinesUI();
       renderCanvas(false);
+      persistAutoDraft();
     });
 
     // Add Overlay Image
@@ -2349,13 +2805,15 @@
             origW: targetW,
             origH: targetH,
             opacity: 1,
-            visible: true
+            visible: true,
+            locked: false
           };
           overlayImages.push(ov);
           selectedTarget = { type: "overlay", id: ov.id };
           renderLinesUI();
           renderCanvas(false);
-          showToast("ထပ်ဆင့်ပုံ ထည့်ပြီးပါပြီ — ပုံပေါ်ဆွဲရွှေ့နိုင်သလို Duplicate / ဆိုဒ်ချိန်နိုင်ပါသည်");
+          persistAutoDraft();
+          showToast("ထပ်ဆင့်ပုံ ထည့်ပြီးပါပြီ — ပုံပေါ်ဆွဲရွှေ့နိုင်သလို Duplicate / Lock / ဆိုဒ်ချိန်နိုင်ပါသည်");
         };
         img.src = dataUrl;
       };
@@ -2474,6 +2932,17 @@
       const leftGroup = document.createElement("div");
       leftGroup.className = "line-btn-group";
 
+      const lockBtn = document.createElement("button");
+      lockBtn.type = "button";
+      lockBtn.className = "mini-move-btn" + (ov.locked ? " locked" : "");
+      lockBtn.textContent = ov.locked ? "🔒 Locked" : "🔓 Lock";
+      lockBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
+        ov.locked = !ov.locked;
+        renderLinesUI();
+        renderCanvas(false);
+      });
+
       const dupBtn = document.createElement("button");
       dupBtn.type = "button";
       dupBtn.className = "mini-move-btn";
@@ -2498,12 +2967,15 @@
       resetSizeBtn.textContent = "မူလဆိုဒ်";
       resetSizeBtn.addEventListener("click", () => { pushUndoSnapshot(); resizeOverlay(ov.origW); });
 
-      leftGroup.append(dupBtn, resetSizeBtn);
+      leftGroup.append(lockBtn, dupBtn, resetSizeBtn);
+
+      const rightGroup = document.createElement("div");
+      rightGroup.className = "line-btn-group";
 
       const toggleVisBtn = document.createElement("button");
       toggleVisBtn.type = "button";
       toggleVisBtn.className = ov.visible ? "mini-danger-btn" : "mini-restore-btn";
-      toggleVisBtn.textContent = ov.visible ? "🗑️ ပုံဖျက်မည်" : "♻️ ပုံပြန်ဖော်မည်";
+      toggleVisBtn.textContent = ov.visible ? "ဝှက်မည်" : "ပြန်ဖော်မည်";
       toggleVisBtn.addEventListener("click", () => {
         pushUndoSnapshot();
         ov.visible = !ov.visible;
@@ -2511,7 +2983,20 @@
         renderCanvas(false);
       });
 
-      actions.append(leftGroup, toggleVisBtn);
+      const delPermBtn = document.createElement("button");
+      delPermBtn.type = "button";
+      delPermBtn.className = "mini-danger-btn";
+      delPermBtn.textContent = "🗑️ အပြီးဖျက်";
+      delPermBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
+        overlayImages = overlayImages.filter(item => item.id !== ov.id);
+        if (selectedTarget?.type === "overlay" && selectedTarget.id === ov.id) selectedTarget = null;
+        renderLinesUI();
+        renderCanvas(false);
+      });
+
+      rightGroup.append(toggleVisBtn, delPermBtn);
+      actions.append(leftGroup, rightGroup);
       card.appendChild(actions);
       return card;
     }
@@ -2548,6 +3033,16 @@
         renderCanvas(false);
       });
 
+      const lockBtn = document.createElement("button");
+      lockBtn.type = "button";
+      lockBtn.className = "mini-move-btn" + (st.locked ? " locked" : "");
+      lockBtn.textContent = st.locked ? "🔒" : "🔓";
+      lockBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
+        st.locked = !st.locked;
+        renderLinesUI();
+      });
+
       const toggleBtn = document.createElement("button");
       toggleBtn.type = "button";
       toggleBtn.className = st.visible ? "mini-danger-btn" : "mini-restore-btn";
@@ -2559,7 +3054,7 @@
         renderCanvas(false);
       });
 
-      styleRow.append(cPicker, thickSlider, toggleBtn);
+      styleRow.append(cPicker, thickSlider, lockBtn, toggleBtn);
       card.appendChild(styleRow);
       return card;
     }
@@ -2567,6 +3062,7 @@
     function buildSingleLineCard(line) {
       const isSelected = selectedTarget?.type === "text" && selectedTarget.id === line.id;
       const card = document.createElement("div");
+      card.dataset.lineId = String(line.id);
       card.className = "line-card"
         + (isSelected ? " focused" : "")
         + (hasLineChanged(line) ? " edited-card" : "");
@@ -2589,7 +3085,7 @@
       const origInfo = document.createElement("span");
       origInfo.textContent = line.isCustom
         ? "ပုံပေါ်ဆွဲရွှေ့နိုင်သည်"
-        : (line.origText.length > 24 ? line.origText.slice(0, 24) + "…" : line.origText);
+        : `မူရင်း: ${line.origText.length > 22 ? line.origText.slice(0, 22) + "…" : line.origText}`;
 
       top.append(sideBadge, origInfo);
 
@@ -2603,6 +3099,7 @@
         line.modified = hasLineChanged(line);
         card.classList.toggle("edited-card", line.modified);
         renderCanvas(false);
+        persistAutoDraft();
       }
 
       input.addEventListener("focus", () => {
@@ -2638,7 +3135,7 @@
 
       const bgSelect = document.createElement("select");
       [
-        { val: "auto", lbl: "နောက်ခံ: အလိုအလျောက်ဖုံး (Auto)" },
+        { val: "auto", lbl: "နောက်ခံ: အလိုအလျောက် (Auto)" },
         { val: "transparent", lbl: "နောက်ခံ: အကြည် (Transparent)" },
         { val: "white", lbl: "နောက်ခံ: အဖြူ (White)" }
       ].forEach(bOpt => {
@@ -2749,6 +3246,36 @@
       const switchGroup = document.createElement("div");
       switchGroup.className = "line-btn-group";
 
+      const lockBtn = document.createElement("button");
+      lockBtn.type = "button";
+      lockBtn.className = "mini-move-btn" + (line.locked ? " locked" : "");
+      lockBtn.textContent = line.locked ? "🔒 Locked" : "🔓 Lock";
+      lockBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
+        line.locked = !line.locked;
+        renderLinesUI();
+      });
+
+      const commaBtn = document.createElement("button");
+      commaBtn.type = "button";
+      commaBtn.className = "mini-move-btn";
+      commaBtn.textContent = "1,000";
+      commaBtn.title = "ဂဏန်းကို ကော်မာခွဲ/ပေါင်းရန်";
+      commaBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
+        const raw = line.text.trim();
+        if (raw.includes(",")) {
+          line.text = raw.replace(/,/g, "");
+        } else {
+          const num = Number(raw.replace(/\s+/g, ""));
+          if (!Number.isNaN(num) && raw !== "") {
+            line.text = num.toLocaleString("en-US");
+          }
+        }
+        input.value = line.text;
+        syncCardState();
+      });
+
       const dupTextBtn = document.createElement("button");
       dupTextBtn.type = "button";
       dupTextBtn.className = "mini-move-btn";
@@ -2762,6 +3289,7 @@
           side: "custom",
           isCustom: true,
           modified: true,
+          locked: false,
           x: Math.min(mainCanvas.width - 40, line.x + 12),
           y: Math.min(mainCanvas.height - 20, line.y + line.h + 6)
         });
@@ -2769,7 +3297,8 @@
         renderLinesUI();
         renderCanvas(false);
       });
-      switchGroup.appendChild(dupTextBtn);
+
+      switchGroup.append(lockBtn, commaBtn, dupTextBtn);
 
       if (!line.isCustom) {
         const toLeftBtn = document.createElement("button");
@@ -2816,11 +3345,14 @@
         rightBtn.addEventListener("click", () => {
           pushUndoSnapshot();
           line.text = line.origText;
+          line.x = line.origX ?? line.x;
+          line.y = line.origY ?? line.y;
           line.fontSize = line.origFontSize;
           line.textColor = line.origTextColor;
           line.fontFamily = FONT_OPTIONS[0].value;
           line.bgMode = "auto";
           line.modified = false;
+          input.value = line.text;
           renderLinesUI();
           renderCanvas(false);
         });
@@ -2829,6 +3361,12 @@
       actions.append(switchGroup, rightBtn);
       card.append(top, input, fontBgRow, styleGrid, actions);
       return card;
+    }
+
+    function matchesSearch(line) {
+      if (!searchQuery) return true;
+      return (line.text || "").toLowerCase().includes(searchQuery) ||
+             (line.origText || "").toLowerCase().includes(searchQuery);
     }
 
     function renderLinesUI() {
@@ -2858,7 +3396,21 @@
         linesList.appendChild(secEl);
       }
 
-      const customItems = textLines.filter(l => l.isCustom);
+      const filteredLines = textLines.filter(matchesSearch);
+
+      if (activeColFilter === "edited") {
+        const editedItems = filteredLines.filter(l => hasLineChanged(l));
+        if (editedItems.length > 0) {
+          const secEl = document.createElement("div");
+          secEl.className = "group-section custom-box";
+          secEl.innerHTML = `<div class="group-header"><span class="tag-custom">✏️ ပြင်ဆင်ထားသော စာကြောင်းများ</span><span>(${editedItems.length})</span></div>`;
+          editedItems.forEach(line => secEl.appendChild(buildSingleLineCard(line)));
+          linesList.appendChild(secEl);
+        }
+        return;
+      }
+
+      const customItems = filteredLines.filter(l => l.isCustom);
       if ((activeColFilter === "all" || activeColFilter === "custom") && customItems.length > 0) {
         const secEl = document.createElement("div");
         secEl.className = "group-section custom-box";
@@ -2867,9 +3419,9 @@
         linesList.appendChild(secEl);
       }
 
-      const leftItems = textLines.filter(l => !l.isCustom && l.side === "left");
-      const rightItems = textLines.filter(l => !l.isCustom && l.side === "right");
-      const otherItems = textLines.filter(l => !l.isCustom && l.side === "other");
+      const leftItems = filteredLines.filter(l => !l.isCustom && l.side === "left");
+      const rightItems = filteredLines.filter(l => !l.isCustom && l.side === "right");
+      const otherItems = filteredLines.filter(l => !l.isCustom && l.side === "other");
 
       const sections = [
         { key: "left", title: t("secLeft"), items: leftItems, boxClass: "left-col-box", tagClass: "tag-left" },
@@ -2924,7 +3476,9 @@
               origText: clean,
               text: clean,
               x: seg.x0,
+              origX: seg.x0,
               y: seg.y0,
+              origY: seg.y0,
               w,
               h,
               origFontSize: initialFontSize,
@@ -2934,8 +3488,10 @@
               textColor: colors.textColor,
               bgColor: colors.bgColor,
               bgMode: "auto",
+              autoFitWidth: true,
               modified: false,
-              isCustom: false
+              isCustom: false,
+              locked: false
             });
           });
         });
@@ -2943,6 +3499,7 @@
         textLines = extracted;
         renderLinesUI();
         renderCanvas(false);
+        persistAutoDraft();
 
         const lCount = textLines.filter(l => l.side === "left").length;
         const rCount = textLines.filter(l => l.side === "right").length;
@@ -2971,8 +3528,11 @@
 
         mainSaveBtn.disabled = false;
         addCustomTextBtn.disabled = false;
+        resetAllEditsBtn.disabled = false;
         overlayBtnText.classList.remove("disabled-lbl");
         exportBar.classList.remove("show");
+        compareBeforeActive = false;
+        compareBeforeBtn.classList.remove("compare-active");
         updateZoom(1);
         resetCapturedPresetToDefault();
 
@@ -3005,6 +3565,8 @@
 
     mainSaveBtn.addEventListener("click", () => {
       if (!baseImg) return;
+      compareBeforeActive = false;
+      compareBeforeBtn.classList.remove("compare-active");
       selectedTarget = null;
       snapGuides = { x: null, y: null };
       renderCanvas(true);
@@ -3026,6 +3588,19 @@
         try {
           localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 4)));
         } catch (__) {}
+      }
+    }
+
+    function buildThumbnailDataUrl() {
+      try {
+        const thumbC = document.createElement("canvas");
+        thumbC.width = 96;
+        thumbC.height = 128;
+        const tCtx = thumbC.getContext("2d");
+        tCtx.drawImage(mainCanvas, 0, 0, thumbC.width, thumbC.height);
+        return thumbC.toDataURL("image/jpeg", 0.65);
+      } catch (_) {
+        return "";
       }
     }
 
@@ -3056,7 +3631,8 @@
           origW: ov.origW,
           origH: ov.origH,
           opacity: ov.opacity,
-          visible: ov.visible
+          visible: ov.visible,
+          locked: !!ov.locked
         })),
         freehandStrokes: freehandStrokes.map(st => ({
           ...st,
@@ -3069,6 +3645,7 @@
         timestamp: new Date().toLocaleString(),
         action: actionType,
         rating: selectedRating,
+        thumbUrl: buildThumbnailDataUrl(),
         summary: summaryParts.length ? summaryParts.join(" • ") : "ပုံပြင်ဆင်မှု Draft",
         draft: draftState
       });
@@ -3128,13 +3705,52 @@
         return item.rating === activeHistoryTab;
       });
       historyItems.innerHTML = "";
+
+      try {
+        const autoRaw = localStorage.getItem(AUTO_DRAFT_STORAGE_KEY);
+        if (autoRaw) {
+          const ad = JSON.parse(autoRaw);
+          if (ad && ad.baseImgDataUrl) {
+            const autoBanner = document.createElement("div");
+            autoBanner.className = "history-entry";
+            autoBanner.style.borderColor = "rgba(16, 185, 129, 0.55)";
+            autoBanner.innerHTML = `
+              <div class="history-meta">
+                <div><span style="color:#34d399;font-weight:900;">⚡ Auto-Draft</span> • <span style="color:var(--muted)">${escapeHtml(ad.savedAt || "နောက်ဆုံးအခြေအနေ")}</span></div>
+                <div style="margin-top:3px;">မတော်တဆ ပိတ်မိခဲ့ရင် နောက်ဆုံးလုပ်ထားတဲ့ အခြေအနေကို ပြန်ခေါ်သုံးနိုင်ပါသည်</div>
+              </div>
+            `;
+            const btnAuto = document.createElement("button");
+            btnAuto.type = "button";
+            btnAuto.className = "btn-reopen-draft";
+            btnAuto.textContent = "⚡ Auto-Draft ပြန်ခေါ်";
+            btnAuto.addEventListener("click", () => restoreDraftFromHistory({ rating: "star", draft: ad }));
+            autoBanner.appendChild(btnAuto);
+            historyItems.appendChild(autoBanner);
+          }
+        }
+      } catch (_) {}
+
       if (list.length === 0) {
-        historyItems.innerHTML = `<div class="empty-state">${escapeHtml(t("noHistory"))}</div>`;
+        const emptyEl = document.createElement("div");
+        emptyEl.className = "empty-state";
+        emptyEl.textContent = t("noHistory");
+        historyItems.appendChild(emptyEl);
         return;
       }
+
       list.forEach(item => {
         const div = document.createElement("div");
         div.className = "history-entry";
+
+        if (item.thumbUrl) {
+          const thumb = document.createElement("img");
+          thumb.src = item.thumbUrl;
+          thumb.alt = "Preview";
+          thumb.className = "history-thumb";
+          div.appendChild(thumb);
+        }
+
         const badge = item.rating === "heart"
           ? `<span class="history-badge-heart">❤️ အသည်း (Heart)</span>`
           : `<span class="history-badge-star">⭐ ကြယ် (Star)</span>`;
@@ -3177,6 +3793,7 @@
 
     clearAllHistoryBtn.addEventListener("click", () => {
       saveHistoryList([]);
+      localStorage.removeItem(AUTO_DRAFT_STORAGE_KEY);
       renderHistoryModal();
     });
 
@@ -3200,19 +3817,22 @@
 
     function buildScaledExportDataUrl(mime) {
       const scale = Number(exportScaleSelect?.value || 1) || 1;
+      const q = Math.max(0.5, Math.min(1, Number(jpegQualitySlider?.value || 92) / 100));
       if (scale === 1) {
-        return mime === "image/jpeg" ? mainCanvas.toDataURL(mime, 0.92) : mainCanvas.toDataURL(mime);
+        return mime === "image/jpeg" ? mainCanvas.toDataURL(mime, q) : mainCanvas.toDataURL(mime);
       }
       const expCanvas = document.createElement("canvas");
       expCanvas.width = Math.round(mainCanvas.width * scale);
       expCanvas.height = Math.round(mainCanvas.height * scale);
       const expCtx = expCanvas.getContext("2d");
       expCtx.drawImage(mainCanvas, 0, 0, expCanvas.width, expCanvas.height);
-      return mime === "image/jpeg" ? expCanvas.toDataURL(mime, 0.92) : expCanvas.toDataURL(mime);
+      return mime === "image/jpeg" ? expCanvas.toDataURL(mime, q) : expCanvas.toDataURL(mime);
     }
 
     copyBtn.addEventListener("click", () => {
       if (!baseImg) return;
+      compareBeforeActive = false;
+      compareBeforeBtn.classList.remove("compare-active");
       selectedTarget = null;
       snapGuides = { x: null, y: null };
       renderCanvas(true);
@@ -3231,6 +3851,8 @@
 
     downloadBtn.addEventListener("click", () => {
       if (!baseImg) return;
+      compareBeforeActive = false;
+      compareBeforeBtn.classList.remove("compare-active");
       selectedTarget = null;
       snapGuides = { x: null, y: null };
       renderCanvas(true);
@@ -3244,6 +3866,482 @@
       link.click();
       addHistoryRecord(`Save (${ext.toUpperCase()})`);
       showToast(t("savedFile", filename));
+    });
+
+    // =========================================================================
+    // PRO MODE: PIN 12344321 + K PAY / WAVE PAY / AYE PAY / BANKING TEMPLATES
+    // =========================================================================
+    const openProPinBtn = document.getElementById("openProPinBtn");
+    const proPinModal = document.getElementById("proPinModal");
+    const closePinModalBtn = document.getElementById("closePinModalBtn");
+    const cancelPinModalBtn = document.getElementById("cancelPinModalBtn");
+    const proPinInput = document.getElementById("proPinInput");
+    const togglePinVisBtn = document.getElementById("togglePinVisBtn");
+    const proPinError = document.getElementById("proPinError");
+    const submitPinBtn = document.getElementById("submitPinBtn");
+
+    const proScreen = document.getElementById("proScreen");
+    const proExitBtn = document.getElementById("proExitBtn");
+    const proTemplateFileInput = document.getElementById("proTemplateFileInput");
+    const proSavePresetBtn = document.getElementById("proSavePresetBtn");
+    const proResetPresetBtn = document.getElementById("proResetPresetBtn");
+    const proActivePresetBadge = document.getElementById("proActivePresetBadge");
+    const proModeSelectBtn = document.getElementById("proModeSelectBtn");
+    const proModePickCoordBtn = document.getElementById("proModePickCoordBtn");
+    const proCanvas = document.getElementById("proCanvas");
+    const pCtx = proCanvas.getContext("2d");
+    const proFieldsContainer = document.getElementById("proFieldsContainer");
+    const proToastMsg = document.getElementById("proToastMsg");
+    const proCopyBtn = document.getElementById("proCopyBtn");
+    const proSaveBtn = document.getElementById("proSaveBtn");
+    const proCancelBtn = document.getElementById("proCancelBtn");
+
+    function createBlankReceiptSvg(title, accent, rows) {
+      const rowSvg = rows.map((r, i) => `
+        <line x1="36" y1="${165 + i * 74}" x2="424" y2="${165 + i * 74}" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="4,4"/>
+        <text x="42" y="${142 + i * 74}" fill="#64748b" font-size="13" font-family="sans-serif" font-weight="700">${r.label}</text>
+      `).join("");
+      const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="460" height="640" viewBox="0 0 460 640">
+          <rect width="460" height="640" fill="#f1f5f9"/>
+          <rect x="20" y="18" width="420" height="604" rx="18" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+          <rect x="20" y="18" width="420" height="84" rx="18" fill="${accent}"/>
+          <rect x="20" y="76" width="420" height="26" fill="${accent}"/>
+          <text x="230" y="64" text-anchor="middle" fill="#ffffff" font-size="22" font-family="sans-serif" font-weight="900">${title}</text>
+          <text x="230" y="90" text-anchor="middle" fill="#e2e8f0" font-size="12" font-family="sans-serif">TRANSFER RECEIPT TEMPLATE</text>
+          ${rowSvg}
+          <text x="230" y="592" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="sans-serif">Transaction Completed • Blank Template</text>
+        </svg>`;
+      return "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg.trim());
+    }
+
+    function buildDefaultProTemplates() {
+      const baseFields = [
+        { key: "amount", label: "ငွေပမာဏ (Amount)", value: "", x: 240, y: 146, fontSize: 22, color: "#0f172a", align: "right" },
+        { key: "number", label: "လွှဲလိုက်တဲ့နံပါတ် (Phone / Account)", value: "", x: 240, y: 220, fontSize: 17, color: "#1e293b", align: "right" },
+        { key: "name", label: "အမည် (Account Name)", value: "", x: 240, y: 294, fontSize: 16, color: "#1e293b", align: "right" },
+        { key: "datetime", label: "ရက်စွဲ / အချိန် (Date & Time)", value: "", x: 240, y: 368, fontSize: 14, color: "#475569", align: "right" },
+        { key: "note", label: "မှတ်ချက် / Ref No. (Note)", value: "", x: 240, y: 442, fontSize: 14, color: "#334155", align: "right" }
+      ];
+
+      return {
+        kpay: {
+          name: "KBZPay",
+          accent: "#0055b8",
+          templateDataUrl: createBlankReceiptSvg("KBZPay (K Pay)", "#0055b8", baseFields),
+          fields: baseFields.map(f => ({ ...f, color: f.key === "amount" ? "#0055b8" : "#0f172a" }))
+        },
+        wavepay: {
+          name: "WavePay",
+          accent: "#eab308",
+          templateDataUrl: createBlankReceiptSvg("WavePay (Wave)", "#ca8a04", baseFields),
+          fields: baseFields.map(f => ({ ...f, color: f.key === "amount" ? "#854d0e" : "#0f172a" }))
+        },
+        ayepay: {
+          name: "AYA Pay",
+          accent: "#dc2626",
+          templateDataUrl: createBlankReceiptSvg("AYA Pay (Aye Pay)", "#b91c1c", baseFields),
+          fields: baseFields.map(f => ({ ...f, color: f.key === "amount" ? "#b91c1c" : "#0f172a" }))
+        },
+        banking: {
+          name: "Banking Transfer",
+          accent: "#0f766e",
+          templateDataUrl: createBlankReceiptSvg("BANKING TRANSFER", "#0f766e", baseFields),
+          fields: baseFields.map(f => ({ ...f, color: f.key === "amount" ? "#0f766e" : "#0f172a" }))
+        }
+      };
+    }
+
+    let proTemplates = buildDefaultProTemplates();
+    let activeWallet = "kpay";
+    let proSelectedFieldKey = "amount";
+    let proPickCoordMode = false;
+    let proDragFieldKey = null;
+    let proTemplateImgCache = {};
+
+    function loadSavedProPresets() {
+      try {
+        const raw = localStorage.getItem(PRO_PRESET_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        Object.keys(proTemplates).forEach(wk => {
+          if (parsed[wk]) {
+            proTemplates[wk] = {
+              ...proTemplates[wk],
+              ...parsed[wk],
+              fields: (parsed[wk].fields || proTemplates[wk].fields).map(f => ({ ...f, value: "" }))
+            };
+            proActivePresetBadge.textContent = "Preset: Custom Saved";
+          }
+        });
+      } catch (_) {}
+    }
+
+    function showProToast(msg) {
+      proToastMsg.textContent = msg;
+      setTimeout(() => {
+        if (proToastMsg.textContent === msg) proToastMsg.textContent = "";
+      }, 3200);
+    }
+
+    function openPinModal() {
+      proPinInput.value = "";
+      proPinInput.type = "password";
+      proPinError.textContent = "";
+      proPinModal.classList.add("open");
+      setTimeout(() => proPinInput.focus(), 50);
+    }
+
+    function closePinModal() {
+      proPinModal.classList.remove("open");
+      proPinError.textContent = "";
+    }
+
+    openProPinBtn.addEventListener("click", openPinModal);
+    closePinModalBtn.addEventListener("click", closePinModal);
+    cancelPinModalBtn.addEventListener("click", closePinModal);
+    togglePinVisBtn.addEventListener("click", () => {
+      proPinInput.type = proPinInput.type === "password" ? "text" : "password";
+    });
+
+    function verifyPinAndEnterPro() {
+      if (proPinInput.value.trim() === PRO_PIN_CODE) {
+        closePinModal();
+        loadSavedProPresets();
+        editorScreen.classList.remove("active");
+        proScreen.classList.add("active");
+        switchProWallet(activeWallet);
+        showProToast("Pro Mode ထဲ ဝင်ရောက်ပြီးပါပြီ — မူကြမ်းပေါ် ဂဏန်း/စာသား ထည့်နိုင်ပါသည်");
+      } else {
+        proPinError.textContent = "စကားဝှက် မှားယွင်းနေပါသည် — ထပ်မံကြိုးစားပါ";
+        proPinInput.select();
+      }
+    }
+
+    submitPinBtn.addEventListener("click", verifyPinAndEnterPro);
+    proPinInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        verifyPinAndEnterPro();
+      }
+    });
+
+    proExitBtn.addEventListener("click", () => {
+      proScreen.classList.remove("active");
+      editorScreen.classList.add("active");
+      renderCanvas(false);
+    });
+
+    function clearProEnteredValues() {
+      const tpl = proTemplates[activeWallet];
+      if (!tpl) return;
+      tpl.fields.forEach(f => { f.value = ""; });
+      renderProFieldsUI();
+      renderProCanvas();
+    }
+
+    proCancelBtn.addEventListener("click", () => {
+      clearProEnteredValues();
+      showProToast("ပြင်ထားတဲ့ စာသား/ဂဏန်းများကို ရှင်းပြီး မူကြမ်းအလွတ် ပြန်ထားပြီးပါပြီ");
+    });
+
+    function ensureProTemplateImage(walletKey, cb) {
+      const tpl = proTemplates[walletKey];
+      if (!tpl) return;
+      if (proTemplateImgCache[walletKey] && proTemplateImgCache[walletKey].src === tpl.templateDataUrl) {
+        if (cb) cb(proTemplateImgCache[walletKey].img);
+        return;
+      }
+      const im = new Image();
+      im.onload = () => {
+        proTemplateImgCache[walletKey] = { src: tpl.templateDataUrl, img: im };
+        renderProCanvas();
+        if (cb) cb(im);
+      };
+      im.src = tpl.templateDataUrl;
+    }
+
+    function renderProCanvas() {
+      const tpl = proTemplates[activeWallet];
+      if (!tpl) return;
+      pCtx.clearRect(0, 0, proCanvas.width, proCanvas.height);
+
+      const cached = proTemplateImgCache[activeWallet];
+      if (cached && cached.img) {
+        pCtx.drawImage(cached.img, 0, 0, proCanvas.width, proCanvas.height);
+      } else {
+        pCtx.fillStyle = "#ffffff";
+        pCtx.fillRect(0, 0, proCanvas.width, proCanvas.height);
+      }
+
+      tpl.fields.forEach(f => {
+        pCtx.save();
+        pCtx.font = `800 ${f.fontSize}px "Pyidaungsu", -apple-system, sans-serif`;
+        pCtx.textAlign = f.align || "right";
+        pCtx.textBaseline = "middle";
+
+        if (f.value && f.value.trim() !== "") {
+          const textW = pCtx.measureText(f.value).width;
+          const padX = 8;
+          const boxH = Math.max(24, f.fontSize * 1.25);
+          let bx = f.x - textW - padX;
+          if (f.align === "left") bx = f.x - padX;
+          else if (f.align === "center") bx = f.x - textW / 2 - padX;
+
+          pCtx.fillStyle = "#ffffff";
+          pCtx.fillRect(Math.max(24, bx), f.y - boxH / 2, Math.min(proCanvas.width - 48, textW + padX * 2), boxH);
+
+          pCtx.fillStyle = f.color || "#0f172a";
+          pCtx.fillText(f.value, f.x, f.y);
+        }
+
+        if (f.key === proSelectedFieldKey) {
+          pCtx.strokeStyle = "#f59e0b";
+          pCtx.lineWidth = 2;
+          pCtx.setLineDash([4, 3]);
+          const markerX = f.align === "right" ? f.x - 120 : f.x;
+          pCtx.strokeRect(Math.max(26, markerX), f.y - 16, 145, 32);
+        }
+        pCtx.restore();
+      });
+    }
+
+    function renderProFieldsUI() {
+      const tpl = proTemplates[activeWallet];
+      if (!tpl) return;
+      proFieldsContainer.innerHTML = "";
+
+      tpl.fields.forEach(f => {
+        const card = document.createElement("div");
+        card.className = "pro-field-card" + (f.key === proSelectedFieldKey ? " selected-field" : "");
+        card.addEventListener("click", () => {
+          proSelectedFieldKey = f.key;
+          renderProCanvas();
+        });
+
+        const topRow = document.createElement("div");
+        topRow.className = "line-card-top";
+        topRow.innerHTML = `<b>${escapeHtml(f.label)}</b><span>X:${Math.round(f.x)} • Y:${Math.round(f.y)}</span>`;
+
+        const inp = document.createElement("input");
+        inp.type = "text";
+        inp.className = "line-input";
+        inp.value = f.value;
+        inp.placeholder = `${f.label} ရိုက်ထည့်ပါ...`;
+        inp.addEventListener("input", () => {
+          f.value = inp.value;
+          renderProCanvas();
+        });
+
+        const ctrlRow = document.createElement("div");
+        ctrlRow.className = "style-controls-grid";
+
+        const sizeBar = document.createElement("div");
+        sizeBar.className = "size-control-bar";
+
+        const minusBtn = document.createElement("button");
+        minusBtn.type = "button";
+        minusBtn.className = "size-step-btn";
+        minusBtn.textContent = "−";
+
+        const sizeBadge = document.createElement("span");
+        sizeBadge.className = "size-val-badge";
+        sizeBadge.textContent = `${f.fontSize}px`;
+
+        const plusBtn = document.createElement("button");
+        plusBtn.type = "button";
+        plusBtn.className = "size-step-btn";
+        plusBtn.textContent = "+";
+
+        function setFieldSize(ns) {
+          f.fontSize = Math.max(10, Math.min(64, ns));
+          sizeBadge.textContent = `${f.fontSize}px`;
+          renderProCanvas();
+        }
+        minusBtn.addEventListener("click", (ev) => { ev.stopPropagation(); setFieldSize(f.fontSize - 1); });
+        plusBtn.addEventListener("click", (ev) => { ev.stopPropagation(); setFieldSize(f.fontSize + 1); });
+
+        sizeBar.append(minusBtn, sizeBadge, plusBtn);
+
+        const colorBar = document.createElement("div");
+        colorBar.className = "color-control-bar";
+        const cPick = document.createElement("input");
+        cPick.type = "color";
+        cPick.className = "color-picker-input";
+        cPick.value = f.color || "#0f172a";
+        cPick.addEventListener("input", (ev) => {
+          ev.stopPropagation();
+          f.color = cPick.value;
+          renderProCanvas();
+        });
+
+        const alignSel = document.createElement("select");
+        alignSel.style.width = "auto";
+        alignSel.style.padding = "4px 6px";
+        ["right", "left", "center"].forEach(al => {
+          const opt = document.createElement("option");
+          opt.value = al;
+          opt.textContent = al.toUpperCase();
+          if (f.align === al) opt.selected = true;
+          alignSel.appendChild(opt);
+        });
+        alignSel.addEventListener("change", (ev) => {
+          ev.stopPropagation();
+          f.align = alignSel.value;
+          renderProCanvas();
+        });
+
+        colorBar.append(cPick, alignSel);
+        ctrlRow.append(sizeBar, colorBar);
+        card.append(topRow, inp, ctrlRow);
+        proFieldsContainer.appendChild(card);
+      });
+    }
+
+    function switchProWallet(walletKey) {
+      activeWallet = walletKey;
+      document.querySelectorAll("#proWalletTabs .wallet-btn").forEach(btn => {
+        btn.classList.toggle("active-wallet", btn.dataset.wallet === walletKey);
+      });
+      const tpl = proTemplates[walletKey];
+      if (tpl && tpl.fields[0]) proSelectedFieldKey = tpl.fields[0].key;
+      ensureProTemplateImage(walletKey, () => {
+        renderProFieldsUI();
+        renderProCanvas();
+      });
+    }
+
+    document.querySelectorAll("#proWalletTabs .wallet-btn").forEach(btn => {
+      btn.addEventListener("click", () => switchProWallet(btn.dataset.wallet));
+    });
+
+    proTemplateFileInput.addEventListener("change", (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        proTemplates[activeWallet].templateDataUrl = ev.target.result;
+        delete proTemplateImgCache[activeWallet];
+        ensureProTemplateImage(activeWallet, () => {
+          renderProCanvas();
+          showProToast("မူကြမ်းပုံ အသစ် ပြောင်းလဲပြီးပါပြီ");
+        });
+      };
+      reader.readAsDataURL(file);
+      proTemplateFileInput.value = "";
+    });
+
+    proSavePresetBtn.addEventListener("click", () => {
+      try {
+        const payload = {};
+        Object.keys(proTemplates).forEach(wk => {
+          payload[wk] = {
+            ...proTemplates[wk],
+            fields: proTemplates[wk].fields.map(f => ({ ...f, value: "" }))
+          };
+        });
+        localStorage.setItem(PRO_PRESET_STORAGE_KEY, JSON.stringify(payload));
+        proActivePresetBadge.textContent = "Preset: Custom Saved";
+        showProToast("မူကြမ်း နေရာ/Size/အရောင် ကို သိမ်းဆည်းပြီးပါပြီ");
+      } catch (_) {
+        showProToast("မူကြမ်း သိမ်းဆည်းရာတွင် အခက်အခဲရှိပါသည်");
+      }
+    });
+
+    proResetPresetBtn.addEventListener("click", () => {
+      localStorage.removeItem(PRO_PRESET_STORAGE_KEY);
+      proTemplateImgCache = {};
+      proTemplates = buildDefaultProTemplates();
+      proActivePresetBadge.textContent = "Preset: Built-in";
+      switchProWallet(activeWallet);
+      showProToast("မူလမူကြမ်းအတိုင်း ပြန်ထားပြီးပါပြီ");
+    });
+
+    proModeSelectBtn.addEventListener("click", () => {
+      proPickCoordMode = false;
+      proModeSelectBtn.classList.add("active-mode");
+      proModePickCoordBtn.classList.remove("active-mode");
+    });
+    proModePickCoordBtn.addEventListener("click", () => {
+      proPickCoordMode = true;
+      proModePickCoordBtn.classList.add("active-mode");
+      proModeSelectBtn.classList.remove("active-mode");
+    });
+
+    function getProCoords(e) {
+      const rect = proCanvas.getBoundingClientRect();
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      return {
+        x: Math.round((cx - rect.left) * (proCanvas.width / rect.width)),
+        y: Math.round((cy - rect.top) * (proCanvas.height / rect.height))
+      };
+    }
+
+    proCanvas.addEventListener("mousedown", (e) => {
+      const tpl = proTemplates[activeWallet];
+      if (!tpl) return;
+      const pt = getProCoords(e);
+      const field = tpl.fields.find(f => f.key === proSelectedFieldKey) || tpl.fields[0];
+      if (!field) return;
+
+      if (proPickCoordMode) {
+        field.x = pt.x;
+        field.y = pt.y;
+        renderProFieldsUI();
+        renderProCanvas();
+        showProToast(`${field.label} နေရာ (${pt.x}, ${pt.y}) သတ်မှတ်ပြီးပါပြီ`);
+        return;
+      }
+
+      const hit = tpl.fields.find(f => Math.abs(f.y - pt.y) <= 22);
+      if (hit) {
+        proSelectedFieldKey = hit.key;
+        proDragFieldKey = hit.key;
+        renderProFieldsUI();
+        renderProCanvas();
+      }
+    });
+
+    window.addEventListener("mousemove", (e) => {
+      if (!proDragFieldKey) return;
+      const tpl = proTemplates[activeWallet];
+      const field = tpl?.fields.find(f => f.key === proDragFieldKey);
+      if (!field) return;
+      const pt = getProCoords(e);
+      field.x = Math.max(40, Math.min(proCanvas.width - 30, pt.x));
+      field.y = Math.max(115, Math.min(proCanvas.height - 40, pt.y));
+      renderProCanvas();
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (proDragFieldKey) {
+        proDragFieldKey = null;
+        renderProFieldsUI();
+      }
+    });
+
+    proCopyBtn.addEventListener("click", () => {
+      proCanvas.toBlob(async (blob) => {
+        if (!blob) return;
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+          showProToast("Copy ယူပြီးပါပြီ — ပြေစာထဲက စာတွေ ရှင်းပြီး အသစ်ပြန်စနိုင်ပါပြီ");
+        } catch (_) {
+          showProToast("Copy ယူပြီးပါပြီ — ပြေစာထဲက စာတွေ ရှင်းပြီး အသစ်ပြန်စနိုင်ပါပြီ");
+        }
+        clearProEnteredValues();
+      }, "image/png");
+    });
+
+    proSaveBtn.addEventListener("click", () => {
+      const filename = `${activeWallet}-receipt-${Date.now()}.png`;
+      const link = document.createElement("a");
+      link.download = filename;
+      link.href = proCanvas.toDataURL("image/png");
+      link.click();
+      clearProEnteredValues();
+      showProToast(`${filename} သိမ်းဆည်းပြီး ပြေစာထဲက စာတွေ ရှင်းပြီးပါပြီ`);
     });
 
     renderCanvas(false);
