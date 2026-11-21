@@ -2,8 +2,8 @@
 <html lang="my" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Photo Edit & History Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Photo Edit & History Studio Pro</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <style>
     :root[data-theme="dark"] {
@@ -67,9 +67,9 @@
     .welcome-sub {
       color: #94a3b8;
       font-size: 14px;
-      max-width: 480px;
+      max-width: 560px;
       margin: 0 0 28px;
-      line-height: 1.55;
+      line-height: 1.6;
     }
     .go-edit-btn {
       padding: 16px 36px;
@@ -90,7 +90,7 @@
       min-height: 100vh;
       padding: 12px;
       gap: 12px;
-      max-width: 1420px;
+      max-width: 1480px;
       margin: 0 auto;
     }
     .editor-screen.active { display: flex; }
@@ -152,6 +152,7 @@
       font-weight: 700;
       cursor: pointer;
     }
+    .pill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .pill-btn.active-tab {
       background: #2563eb;
       border-color: #3b82f6;
@@ -159,7 +160,7 @@
     }
 
     .btn-main-save {
-      padding: 10px 20px;
+      padding: 10px 18px;
       border-radius: 10px;
       border: none;
       background: #10b981;
@@ -177,7 +178,7 @@
       gap: 8px;
       align-items: center;
       background: var(--card-2);
-      padding: 6px 10px;
+      padding: 7px 10px;
       border-radius: 10px;
       border: 1px solid var(--border);
     }
@@ -203,12 +204,12 @@
       color: #fff;
     }
     .btn-copy {
-      padding: 8px 14px;
+      padding: 8px 13px;
       border-radius: 8px;
       border: none;
       background: #8b5cf6;
       color: #fff;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -218,7 +219,7 @@
       border: none;
       background: #059669;
       color: #fff;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       cursor: pointer;
     }
@@ -231,7 +232,7 @@
     }
     @media (min-width: 980px) {
       .split-grid {
-        grid-template-columns: 1.05fr 1.15fr;
+        grid-template-columns: 1.08fr 1.12fr;
         align-items: start;
       }
     }
@@ -254,6 +255,44 @@
       align-items: center;
       gap: 8px;
       flex-wrap: wrap;
+    }
+
+    /* Quick Tap-to-Replace Box */
+    .quick-tap-box {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.12));
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      border-radius: 10px;
+      padding: 9px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .quick-tap-row {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .quick-tap-input {
+      flex: 1;
+      min-width: 140px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--input-border);
+      background: var(--card);
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .quick-tap-apply {
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: none;
+      background: #10b981;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
     }
 
     .device-controls {
@@ -320,7 +359,7 @@
       color: #cbd5e1;
     }
 
-    /* Interactive Canvas Toolbar (Drag vs Freehand Draw) */
+    /* Interactive Canvas Toolbar */
     .canvas-mode-bar {
       display: flex;
       flex-wrap: wrap;
@@ -339,7 +378,7 @@
       align-items: center;
     }
     .mode-btn {
-      padding: 7px 11px;
+      padding: 7px 10px;
       border-radius: 8px;
       border: 1px solid var(--input-border);
       background: var(--card);
@@ -351,6 +390,11 @@
     .mode-btn.active-mode {
       background: #2563eb;
       border-color: #3b82f6;
+      color: #fff;
+    }
+    .mode-btn.tap-active {
+      background: #059669;
+      border-color: #34d399;
       color: #fff;
     }
     .mode-btn.draw-active {
@@ -381,6 +425,7 @@
       align-items: center;
       justify-content: center;
       position: relative;
+      overflow: auto;
     }
     #mainCanvas {
       max-width: 100%;
@@ -390,10 +435,11 @@
       background: var(--card);
       touch-action: none;
       cursor: grab;
+      transition: transform 0.12s ease;
+      transform-origin: center center;
     }
-    #mainCanvas.drawing-cursor {
-      cursor: crosshair;
-    }
+    #mainCanvas.tap-cursor { cursor: cell; }
+    #mainCanvas.drawing-cursor { cursor: crosshair; }
     .canvas-hint {
       font-size: 11px;
       color: var(--muted);
@@ -401,7 +447,7 @@
       text-align: center;
     }
 
-    /* RIGHT SIDE: ACTION BAR + SEPARATE SECTIONS */
+    /* RIGHT SIDE */
     .right-action-bar {
       display: flex;
       flex-wrap: wrap;
@@ -419,10 +465,7 @@
       font-weight: 800;
       cursor: pointer;
     }
-    .add-text-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
+    .add-text-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
     .filter-tabs {
       display: flex;
@@ -446,9 +489,7 @@
       flex-direction: column;
       gap: 8px;
     }
-    :root[data-theme="light"] .group-section {
-      background: #f8fafc;
-    }
+    :root[data-theme="light"] .group-section { background: #f8fafc; }
     .group-section.overlay-box { border-color: rgba(14, 165, 233, 0.65); }
     .group-section.stroke-box { border-color: rgba(244, 63, 94, 0.65); }
     .group-section.custom-box { border-color: rgba(16, 185, 129, 0.65); }
@@ -482,11 +523,10 @@
     }
     .line-card.focused {
       border-color: #f59e0b;
-      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4);
+      box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.45);
     }
-    .line-card.edited-card {
-      border-left: 4px solid #10b981;
-    }
+    .line-card.edited-card { border-left: 4px solid #10b981; }
+
     .line-card-top {
       display: flex;
       justify-content: space-between;
@@ -527,27 +567,21 @@
       font-weight: 600;
     }
 
-    /* Font Family + Background Mode Row */
     .font-bg-grid {
       display: grid;
       grid-template-columns: 1.1fr 0.9fr;
       gap: 6px;
       align-items: center;
     }
-    @media (max-width: 520px) {
-      .font-bg-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 520px) { .font-bg-grid { grid-template-columns: 1fr; } }
 
-    /* Font Size & Text Color Controls */
     .style-controls-grid {
       display: grid;
       grid-template-columns: 1fr auto;
       gap: 6px;
       align-items: center;
     }
-    @media (max-width: 560px) {
-      .style-controls-grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 560px) { .style-controls-grid { grid-template-columns: 1fr; } }
 
     .size-control-bar {
       display: flex;
@@ -578,10 +612,6 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-    }
-    .size-step-btn:active {
-      background: #2563eb;
-      color: #fff;
     }
     .size-slider {
       flex: 1;
@@ -708,7 +738,7 @@
     .history-modal.open { display: flex; }
     .history-box {
       width: 100%;
-      max-width: 760px;
+      max-width: 780px;
       max-height: 86vh;
       background: var(--card);
       border: 1px solid var(--border);
@@ -723,10 +753,13 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 8px;
     }
     .history-tabs {
       display: flex;
       gap: 8px;
+      flex-wrap: wrap;
+      justify-content: space-between;
     }
     .history-items {
       overflow-y: auto;
@@ -776,9 +809,9 @@
 
   <!-- SCREEN 1: WELCOME -->
   <section class="welcome-screen" id="welcomeScreen">
-    <span class="welcome-badge">LIVE LINE SYNC, OVERLAY & HANDWRITING STUDIO</span>
-    <h1 class="welcome-title">Welcome to Photo edit</h1>
-    <p class="welcome-sub">ပုံထဲက စာကြောင်းတွေကို ဘယ်/ညာ ခွဲထုတ်ပြင်ဆင်ခြင်း၊ ကွက်လက်ထဲ စာအသစ်နှင့် ဖောင့်မျိုးစုံထည့်ခြင်း၊ ထပ်ဆင့်ပုံထည့်ခြင်း၊ ဖုန်းမျက်နှာပြင်ပေါ် လက်နဲ့တိုက်ရိုက်ရေးဆွဲခြင်းနှင့် မှတ်တမ်းမှ ပြန်ခေါ်ပြင်ဆင်ခြင်းတို့ ပြုလုပ်နိုင်ပါသည်။</p>
+    <span class="welcome-badge">PRO AUTO-CAPTURE, SNAP, UNDO/REDO & HISTORY STUDIO</span>
+    <h1 class="welcome-title">Welcome to Photo edit Pro</h1>
+    <p class="welcome-sub">ပြင်ချင်တဲ့နေရာကို တစ်ချက်နှိပ်ပြီး ဂဏန်း/စာသားရိုက်ထည့်ရုံဖြင့် မူလ Size၊ အရောင်နှင့် နေရာကို အလိုအလျောက်ဖမ်းယူပြီး ပြင်ပြီးတာနဲ့ မူလအခြေအနေသို့ ပြန်ရောက်သွားစေမည့် ပရော်ဖက်ရှင်နယ် Studio ဖြစ်ပါသည်။</p>
     <button class="go-edit-btn" id="goEditBtn">Go to edit</button>
   </section>
 
@@ -792,13 +825,25 @@
         <label class="overlay-btn-label disabled-lbl" for="overlayFileInput" id="overlayBtnText">🖼️ ထပ်ဆင့်ပုံထည့်ရန်</label>
         <input type="file" id="overlayFileInput" accept="image/*" />
 
+        <button type="button" class="pill-btn" id="undoBtn" disabled title="နောက်ပြန်ဆုတ်ရန် (Undo)">↩️ Undo</button>
+        <button type="button" class="pill-btn" id="redoBtn" disabled title="ရှေ့တိုးရန် (Redo)">↪️ Redo</button>
+
         <button class="btn-main-save" id="mainSaveBtn" disabled>SAVE</button>
 
         <div class="export-bar" id="exportBar">
+          <select id="exportFormatSelect" style="width:auto;padding:6px 8px;">
+            <option value="image/png">PNG (High Quality)</option>
+            <option value="image/jpeg">JPEG (Compact)</option>
+          </select>
+          <select id="exportScaleSelect" style="width:auto;padding:6px 8px;">
+            <option value="1">1x Scale</option>
+            <option value="1.5">1.5x HD</option>
+            <option value="2">2x High-Res</option>
+          </select>
           <button class="rate-btn" id="heartBtn" title="ကြိုက်ရင် အသည်းပေးပါ">❤️ အသည်း</button>
-          <button class="rate-btn picked-star" id="starBtn" title="မဟုတ်ရင် ကြယ်ပေးပါ">⭐ ကြယ်</button>
+          <button class="rate-btn picked-star" id="starBtn" title="ကြယ်ပေးပါ">⭐ ကြယ်</button>
           <button class="btn-copy" id="copyBtn">Copy</button>
-          <button class="btn-download" id="downloadBtn">Save</button>
+          <button class="btn-download" id="downloadBtn">Download</button>
         </div>
       </div>
 
@@ -812,18 +857,40 @@
     <div class="toast" id="toastMsg"></div>
 
     <div class="split-grid">
-      <!-- LEFT: INTERACTIVE CANVAS + STATUS BAR + FREEHAND DRAW -->
+      <!-- LEFT: INTERACTIVE CANVAS + TAP-TO-EDIT + SNAP/ZOOM + STATUS BAR -->
       <div class="panel">
         <div class="panel-title">
-          <span id="leftPanelTitle">ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်၊ ဆွဲရွှေ့ရန် နှင့် လက်ရေးရေးရန်</span>
-          <button class="toggle-mini-btn off" id="toggleStatusBarBtn" style="width:auto;padding:5px 10px;">Status Bar: OFF</button>
+          <span id="leftPanelTitle">ဘယ်ဘက် — Tap-to-Edit၊ ဆွဲရွှေ့ရန် နှင့် လက်ရေးရေးရန်</span>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <button type="button" class="pill-btn" id="zoomOutBtn" style="padding:4px 9px;">🔍 −</button>
+            <span id="zoomValBadge" style="font-size:11px;font-weight:800;color:#38bdf8;">100%</span>
+            <button type="button" class="pill-btn" id="zoomInBtn" style="padding:4px 9px;">🔍 +</button>
+            <button type="button" class="pill-btn" id="zoomResetBtn" style="padding:4px 9px;">Reset</button>
+            <button class="toggle-mini-btn off" id="toggleStatusBarBtn" style="width:auto;padding:5px 10px;">Status Bar: OFF</button>
+          </div>
         </div>
 
-        <!-- Canvas Mode Switcher: Drag/Move vs Freehand Draw -->
+        <!-- Tap-to-Replace Auto-Capture Box -->
+        <div class="quick-tap-box">
+          <div style="font-size:11px;font-weight:800;color:#34d399;">
+            ⚡ Tap-to-Replace (မူလ Size / အရောင် / နေရာ ဖမ်းယူပြီး ပြီးတာနဲ့ မူလပြန်ထားမည်)
+          </div>
+          <div class="quick-tap-row">
+            <input type="text" id="quickTapInput" class="quick-tap-input" placeholder="ပုံပေါ်နှိပ်ပြီး ဂဏန်း/စာသားရိုက်ပါ (ဥပမာ- 125,000)..." />
+            <button type="button" class="quick-tap-apply" id="quickTapApplyBtn">အစားထိုး & Reset</button>
+          </div>
+          <div id="capturedStyleInfo" style="font-size:11px;color:var(--muted);">
+            မူလဖမ်းယူထားချက်: ပုံပေါ်မှ နေရာတစ်ခုကို နှိပ်ပါ (Auto-Capture Ready)
+          </div>
+        </div>
+
+        <!-- Canvas Mode Switcher: Tap-Edit vs Drag vs Freehand Draw -->
         <div class="canvas-mode-bar">
           <div class="mode-btn-group">
-            <button type="button" class="mode-btn active-mode" id="modeDragBtn">✋ ဆွဲရွှေ့မည် (Drag)</button>
-            <button type="button" class="mode-btn" id="modeDrawBtn">✍️ လက်နဲ့ရေးမည် (Draw)</button>
+            <button type="button" class="mode-btn tap-active" id="modeTapBtn">🎯 နှိပ်ပြင်မည် (Tap)</button>
+            <button type="button" class="mode-btn" id="modeDragBtn">✋ ဆွဲရွှေ့မည် (Drag)</button>
+            <button type="button" class="mode-btn" id="modeDrawBtn">✍️ လက်ရေး (Draw)</button>
+            <button type="button" class="mode-btn active-mode" id="snapToggleBtn" title="Smart Snap Guides">🧲 Snap: ON</button>
           </div>
           <div class="mode-btn-group">
             <button type="button" class="mode-btn" id="undoStrokeBtn" title="နောက်ဆုံးလက်ရေးပြန်ဖျက်ရန်">↩️ Undo လက်ရေး</button>
@@ -931,9 +998,9 @@
         </details>
 
         <div class="canvas-stage">
-          <canvas id="mainCanvas" width="460" height="620"></canvas>
+          <canvas id="mainCanvas" width="460" height="620" class="tap-cursor"></canvas>
           <div class="canvas-hint" id="canvasHintText">
-            ✋ စာကြောင်း၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးများကို ပုံပေါ်တွင် တိုက်ရိုက်ဖိဆွဲရွှေ့နိုင်ပါသည်
+            🎯 ပြင်ချင်တဲ့ ဂဏန်း/စာသားနေရာကို နှိပ်ပါ — Size နဲ့ အရောင်ကို မူလအတိုင်း အလိုအလျောက်ဖမ်းယူပေးပါမည်
           </div>
         </div>
       </div>
@@ -955,7 +1022,7 @@
 
         <div class="lines-list" id="linesList">
           <div class="empty-state" id="emptyStateText">
-            ပုံထည့်လိုက်တာနဲ့ စာကြောင်းတွေကို ဖတ်ပေးမယ့်အပြင် ကွက်လက်ထဲ စာအသစ်ထည့်ခြင်း (+ စာကြောင်းအသစ်ထည့်ရန်)၊ ထပ်ဆင့်ပုံထည့်ခြင်း (🖼️) နှင့် လက်နဲ့ပွတ်ဆွဲရေးခြင်း (✍️) တို့ကို လုပ်ဆောင်နိုင်ပါမည်။
+            ပုံထည့်လိုက်တာနဲ့ စာကြောင်းတွေကို ဖတ်ပေးမယ့်အပြင် ပြင်ချင်တဲ့နေရာကို တိုက်ရိုက်နှိပ်ပြီး ဂဏန်း/စာသား အစားထိုးခြင်း၊ ထပ်ဆင့်ပုံထည့်ခြင်း (🖼️) နှင့် လက်နဲ့ရေးခြင်း (✍️) တို့ကို လုပ်ဆောင်နိုင်ပါမည်။
           </div>
         </div>
       </div>
@@ -971,17 +1038,19 @@
       </div>
 
       <div class="history-tabs">
-        <button class="pill-btn active-tab" data-htab="all">အားလုံး</button>
-        <button class="pill-btn" data-htab="heart">❤️ အသည်းပေးထားသော</button>
-        <button class="pill-btn" data-htab="star">⭐ ကြယ်ပေးထားသော</button>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="pill-btn active-tab" data-htab="all">အားလုံး</button>
+          <button class="pill-btn" data-htab="heart">❤️ အသည်းပေးထားသော</button>
+          <button class="pill-btn" data-htab="star">⭐ ကြယ်ပေးထားသော</button>
+        </div>
+        <button type="button" class="mini-danger-btn" id="clearAllHistoryBtn">🗑️ မှတ်တမ်းအားလုံးရှင်းရန်</button>
       </div>
 
       <div class="history-items" id="historyItems"></div>
     </div>
   </div>
-
   <script>
-    const HISTORY_STORAGE_KEY = "photo_edit_history_v2";
+    const HISTORY_STORAGE_KEY = "photo_edit_history_pro_v3";
     const QUICK_SWATCHES = ["#0f172a", "#1e3a8a", "#dc2626", "#059669", "#d97706", "#ffffff"];
 
     const FONT_OPTIONS = [
@@ -1001,7 +1070,7 @@
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
-        leftTitle: "ဘယ်ဘက် — ပုံအကြိုကြည့်ရန်၊ ဆွဲရွှေ့ရန် နှင့် လက်ရေးရေးရန်",
+        leftTitle: "ဘယ်ဘက် — Tap-to-Edit၊ ဆွဲရွှေ့ရန် နှင့် လက်ရေးရေးရန်",
         rightTitle: "ညာဘက် — စာကြောင်းများ၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးထိန်းချုပ်ရန်",
         lblPhone: "ဖုန်းအမျိုးအစား",
         lblCutout: "Cutout ပုံစံ",
@@ -1009,12 +1078,12 @@
         lblBattery: "ဘက်ထရီ (%)",
         lblSignal: "Signal တိုင် (0-4)",
         lblBrightness: "အလင်းအမှောင် အလျှော့အတင်း",
-        emptyMsg: "ပုံထည့်လိုက်တာနဲ့ စာကြောင်းတွေကို ဖတ်ပေးမယ့်အပြင် ကွက်လက်ထဲ စာအသစ်ထည့်ခြင်း (+ စာကြောင်းအသစ်ထည့်ရန်)၊ ထပ်ဆင့်ပုံထည့်ခြင်း (🖼️) နှင့် လက်နဲ့ပွတ်ဆွဲရေးခြင်း (✍️) တို့ကို လုပ်ဆောင်နိုင်ပါမည်။",
+        emptyMsg: "ပုံထည့်လိုက်တာနဲ့ စာကြောင်းတွေကို ဖတ်ပေးမယ့်အပြင် ပြင်ချင်တဲ့နေရာကို တိုက်ရိုက်နှိပ်ပြီး ဂဏန်း/စာသား အစားထိုးခြင်း၊ ထပ်ဆင့်ပုံထည့်ခြင်း (🖼️) နှင့် လက်နဲ့ရေးခြင်း (✍️) တို့ကို လုပ်ဆောင်နိုင်ပါမည်။",
         scanning: "ပုံထဲက စာကြောင်းများကို ဖတ်နေပါသည်...",
-        scanDone: (l, r, o) => `ဘယ် (${l})၊ ညာ (${r})၊ အခြား (${o}) ဖတ်ပြီးပါပြီ — ကွက်လက်ထဲ စာအသစ်ထည့်နိုင်ပါပြီ`,
-        scanEmpty: "စာကြောင်း အလိုအလျောက် မတွေ့ပါ — '+ စာကြောင်းအသစ်ထည့်ရန်' ကိုနှိပ်ပြီး ဖြည့်နိုင်ပါသည်",
+        scanDone: (l, r, o) => `ဘယ် (${l})၊ ညာ (${r})၊ အခြား (${o}) ဖတ်ပြီးပါပြီ — နေရာနှိပ်ပြီး ဂဏန်း/စာသား အစားထိုးနိုင်ပါပြီ`,
+        scanEmpty: "စာကြောင်း အလိုအလျောက် မတွေ့ပါ — ပုံပေါ်မှ နေရာတစ်ခုကို တိုက်ရိုက်နှိပ်ပြီး ရိုက်ထည့်နိုင်ပါသည်",
         copied: "ပုံကို Copy ကူးပြီး မှတ်တမ်းထဲ သိမ်းပြီးပါပြီ",
-        copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Save ကိုနှိပ်ပါ",
+        copyUnsupported: "ဒီ Browser မှာ Copy မပံ့ပိုးပါ၊ Download ကိုနှိပ်ပါ",
         savedFile: (f) => `ပုံအသစ် (${f}) သိမ်းဆည်းပြီး မှတ်တမ်းထဲ ထည့်ပြီးပါပြီ`,
         noHistory: "မှတ်တမ်း မရှိသေးပါ",
         secOverlays: "🖼️ ထပ်ဆင့်ပုံများ (Overlay Images)",
@@ -1037,7 +1106,7 @@
         toDark: "🌙 Dark",
         toEn: "🌐 English",
         toMy: "🌐 မြန်မာ",
-        leftTitle: "Left — Interactive Preview, Drag & Handwriting",
+        leftTitle: "Left — Tap-to-Edit, Drag, Snap & Handwriting",
         rightTitle: "Right — Text Lines, Overlay Images & Handwriting Controls",
         lblPhone: "Phone Model",
         lblCutout: "Cutout Style",
@@ -1045,17 +1114,17 @@
         lblBattery: "Battery (%)",
         lblSignal: "Signal Bars (0-4)",
         lblBrightness: "Screen Brightness",
-        emptyMsg: "Upload a base image, then add custom text into blank fields, place overlay photos, or draw freehand with your finger.",
+        emptyMsg: "Upload an image, tap any spot to auto-capture font size & color, replace numbers/text cleanly, and reset automatically.",
         scanning: "Scanning text lines from image...",
-        scanDone: (l, r, o) => `Detected Left (${l}), Right (${r}), Other (${o}) — ready to edit or add text`,
-        scanEmpty: "No lines auto-detected — click '+ Add Custom Text' to fill blanks",
+        scanDone: (l, r, o) => `Detected Left (${l}), Right (${r}), Other (${o}) — tap any spot to replace`,
+        scanEmpty: "No lines auto-detected — tap any spot on the image to type & replace",
         copied: "Image copied & draft saved to history",
-        copyUnsupported: "Copy not supported here; use Save",
+        copyUnsupported: "Copy not supported here; use Download",
         savedFile: (f) => `Saved ${f} & draft stored in history`,
         noHistory: "No history records yet",
-        secOverlays: "🖼️ Overlay Images (Resizable & Restorable)",
+        secOverlays: "🖼️ Overlay Images",
         secStrokes: "✍️ Freehand Drawings / Handwriting",
-        secCustom: "🟢 Custom Added Text (Blank Fillers)",
+        secCustom: "🟢 Custom / Tap-Replaced Text",
         secLeft: "🔴 Left Side Text Lines",
         secRight: "🔵 Right Side Text Lines",
         secOther: "🟣 Header / Footer Text Lines",
@@ -1067,12 +1136,23 @@
       }
     };
 
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
     let lang = "my";
     let theme = "dark";
     let selectedRating = "star";
     let activeHistoryTab = "all";
     let activeColFilter = "all";
-    let interactionMode = "drag"; // "drag" | "draw"
+    let interactionMode = "tap"; // "tap" | "drag" | "draw"
+    let snapEnabled = true;
+    let zoomLevel = 1;
 
     const welcomeScreen = document.getElementById("welcomeScreen");
     const editorScreen = document.getElementById("editorScreen");
@@ -1081,8 +1161,12 @@
     const overlayFileInput = document.getElementById("overlayFileInput");
     const overlayBtnText = document.getElementById("overlayBtnText");
     const addCustomTextBtn = document.getElementById("addCustomTextBtn");
+    const undoBtn = document.getElementById("undoBtn");
+    const redoBtn = document.getElementById("redoBtn");
     const mainSaveBtn = document.getElementById("mainSaveBtn");
     const exportBar = document.getElementById("exportBar");
+    const exportFormatSelect = document.getElementById("exportFormatSelect");
+    const exportScaleSelect = document.getElementById("exportScaleSelect");
     const heartBtn = document.getElementById("heartBtn");
     const starBtn = document.getElementById("starBtn");
     const copyBtn = document.getElementById("copyBtn");
@@ -1091,8 +1175,19 @@
     const langBtn = document.getElementById("langBtn");
     const toastMsg = document.getElementById("toastMsg");
 
+    const zoomOutBtn = document.getElementById("zoomOutBtn");
+    const zoomInBtn = document.getElementById("zoomInBtn");
+    const zoomResetBtn = document.getElementById("zoomResetBtn");
+    const zoomValBadge = document.getElementById("zoomValBadge");
+
+    const quickTapInput = document.getElementById("quickTapInput");
+    const quickTapApplyBtn = document.getElementById("quickTapApplyBtn");
+    const capturedStyleInfo = document.getElementById("capturedStyleInfo");
+
+    const modeTapBtn = document.getElementById("modeTapBtn");
     const modeDragBtn = document.getElementById("modeDragBtn");
     const modeDrawBtn = document.getElementById("modeDrawBtn");
+    const snapToggleBtn = document.getElementById("snapToggleBtn");
     const undoStrokeBtn = document.getElementById("undoStrokeBtn");
     const drawSubbar = document.getElementById("drawSubbar");
     const drawColorPicker = document.getElementById("drawColorPicker");
@@ -1123,6 +1218,7 @@
     const historyOpenBtn = document.getElementById("historyOpenBtn");
     const historyModal = document.getElementById("historyModal");
     const closeHistoryBtn = document.getElementById("closeHistoryBtn");
+    const clearAllHistoryBtn = document.getElementById("clearAllHistoryBtn");
     const historyItems = document.getElementById("historyItems");
 
     let baseImg = null;
@@ -1146,21 +1242,127 @@
       brightness: 100
     };
 
-    // Data models:
-    // textLines: { id, side: 'left'|'right'|'other'|'custom', align, origText, text, x, y, w, h, origFontSize, fontSize, fontFamily, origTextColor, textColor, bgColor, bgMode: 'transparent'|'auto'|'white', modified, isCustom }
     let textLines = [];
-
-    // overlayImages: { id, name, img, dataUrl, x, y, w, h, origW, origH, opacity, visible }
     let overlayImages = [];
-
-    // freehandStrokes: { id, points: [{x, y}], color, width, visible }
     let freehandStrokes = [];
 
-    let selectedTarget = null; // { type: 'text'|'overlay'|'stroke', id }
+    const DEFAULT_CAPTURE_PRESET = {
+      active: false,
+      x: null,
+      y: null,
+      w: 120,
+      h: 22,
+      fontSize: 16,
+      textColor: "#0f172a",
+      bgColor: "#ffffff",
+      bgMode: "auto"
+    };
+    let capturedPreset = { ...DEFAULT_CAPTURE_PRESET };
+    let activeTapTargetLineId = null;
+
+    let selectedTarget = null;
     let dragState = null;
     let activeDrawStroke = null;
+    let snapGuides = { x: null, y: null };
     let drawColor = "#1e3a8a";
     let drawThickness = 2;
+
+    let undoStack = [];
+    let redoStack = [];
+    let isApplyingHistory = false;
+
+    function cloneStateSnapshot() {
+      return {
+        statusState: { ...statusState },
+        textLines: textLines.map(l => ({ ...l })),
+        overlayImages: overlayImages.map(ov => ({
+          id: ov.id,
+          name: ov.name,
+          dataUrl: ov.dataUrl,
+          x: ov.x,
+          y: ov.y,
+          w: ov.w,
+          h: ov.h,
+          origW: ov.origW,
+          origH: ov.origH,
+          opacity: ov.opacity,
+          visible: ov.visible
+        })),
+        freehandStrokes: freehandStrokes.map(st => ({
+          ...st,
+          points: st.points.map(p => ({ ...p }))
+        }))
+      };
+    }
+
+    function pushUndoSnapshot() {
+      if (isApplyingHistory || !baseImg) return;
+      undoStack.push(cloneStateSnapshot());
+      if (undoStack.length > 35) undoStack.shift();
+      redoStack = [];
+      updateUndoRedoButtons();
+    }
+
+    function updateUndoRedoButtons() {
+      undoBtn.disabled = undoStack.length === 0;
+      redoBtn.disabled = redoStack.length === 0;
+    }
+
+    function applySnapshot(snap) {
+      if (!snap) return;
+      isApplyingHistory = true;
+      statusState = { ...snap.statusState };
+      syncStatusControlsToUI();
+      textLines = snap.textLines.map(l => ({ ...l }));
+      freehandStrokes = snap.freehandStrokes.map(st => ({
+        ...st,
+        points: st.points.map(p => ({ ...p }))
+      }));
+
+      const savedOv = snap.overlayImages || [];
+      if (savedOv.length === 0) {
+        overlayImages = [];
+        isApplyingHistory = false;
+        renderLinesUI();
+        renderCanvas(false);
+        updateUndoRedoButtons();
+        return;
+      }
+
+      let loaded = 0;
+      const nextOv = [];
+      savedOv.forEach(ovData => {
+        const im = new Image();
+        im.onload = () => {
+          nextOv.push({ ...ovData, img: im });
+          loaded++;
+          if (loaded === savedOv.length) {
+            overlayImages = nextOv;
+            isApplyingHistory = false;
+            renderLinesUI();
+            renderCanvas(false);
+            updateUndoRedoButtons();
+          }
+        };
+        im.src = ovData.dataUrl;
+      });
+    }
+
+    undoBtn.addEventListener("click", () => {
+      if (undoStack.length === 0) return;
+      redoStack.push(cloneStateSnapshot());
+      const prev = undoStack.pop();
+      applySnapshot(prev);
+      updateUndoRedoButtons();
+    });
+
+    redoBtn.addEventListener("click", () => {
+      if (redoStack.length === 0) return;
+      undoStack.push(cloneStateSnapshot());
+      const next = redoStack.pop();
+      applySnapshot(next);
+      updateUndoRedoButtons();
+    });
 
     function t(k, ...a) {
       const v = i18n[lang][k];
@@ -1171,10 +1373,18 @@
       toastMsg.textContent = msg;
       setTimeout(() => {
         if (toastMsg.textContent === msg) toastMsg.textContent = "";
-      }, 3500);
+      }, 3600);
     }
 
-    // Initialize Draw Color Swatches
+    function updateZoom(nextZoom) {
+      zoomLevel = Math.max(0.75, Math.min(2.5, Number(nextZoom.toFixed(2))));
+      mainCanvas.style.transform = zoomLevel === 1 ? "" : `scale(${zoomLevel})`;
+      zoomValBadge.textContent = `${Math.round(zoomLevel * 100)}%`;
+    }
+    zoomOutBtn.addEventListener("click", () => updateZoom(zoomLevel - 0.15));
+    zoomInBtn.addEventListener("click", () => updateZoom(zoomLevel + 0.15));
+    zoomResetBtn.addEventListener("click", () => updateZoom(1));
+
     QUICK_SWATCHES.forEach(sw => {
       const btn = document.createElement("button");
       btn.type = "button";
@@ -1187,10 +1397,7 @@
       drawSwatches.appendChild(btn);
     });
 
-    drawColorPicker.addEventListener("input", () => {
-      drawColor = drawColorPicker.value;
-    });
-
+    drawColorPicker.addEventListener("input", () => { drawColor = drawColorPicker.value; });
     drawThicknessSlider.addEventListener("input", () => {
       drawThickness = Number(drawThicknessSlider.value);
       drawThicknessVal.textContent = `${drawThickness}px`;
@@ -1198,20 +1405,39 @@
 
     function setInteractionMode(mode) {
       interactionMode = mode;
+      modeTapBtn.classList.toggle("tap-active", mode === "tap");
       modeDragBtn.classList.toggle("active-mode", mode === "drag");
       modeDrawBtn.classList.toggle("draw-active", mode === "draw");
       drawSubbar.classList.toggle("show", mode === "draw");
+      mainCanvas.classList.toggle("tap-cursor", mode === "tap");
       mainCanvas.classList.toggle("drawing-cursor", mode === "draw");
-      canvasHintText.textContent = mode === "draw"
-        ? "✍️ ဖုန်းမျက်နှာပြင်ပေါ် လက်နဲ့ပွတ်ဆွဲပြီး ကွက်လက်ထဲ တိုက်ရိုက်ရေးဆွဲနိုင်ပါသည်"
-        : "✋ စာကြောင်း၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးများကို ပုံပေါ်တွင် တိုက်ရိုက်ဖိဆွဲရွှေ့နိုင်ပါသည်";
+
+      if (mode === "tap") {
+        canvasHintText.textContent = "🎯 ပြင်ချင်တဲ့ ဂဏန်း/စာသားနေရာကို နှိပ်ပါ — Size နဲ့ အရောင်ကို မူလအတိုင်း အလိုအလျောက်ဖမ်းယူပေးပါမည်";
+      } else if (mode === "draw") {
+        canvasHintText.textContent = "✍️ ဖုန်းမျက်နှာပြင်ပေါ် လက်နဲ့ပွတ်ဆွဲပြီး ကွက်လက်ထဲ တိုက်ရိုက်ရေးဆွဲနိုင်ပါသည်";
+      } else {
+        canvasHintText.textContent = "✋ စာကြောင်း၊ ထပ်ဆင့်ပုံ နှင့် လက်ရေးများကို ပုံပေါ်တွင် တိုက်ရိုက်ဖိဆွဲရွှေ့နိုင်ပါသည်";
+      }
     }
 
+    modeTapBtn.addEventListener("click", () => setInteractionMode("tap"));
     modeDragBtn.addEventListener("click", () => setInteractionMode("drag"));
     modeDrawBtn.addEventListener("click", () => setInteractionMode("draw"));
 
+    snapToggleBtn.addEventListener("click", () => {
+      snapEnabled = !snapEnabled;
+      snapToggleBtn.textContent = `🧲 Snap: ${snapEnabled ? "ON" : "OFF"}`;
+      snapToggleBtn.classList.toggle("active-mode", snapEnabled);
+      if (!snapEnabled) {
+        snapGuides = { x: null, y: null };
+        renderCanvas(false);
+      }
+    });
+
     undoStrokeBtn.addEventListener("click", () => {
       if (freehandStrokes.length === 0) return;
+      pushUndoSnapshot();
       freehandStrokes.pop();
       renderLinesUI();
       renderCanvas(false);
@@ -1287,7 +1513,27 @@
       btn.textContent = isOn ? labelOn : labelOff;
     }
 
+    function syncStatusControlsToUI() {
+      toggleStatusBarBtn.classList.toggle("on", statusState.enabled);
+      toggleStatusBarBtn.classList.toggle("off", !statusState.enabled);
+      toggleStatusBarBtn.textContent = `Status Bar: ${statusState.enabled ? "ON" : "OFF"}`;
+      phoneModelSelect.value = statusState.model;
+      cutoutStyleSelect.value = statusState.cutout;
+      clockInput.value = statusState.time;
+      batteryInput.value = String(statusState.battery);
+      signalSelect.value = String(statusState.signal);
+      networkSelect.value = statusState.network;
+      setToggleBtn(toggleChargingBtn, statusState.charging, "ON ⚡", "OFF");
+      setToggleBtn(toggleSignalBtn, statusState.showSignal);
+      setToggleBtn(toggleBatteryBtn, statusState.showBattery);
+      setToggleBtn(toggleWifiBtn, statusState.wifi);
+      setToggleBtn(toggleBrightnessBtn, statusState.brightnessEnabled);
+      brightnessSlider.value = String(statusState.brightness);
+      brightnessVal.textContent = `${statusState.brightness}%`;
+    }
+
     phoneModelSelect.addEventListener("change", () => {
+      pushUndoSnapshot();
       statusState.model = phoneModelSelect.value;
       if (statusState.model === "iphone16") statusState.cutout = "island";
       else if (statusState.model === "iphoneNotch") statusState.cutout = "notch";
@@ -1298,32 +1544,172 @@
     });
 
     cutoutStyleSelect.addEventListener("change", () => {
+      pushUndoSnapshot();
       statusState.cutout = cutoutStyleSelect.value;
       renderCanvas(false);
     });
 
     toggleStatusBarBtn.addEventListener("click", () => {
+      pushUndoSnapshot();
       statusState.enabled = !statusState.enabled;
-      toggleStatusBarBtn.classList.toggle("on", statusState.enabled);
-      toggleStatusBarBtn.classList.toggle("off", !statusState.enabled);
-      toggleStatusBarBtn.textContent = `Status Bar: ${statusState.enabled ? "ON" : "OFF"}`;
+      syncStatusControlsToUI();
       renderCanvas(false);
     });
 
     clockInput.addEventListener("input", () => { statusState.time = clockInput.value || "09:41"; renderCanvas(false); });
-    batteryInput.addEventListener("input", () => { statusState.battery = Math.max(1, Math.min(100, Number(batteryInput.value) || 85)); renderCanvas(false); });
-    signalSelect.addEventListener("change", () => { statusState.signal = Number(signalSelect.value); renderCanvas(false); });
-    networkSelect.addEventListener("change", () => { statusState.network = networkSelect.value; renderCanvas(false); });
-    toggleChargingBtn.addEventListener("click", () => { statusState.charging = !statusState.charging; setToggleBtn(toggleChargingBtn, statusState.charging, "ON ⚡", "OFF"); renderCanvas(false); });
-    toggleSignalBtn.addEventListener("click", () => { statusState.showSignal = !statusState.showSignal; setToggleBtn(toggleSignalBtn, statusState.showSignal); renderCanvas(false); });
-    toggleBatteryBtn.addEventListener("click", () => { statusState.showBattery = !statusState.showBattery; setToggleBtn(toggleBatteryBtn, statusState.showBattery); renderCanvas(false); });
-    toggleWifiBtn.addEventListener("click", () => { statusState.wifi = !statusState.wifi; setToggleBtn(toggleWifiBtn, statusState.wifi); renderCanvas(false); });
-    toggleBrightnessBtn.addEventListener("click", () => { statusState.brightnessEnabled = !statusState.brightnessEnabled; setToggleBtn(toggleBrightnessBtn, statusState.brightnessEnabled); renderCanvas(false); });
+    batteryInput.addEventListener("input", () => {
+      const clamped = Math.max(1, Math.min(100, Number(batteryInput.value) || 85));
+      statusState.battery = clamped;
+      renderCanvas(false);
+    });
+    signalSelect.addEventListener("change", () => { pushUndoSnapshot(); statusState.signal = Number(signalSelect.value); renderCanvas(false); });
+    networkSelect.addEventListener("change", () => { pushUndoSnapshot(); statusState.network = networkSelect.value; renderCanvas(false); });
+    toggleChargingBtn.addEventListener("click", () => { pushUndoSnapshot(); statusState.charging = !statusState.charging; setToggleBtn(toggleChargingBtn, statusState.charging, "ON ⚡", "OFF"); renderCanvas(false); });
+    toggleSignalBtn.addEventListener("click", () => { pushUndoSnapshot(); statusState.showSignal = !statusState.showSignal; setToggleBtn(toggleSignalBtn, statusState.showSignal); renderCanvas(false); });
+    toggleBatteryBtn.addEventListener("click", () => { pushUndoSnapshot(); statusState.showBattery = !statusState.showBattery; setToggleBtn(toggleBatteryBtn, statusState.showBattery); renderCanvas(false); });
+    toggleWifiBtn.addEventListener("click", () => { pushUndoSnapshot(); statusState.wifi = !statusState.wifi; setToggleBtn(toggleWifiBtn, statusState.wifi); renderCanvas(false); });
+    toggleBrightnessBtn.addEventListener("click", () => { pushUndoSnapshot(); statusState.brightnessEnabled = !statusState.brightnessEnabled; setToggleBtn(toggleBrightnessBtn, statusState.brightnessEnabled); renderCanvas(false); });
     brightnessSlider.addEventListener("input", () => { statusState.brightness = Number(brightnessSlider.value); brightnessVal.textContent = `${statusState.brightness}%`; renderCanvas(false); });
 
     function rgbToHex(r, g, b) {
       return "#" + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, "0")).join("");
     }
+
+    function inspectSpotAtPoint(pt) {
+      const patchW = Math.max(44, Math.round(mainCanvas.width * 0.16));
+      const patchH = Math.max(24, Math.round(mainCanvas.height * 0.042));
+      const sx = Math.max(0, Math.min(sampleCanvas.width - patchW, Math.round(pt.x - patchW * 0.25)));
+      const sy = Math.max(0, Math.min(sampleCanvas.height - patchH, Math.round(pt.y - patchH * 0.5)));
+
+      let bgRgb = [255, 255, 255];
+      let fgRgb = [15, 23, 42];
+      let detectedH = Math.max(13, Math.round(mainCanvas.width * 0.036));
+
+      try {
+        const imgData = sampleCtx.getImageData(sx, sy, patchW, patchH);
+        const data = imgData.data;
+
+        const border = [];
+        for (let ix = 0; ix < patchW; ix += 2) {
+          for (const iy of [0, patchH - 1]) {
+            const p = (iy * patchW + ix) * 4;
+            border.push([data[p], data[p + 1], data[p + 2]]);
+          }
+        }
+        border.sort((a, b) => (a[0] + a[1] + a[2]) - (b[0] + b[1] + b[2]));
+        bgRgb = border[Math.floor(border.length / 2)] || [255, 255, 255];
+
+        let fgSum = [0, 0, 0], fgN = 0;
+        let minY = patchH, maxY = -1;
+        for (let iy = 0; iy < patchH; iy++) {
+          for (let ix = 0; ix < patchW; ix++) {
+            const p = (iy * patchW + ix) * 4;
+            const d = (data[p] - bgRgb[0]) ** 2 + (data[p + 1] - bgRgb[1]) ** 2 + (data[p + 2] - bgRgb[2]) ** 2;
+            if (d > 2200) {
+              fgSum[0] += data[p];
+              fgSum[1] += data[p + 1];
+              fgSum[2] += data[p + 2];
+              fgN++;
+              if (iy < minY) minY = iy;
+              if (iy > maxY) maxY = iy;
+            }
+          }
+        }
+
+        if (fgN > 4) {
+          fgRgb = [fgSum[0] / fgN, fgSum[1] / fgN, fgSum[2] / fgN];
+          const glyphSpan = Math.max(10, maxY - minY + 1);
+          detectedH = Math.max(11, Math.min(68, Math.round(glyphSpan * 0.92)));
+        } else {
+          fgRgb = (bgRgb[0] + bgRgb[1] + bgRgb[2]) > 380 ? [15, 23, 42] : [255, 255, 255];
+        }
+      } catch (_) {}
+
+      return {
+        x: Math.round(pt.x),
+        y: Math.round(pt.y - detectedH * 0.5),
+        w: patchW,
+        h: detectedH,
+        fontSize: detectedH,
+        textColor: rgbToHex(fgRgb[0], fgRgb[1], fgRgb[2]),
+        bgColor: rgbToHex(bgRgb[0], bgRgb[1], bgRgb[2]),
+        bgMode: "auto"
+      };
+    }
+
+    function resetCapturedPresetToDefault() {
+      capturedPreset = { ...DEFAULT_CAPTURE_PRESET };
+      activeTapTargetLineId = null;
+      capturedStyleInfo.textContent = "မူလအခြေအနေသို့ ပြန်ရောက်ပြီးပါပြီ — နောက်ထပ်ပြင်ချင်တဲ့နေရာကို နှိပ်ပါ";
+    }
+
+    function commitTapReplacement(newVal) {
+      if (!baseImg || !capturedPreset.active) return;
+      const trimmed = newVal.trim();
+      if (!trimmed) return;
+
+      pushUndoSnapshot();
+
+      if (activeTapTargetLineId !== null) {
+        const existing = textLines.find(l => l.id === activeTapTargetLineId);
+        if (existing) {
+          existing.text = trimmed;
+          existing.fontSize = capturedPreset.fontSize;
+          existing.textColor = capturedPreset.textColor;
+          existing.bgColor = capturedPreset.bgColor;
+          existing.bgMode = capturedPreset.bgMode;
+          existing.modified = true;
+          selectedTarget = { type: "text", id: existing.id };
+        }
+      } else {
+        const id = Date.now() + Math.random();
+        const line = {
+          id,
+          side: "custom",
+          align: "left",
+          origText: "",
+          text: trimmed,
+          x: capturedPreset.x,
+          y: capturedPreset.y,
+          w: Math.max(60, capturedPreset.w),
+          h: capturedPreset.h,
+          origFontSize: capturedPreset.fontSize,
+          fontSize: capturedPreset.fontSize,
+          fontFamily: FONT_OPTIONS[0].value,
+          origTextColor: capturedPreset.textColor,
+          textColor: capturedPreset.textColor,
+          bgColor: capturedPreset.bgColor,
+          bgMode: capturedPreset.bgMode,
+          modified: true,
+          isCustom: true
+        };
+        textLines.unshift(line);
+        selectedTarget = { type: "text", id };
+      }
+
+      quickTapInput.value = "";
+      resetCapturedPresetToDefault();
+      renderLinesUI();
+      renderCanvas(false);
+      showToast("ပရော်ဖက်ရှင်နယ် အစားထိုးပြီး မူလအခြေအနေသို့ ပြန်ညှိပြီးပါပြီ");
+    }
+
+    quickTapApplyBtn.addEventListener("click", () => {
+      if (!capturedPreset.active) {
+        showToast("အရင်ဆုံး ပုံပေါ်မှ ပြင်ချင်တဲ့နေရာကို နှိပ်ပြီး Size/အရောင် ဖမ်းယူပါ");
+        return;
+      }
+      commitTapReplacement(quickTapInput.value);
+    });
+
+    quickTapInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        if (capturedPreset.active) {
+          commitTapReplacement(quickTapInput.value);
+        }
+      }
+    });
 
     function sampleRegionColors(x, y, w, h) {
       const sx = Math.max(0, Math.min(sampleCanvas.width - 1, Math.round(x)));
@@ -1513,7 +1899,6 @@
         return;
       }
 
-      // 1. Base Image
       ctx.save();
       if (statusState.brightnessEnabled) {
         ctx.filter = `brightness(${statusState.brightness}%)`;
@@ -1521,7 +1906,6 @@
       ctx.drawImage(baseImg, 0, 0, W, H);
       ctx.restore();
 
-      // 2. Overlay Images (Photo layers)
       overlayImages.forEach(ov => {
         if (!ov.visible || !ov.img) return;
         ctx.save();
@@ -1536,7 +1920,6 @@
         ctx.restore();
       });
 
-      // 3. Text Lines (Detected + Custom Blank-Fillers)
       textLines.forEach(line => {
         if (!hasLineChanged(line)) return;
 
@@ -1545,7 +1928,7 @@
         const measuredW = Math.max(line.w, ctx.measureText(line.text || " ").width);
         line.renderedW = measuredW;
 
-        const padX = Math.max(5, line.fontSize * 0.25);
+        const padX = Math.max(6, line.fontSize * 0.28);
         const maxH = Math.max(line.h, line.fontSize * 1.35);
         const padY = Math.max(3, (maxH - line.h) / 2 + 2);
 
@@ -1554,17 +1937,17 @@
         const rw = Math.min(W - rx, measuredW + padX * 2);
         const rh = Math.min(H - ry, line.h + padY * 2);
 
-        // Smart background handling:
-        // "transparent" -> draws text directly over patterned/pink backgrounds (like NRC card blanks!)
-        // "auto" -> samples surrounding background color to erase old text cleanly
-        // "white" -> clean white fill
         if (line.bgMode === "auto") {
           const liveSample = sampleRegionColors(line.x, line.y, Math.max(12, line.w), Math.max(12, line.h));
           ctx.fillStyle = liveSample.bgColor || line.bgColor;
-          ctx.fillRect(rx, ry, rw, rh);
+          ctx.beginPath();
+          ctx.roundRect(rx, ry, rw, rh, 3);
+          ctx.fill();
         } else if (line.bgMode === "white") {
           ctx.fillStyle = "#ffffff";
-          ctx.fillRect(rx, ry, rw, rh);
+          ctx.beginPath();
+          ctx.roundRect(rx, ry, rw, rh, 3);
+          ctx.fill();
         }
 
         const val = line.text;
@@ -1586,7 +1969,6 @@
         ctx.restore();
       });
 
-      // 4. Freehand Handwriting Strokes (Exact natural hand-drawn path, never auto-replaced)
       const allStrokes = activeDrawStroke ? [...freehandStrokes, activeDrawStroke] : freehandStrokes;
       allStrokes.forEach(st => {
         if (!st.visible || !st.points || st.points.length === 0) return;
@@ -1618,7 +2000,20 @@
         ctx.restore();
       });
 
-      // 5. Selection Highlight Box for Text
+      if (!isExport && capturedPreset.active && capturedPreset.x !== null) {
+        ctx.save();
+        ctx.strokeStyle = "#10b981";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([4, 3]);
+        ctx.strokeRect(
+          Math.max(1, capturedPreset.x - 4),
+          Math.max(1, capturedPreset.y - 3),
+          Math.max(40, capturedPreset.w + 8),
+          Math.max(18, capturedPreset.h + 6)
+        );
+        ctx.restore();
+      }
+
       if (!isExport && selectedTarget?.type === "text") {
         const f = textLines.find(l => l.id === selectedTarget.id);
         if (f) {
@@ -1637,10 +2032,29 @@
         }
       }
 
+      if (!isExport && snapEnabled && (snapGuides.x !== null || snapGuides.y !== null)) {
+        ctx.save();
+        ctx.strokeStyle = "#f59e0b";
+        ctx.lineWidth = 1.2;
+        ctx.setLineDash([4, 4]);
+        if (snapGuides.x !== null) {
+          ctx.beginPath();
+          ctx.moveTo(snapGuides.x, 0);
+          ctx.lineTo(snapGuides.x, H);
+          ctx.stroke();
+        }
+        if (snapGuides.y !== null) {
+          ctx.beginPath();
+          ctx.moveTo(0, snapGuides.y);
+          ctx.lineTo(W, snapGuides.y);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
       drawStatusBarOverlay();
     }
 
-    // Canvas Pointer Coordinates Helper
     function getCanvasCoords(e) {
       const rect = mainCanvas.getBoundingClientRect();
       const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -1651,17 +2065,23 @@
       };
     }
 
+    function getTextHitBox(l) {
+      const w = Math.max(l.w, l.renderedW || l.w) + 12;
+      const h = Math.max(l.h, l.fontSize * 1.3) + 10;
+      let leftX = l.x - 6;
+      if (l.align === "right") leftX = l.x + Math.max(l.w, l.renderedW || l.w) - w + 6;
+      else if (l.align === "center") leftX = l.x + Math.max(l.w, l.renderedW || l.w) / 2 - w / 2;
+      return { x: leftX, y: l.y - 5, w, h };
+    }
+
     function hitTestCanvas(pt) {
-      // 1. Check Custom & Edited Text Lines (top-most first)
       for (let i = textLines.length - 1; i >= 0; i--) {
         const l = textLines[i];
-        const w = Math.max(l.w, l.renderedW || l.w) + 12;
-        const h = Math.max(l.h, l.fontSize * 1.3) + 10;
-        if (pt.x >= l.x - 6 && pt.x <= l.x + w && pt.y >= l.y - 5 && pt.y <= l.y + h) {
+        const box = getTextHitBox(l);
+        if (pt.x >= box.x && pt.x <= box.x + box.w && pt.y >= box.y && pt.y <= box.y + box.h) {
           return { type: "text", item: l };
         }
       }
-      // 2. Check Freehand Strokes
       for (let i = freehandStrokes.length - 1; i >= 0; i--) {
         const st = freehandStrokes[i];
         if (!st.visible) continue;
@@ -1670,7 +2090,6 @@
           return { type: "stroke", item: st };
         }
       }
-      // 3. Check Overlay Images
       for (let i = overlayImages.length - 1; i >= 0; i--) {
         const ov = overlayImages[i];
         if (!ov.visible) continue;
@@ -1681,12 +2100,77 @@
       return null;
     }
 
+    function applySmartSnap(x, y, boxW, boxH) {
+      if (!snapEnabled) return { x, y };
+      const W = mainCanvas.width;
+      const H = mainCanvas.height;
+      const tol = 6;
+      let outX = x;
+      let outY = y;
+      snapGuides = { x: null, y: null };
+
+      const centerX = x + boxW / 2;
+      const centerY = y + boxH / 2;
+
+      if (Math.abs(centerX - W / 2) <= tol) {
+        outX = Math.round(W / 2 - boxW / 2);
+        snapGuides.x = Math.round(W / 2);
+      } else if (Math.abs(x - W * 0.08) <= tol) {
+        outX = Math.round(W * 0.08);
+        snapGuides.x = outX;
+      }
+
+      if (Math.abs(centerY - H / 2) <= tol) {
+        outY = Math.round(H / 2 - boxH / 2);
+        snapGuides.y = Math.round(H / 2);
+      }
+
+      return { x: outX, y: outY };
+    }
+
     function onCanvasPointerDown(e) {
       if (!baseImg) return;
       const pt = getCanvasCoords(e);
 
+      if (interactionMode === "tap") {
+        e.preventDefault();
+        const hit = hitTestCanvas(pt);
+        if (hit && hit.type === "text") {
+          const line = hit.item;
+          capturedPreset = {
+            active: true,
+            x: line.x,
+            y: line.y,
+            w: Math.max(60, line.w),
+            h: line.h,
+            fontSize: line.fontSize,
+            textColor: line.textColor,
+            bgColor: line.bgColor,
+            bgMode: line.bgMode || "auto"
+          };
+          activeTapTargetLineId = line.id;
+          selectedTarget = { type: "text", id: line.id };
+          quickTapInput.value = line.text;
+          quickTapInput.focus();
+          quickTapInput.select();
+        } else {
+          const spot = inspectSpotAtPoint(pt);
+          capturedPreset = {
+            active: true,
+            ...spot
+          };
+          activeTapTargetLineId = null;
+          quickTapInput.value = "";
+          quickTapInput.focus();
+        }
+        capturedStyleInfo.textContent = `ဖမ်းယူပြီး: Size ${capturedPreset.fontSize}px • အရောင် ${capturedPreset.textColor} • နေရာ (${capturedPreset.x}, ${capturedPreset.y})`;
+        renderCanvas(false);
+        return;
+      }
+
       if (interactionMode === "draw") {
         e.preventDefault();
+        pushUndoSnapshot();
         activeDrawStroke = {
           id: Date.now() + Math.random(),
           points: [{ x: pt.x, y: pt.y }],
@@ -1699,10 +2183,10 @@
         return;
       }
 
-      // Drag mode
       const hit = hitTestCanvas(pt);
       if (hit) {
         e.preventDefault();
+        pushUndoSnapshot();
         selectedTarget = { type: hit.type, id: hit.item.id };
         dragState = {
           type: hit.type,
@@ -1735,8 +2219,13 @@
         const dy = pt.y - dragState.startY;
 
         if (dragState.type === "text" || dragState.type === "overlay") {
-          dragState.item.x = Math.max(0, Math.min(mainCanvas.width - 10, dragState.origX + dx));
-          dragState.item.y = Math.max(0, Math.min(mainCanvas.height - 10, dragState.origY + dy));
+          const rawX = Math.max(0, Math.min(mainCanvas.width - 10, dragState.origX + dx));
+          const rawY = Math.max(0, Math.min(mainCanvas.height - 10, dragState.origY + dy));
+          const boxW = dragState.type === "overlay" ? dragState.item.w : (dragState.item.renderedW || dragState.item.w);
+          const boxH = dragState.type === "overlay" ? dragState.item.h : dragState.item.h;
+          const snapped = applySmartSnap(rawX, rawY, boxW, boxH);
+          dragState.item.x = snapped.x;
+          dragState.item.y = snapped.y;
           if (dragState.type === "text") dragState.item.modified = true;
         } else if (dragState.type === "stroke") {
           dragState.item.points = dragState.origPoints.map(p => ({
@@ -1755,20 +2244,58 @@
         renderLinesUI();
         renderCanvas(false);
       }
+      snapGuides = { x: null, y: null };
       dragState = null;
+      renderCanvas(false);
     }
 
     mainCanvas.addEventListener("mousedown", onCanvasPointerDown);
     window.addEventListener("mousemove", onCanvasPointerMove);
     window.addEventListener("mouseup", onCanvasPointerUp);
-
     mainCanvas.addEventListener("touchstart", onCanvasPointerDown, { passive: false });
     window.addEventListener("touchmove", onCanvasPointerMove, { passive: false });
     window.addEventListener("touchend", onCanvasPointerUp);
 
+    window.addEventListener("keydown", (e) => {
+      if (!baseImg || !selectedTarget) return;
+      const tag = document.activeElement?.tagName;
+      if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+      const step = e.shiftKey ? 5 : 1;
+      let dx = 0, dy = 0;
+      if (e.key === "ArrowLeft") dx = -step;
+      else if (e.key === "ArrowRight") dx = step;
+      else if (e.key === "ArrowUp") dy = -step;
+      else if (e.key === "ArrowDown") dy = step;
+      else return;
+
+      e.preventDefault();
+      pushUndoSnapshot();
+
+      if (selectedTarget.type === "text") {
+        const l = textLines.find(item => item.id === selectedTarget.id);
+        if (l) {
+          l.x = Math.max(0, Math.min(mainCanvas.width - 10, l.x + dx));
+          l.y = Math.max(0, Math.min(mainCanvas.height - 10, l.y + dy));
+          l.modified = true;
+        }
+      } else if (selectedTarget.type === "overlay") {
+        const ov = overlayImages.find(item => item.id === selectedTarget.id);
+        if (ov) {
+          ov.x = Math.max(0, Math.min(mainCanvas.width - 10, ov.x + dx));
+          ov.y = Math.max(0, Math.min(mainCanvas.height - 10, ov.y + dy));
+        }
+      } else if (selectedTarget.type === "stroke") {
+        const st = freehandStrokes.find(item => item.id === selectedTarget.id);
+        if (st) {
+          st.points = st.points.map(p => ({ x: p.x + dx, y: p.y + dy }));
+        }
+      }
+      renderCanvas(false);
+    });
     // Add Custom Blank-Filler Text Line
     addCustomTextBtn.addEventListener("click", () => {
       if (!baseImg) return;
+      pushUndoSnapshot();
       const id = Date.now() + Math.random();
       const defaultSize = Math.max(14, Math.round(mainCanvas.width * 0.036));
       const newLine = {
@@ -1787,7 +2314,7 @@
         origTextColor: "#111827",
         textColor: "#111827",
         bgColor: "#ffffff",
-        bgMode: "transparent", // Default transparent so patterned cards (like NRC) stay clean!
+        bgMode: "transparent",
         modified: true,
         isCustom: true
       };
@@ -1806,6 +2333,7 @@
         const dataUrl = ev.target.result;
         const img = new Image();
         img.onload = () => {
+          pushUndoSnapshot();
           const targetW = Math.round(mainCanvas.width * 0.26);
           const ratio = img.height / Math.max(1, img.width);
           const targetH = Math.round(targetW * ratio);
@@ -1827,7 +2355,7 @@
           selectedTarget = { type: "overlay", id: ov.id };
           renderLinesUI();
           renderCanvas(false);
-          showToast("ထပ်ဆင့်ပုံ ထည့်ပြီးပါပြီ — ပုံပေါ်ဆွဲရွှေ့နိုင်သလို ညာဘက်မှာ အကြီး/အသေး ချိန်နိုင်ပါသည်");
+          showToast("ထပ်ဆင့်ပုံ ထည့်ပြီးပါပြီ — ပုံပေါ်ဆွဲရွှေ့နိုင်သလို Duplicate / ဆိုဒ်ချိန်နိုင်ပါသည်");
         };
         img.src = dataUrl;
       };
@@ -1835,7 +2363,7 @@
       overlayFileInput.value = "";
     });
 
-    function splitRowIntoLeftRightSegments(words, imgW, imgH) {
+    function splitRowIntoLeftRightSegments(words, imgW) {
       if (!words || words.length === 0) return [];
       const valid = words
         .filter(w => w && w.text && w.text.trim() && w.bbox)
@@ -1892,10 +2420,9 @@
 
       const top = document.createElement("div");
       top.className = "line-card-top";
-      top.innerHTML = `<span class="side-pill overlay">🖼️ ထပ်ဆင့်ပုံ #${idx + 1}</span><span>${ov.name}</span>`;
+      top.innerHTML = `<span class="side-pill overlay">🖼️ ထပ်ဆင့်ပုံ #${idx + 1}</span><span>${escapeHtml(ov.name)}</span>`;
       card.appendChild(top);
 
-      // Resize Slider (- / +)
       const sizeBar = document.createElement("div");
       sizeBar.className = "size-control-bar";
       const lbl = document.createElement("span");
@@ -1934,34 +2461,57 @@
         renderCanvas(false);
       }
 
-      minusBtn.addEventListener("click", () => resizeOverlay(ov.w - 8));
-      plusBtn.addEventListener("click", () => resizeOverlay(ov.w + 8));
+      minusBtn.addEventListener("click", () => { pushUndoSnapshot(); resizeOverlay(ov.w - 8); });
+      plusBtn.addEventListener("click", () => { pushUndoSnapshot(); resizeOverlay(ov.w + 8); });
       slider.addEventListener("input", () => resizeOverlay(Number(slider.value)));
 
       sizeBar.append(lbl, minusBtn, slider, plusBtn, valBadge);
       card.appendChild(sizeBar);
 
-      // Delete / Restore / Reset Size buttons
       const actions = document.createElement("div");
       actions.className = "line-actions";
+
+      const leftGroup = document.createElement("div");
+      leftGroup.className = "line-btn-group";
+
+      const dupBtn = document.createElement("button");
+      dupBtn.type = "button";
+      dupBtn.className = "mini-move-btn";
+      dupBtn.textContent = "⧉ မိတ္တူကူး";
+      dupBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
+        const copyId = Date.now() + Math.random();
+        overlayImages.push({
+          ...ov,
+          id: copyId,
+          x: Math.min(mainCanvas.width - 20, ov.x + 16),
+          y: Math.min(mainCanvas.height - 20, ov.y + 16)
+        });
+        selectedTarget = { type: "overlay", id: copyId };
+        renderLinesUI();
+        renderCanvas(false);
+      });
 
       const resetSizeBtn = document.createElement("button");
       resetSizeBtn.type = "button";
       resetSizeBtn.className = "mini-reset-line";
       resetSizeBtn.textContent = "မူလဆိုဒ်";
-      resetSizeBtn.addEventListener("click", () => resizeOverlay(ov.origW));
+      resetSizeBtn.addEventListener("click", () => { pushUndoSnapshot(); resizeOverlay(ov.origW); });
+
+      leftGroup.append(dupBtn, resetSizeBtn);
 
       const toggleVisBtn = document.createElement("button");
       toggleVisBtn.type = "button";
       toggleVisBtn.className = ov.visible ? "mini-danger-btn" : "mini-restore-btn";
       toggleVisBtn.textContent = ov.visible ? "🗑️ ပုံဖျက်မည်" : "♻️ ပုံပြန်ဖော်မည်";
       toggleVisBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
         ov.visible = !ov.visible;
         renderLinesUI();
         renderCanvas(false);
       });
 
-      actions.append(resetSizeBtn, toggleVisBtn);
+      actions.append(leftGroup, toggleVisBtn);
       card.appendChild(actions);
       return card;
     }
@@ -2003,6 +2553,7 @@
       toggleBtn.className = st.visible ? "mini-danger-btn" : "mini-restore-btn";
       toggleBtn.textContent = st.visible ? "ဖျက်မည်" : "ပြန်ဖော်မည်";
       toggleBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
         st.visible = !st.visible;
         renderLinesUI();
         renderCanvas(false);
@@ -2055,6 +2606,7 @@
       }
 
       input.addEventListener("focus", () => {
+        pushUndoSnapshot();
         selectedTarget = { type: "text", id: line.id };
         renderCanvas(false);
         document.querySelectorAll(".line-card").forEach(c => c.classList.remove("focused"));
@@ -2066,7 +2618,6 @@
         syncCardState();
       });
 
-      // Row 2: Font Family Selector + Background Mode Selector (Transparent vs Auto-Match vs White)
       const fontBgRow = document.createElement("div");
       fontBgRow.className = "font-bg-grid";
 
@@ -2079,6 +2630,7 @@
         fontSelect.appendChild(o);
       });
       fontSelect.addEventListener("change", () => {
+        pushUndoSnapshot();
         line.fontFamily = fontSelect.value;
         selectedTarget = { type: "text", id: line.id };
         syncCardState();
@@ -2086,8 +2638,8 @@
 
       const bgSelect = document.createElement("select");
       [
-        { val: "transparent", lbl: "နောက်ခံ: အကြည် (Transparent)" },
         { val: "auto", lbl: "နောက်ခံ: အလိုအလျောက်ဖုံး (Auto)" },
+        { val: "transparent", lbl: "နောက်ခံ: အကြည် (Transparent)" },
         { val: "white", lbl: "နောက်ခံ: အဖြူ (White)" }
       ].forEach(bOpt => {
         const o = document.createElement("option");
@@ -2097,6 +2649,7 @@
         bgSelect.appendChild(o);
       });
       bgSelect.addEventListener("change", () => {
+        pushUndoSnapshot();
         line.bgMode = bgSelect.value;
         selectedTarget = { type: "text", id: line.id };
         syncCardState();
@@ -2104,7 +2657,6 @@
 
       fontBgRow.append(fontSelect, bgSelect);
 
-      // Row 3: Size (- / slider / +) + Color
       const styleGrid = document.createElement("div");
       styleGrid.className = "style-controls-grid";
 
@@ -2146,8 +2698,8 @@
         syncCardState();
       }
 
-      minusBtn.addEventListener("click", () => updateFontSize(line.fontSize - 1));
-      plusBtn.addEventListener("click", () => updateFontSize(line.fontSize + 1));
+      minusBtn.addEventListener("click", () => { pushUndoSnapshot(); updateFontSize(line.fontSize - 1); });
+      plusBtn.addEventListener("click", () => { pushUndoSnapshot(); updateFontSize(line.fontSize + 1); });
       slider.addEventListener("input", () => updateFontSize(Number(slider.value)));
 
       sizeBar.append(sizeLbl, minusBtn, slider, plusBtn, valBadge);
@@ -2184,19 +2736,40 @@
         dot.type = "button";
         dot.className = "color-swatch-btn";
         dot.style.background = sw;
-        dot.addEventListener("click", () => applyTextColor(sw));
+        dot.addEventListener("click", () => { pushUndoSnapshot(); applyTextColor(sw); });
         colorBar.appendChild(dot);
       });
 
       colorBar.appendChild(hexTag);
       styleGrid.append(sizeBar, colorBar);
 
-      // Row 4: Actions
       const actions = document.createElement("div");
       actions.className = "line-actions";
 
       const switchGroup = document.createElement("div");
       switchGroup.className = "line-btn-group";
+
+      const dupTextBtn = document.createElement("button");
+      dupTextBtn.type = "button";
+      dupTextBtn.className = "mini-move-btn";
+      dupTextBtn.textContent = "⧉ မိတ္တူ";
+      dupTextBtn.addEventListener("click", () => {
+        pushUndoSnapshot();
+        const copyId = Date.now() + Math.random();
+        textLines.unshift({
+          ...line,
+          id: copyId,
+          side: "custom",
+          isCustom: true,
+          modified: true,
+          x: Math.min(mainCanvas.width - 40, line.x + 12),
+          y: Math.min(mainCanvas.height - 20, line.y + line.h + 6)
+        });
+        selectedTarget = { type: "text", id: copyId };
+        renderLinesUI();
+        renderCanvas(false);
+      });
+      switchGroup.appendChild(dupTextBtn);
 
       if (!line.isCustom) {
         const toLeftBtn = document.createElement("button");
@@ -2204,6 +2777,7 @@
         toLeftBtn.className = "mini-move-btn";
         toLeftBtn.textContent = "◀ ဘယ်";
         toLeftBtn.addEventListener("click", () => {
+          pushUndoSnapshot();
           line.side = "left";
           line.align = "left";
           renderLinesUI();
@@ -2215,6 +2789,7 @@
         toRightBtn.className = "mini-move-btn";
         toRightBtn.textContent = "ညာ ▶";
         toRightBtn.addEventListener("click", () => {
+          pushUndoSnapshot();
           line.side = "right";
           line.align = "right";
           renderLinesUI();
@@ -2229,6 +2804,7 @@
         rightBtn.className = "mini-danger-btn";
         rightBtn.textContent = "🗑️ ဖျက်မည်";
         rightBtn.addEventListener("click", () => {
+          pushUndoSnapshot();
           textLines = textLines.filter(l => l.id !== line.id);
           if (selectedTarget?.id === line.id) selectedTarget = null;
           renderLinesUI();
@@ -2238,6 +2814,7 @@
         rightBtn.className = "mini-reset-line";
         rightBtn.textContent = t("resetBtn");
         rightBtn.addEventListener("click", () => {
+          pushUndoSnapshot();
           line.text = line.origText;
           line.fontSize = line.origFontSize;
           line.textColor = line.origTextColor;
@@ -2265,7 +2842,6 @@
         return;
       }
 
-      // 1. Overlay Images Section
       if ((activeColFilter === "all" || activeColFilter === "layers") && overlayImages.length > 0) {
         const secEl = document.createElement("div");
         secEl.className = "group-section overlay-box";
@@ -2274,7 +2850,6 @@
         linesList.appendChild(secEl);
       }
 
-      // 2. Freehand Handwriting Strokes Section
       if ((activeColFilter === "all" || activeColFilter === "layers") && freehandStrokes.length > 0) {
         const secEl = document.createElement("div");
         secEl.className = "group-section stroke-box";
@@ -2283,7 +2858,6 @@
         linesList.appendChild(secEl);
       }
 
-      // 3. Custom Blank-Filler Text Section
       const customItems = textLines.filter(l => l.isCustom);
       if ((activeColFilter === "all" || activeColFilter === "custom") && customItems.length > 0) {
         const secEl = document.createElement("div");
@@ -2293,7 +2867,6 @@
         linesList.appendChild(secEl);
       }
 
-      // 4. Detected Left / Right / Other Sections
       const leftItems = textLines.filter(l => !l.isCustom && l.side === "left");
       const rightItems = textLines.filter(l => !l.isCustom && l.side === "right");
       const otherItems = textLines.filter(l => !l.isCustom && l.side === "other");
@@ -2331,7 +2904,7 @@
           if (ln.bbox.y1 < statusBarCutoff) return;
 
           const segments = (ln.words && ln.words.length > 0)
-            ? splitRowIntoLeftRightSegments(ln.words, mainCanvas.width, mainCanvas.height)
+            ? splitRowIntoLeftRightSegments(ln.words, mainCanvas.width)
             : [{ text: (ln.text || "").trim(), x0: ln.bbox.x0, y0: ln.bbox.y0, x1: ln.bbox.x1, y1: ln.bbox.y1 }];
 
           segments.forEach(seg => {
@@ -2400,6 +2973,8 @@
         addCustomTextBtn.disabled = false;
         overlayBtnText.classList.remove("disabled-lbl");
         exportBar.classList.remove("show");
+        updateZoom(1);
+        resetCapturedPresetToDefault();
 
         if (onReadyCallback) {
           onReadyCallback();
@@ -2407,6 +2982,9 @@
           textLines = [];
           overlayImages = [];
           freehandStrokes = [];
+          undoStack = [];
+          redoStack = [];
+          updateUndoRedoButtons();
           selectedTarget = null;
           setRating("star");
           renderCanvas(false);
@@ -2422,21 +3000,32 @@
       const reader = new FileReader();
       reader.onload = (ev) => loadBaseImageFromUrl(ev.target.result);
       reader.readAsDataURL(file);
+      fileInput.value = "";
     });
 
     mainSaveBtn.addEventListener("click", () => {
       if (!baseImg) return;
       selectedTarget = null;
+      snapGuides = { x: null, y: null };
       renderCanvas(true);
       exportBar.classList.add("show");
     });
 
-    // Save Full Project / Draft State in History so user can Reopen & Resume Editing!
     function getHistoryList() {
       try {
         return JSON.parse(localStorage.getItem(HISTORY_STORAGE_KEY) || "[]");
       } catch (_) {
         return [];
+      }
+    }
+
+    function saveHistoryList(list) {
+      try {
+        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 15)));
+      } catch (_) {
+        try {
+          localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 4)));
+        } catch (__) {}
       }
     }
 
@@ -2484,23 +3073,14 @@
         draft: draftState
       });
 
-      try {
-        localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 15)));
-      } catch (_) {
-        // Fallback if storage quota is tight: keep latest 4 full drafts
-        try {
-          localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(list.slice(0, 4)));
-        } catch (__) {}
-      }
+      saveHistoryList(list);
     }
 
     function restoreDraftFromHistory(record) {
       if (!record || !record.draft) return;
       const d = record.draft;
       statusState = { ...statusState, ...d.statusState };
-      toggleStatusBarBtn.classList.toggle("on", statusState.enabled);
-      toggleStatusBarBtn.classList.toggle("off", !statusState.enabled);
-      toggleStatusBarBtn.textContent = `Status Bar: ${statusState.enabled ? "ON" : "OFF"}`;
+      syncStatusControlsToUI();
 
       loadBaseImageFromUrl(d.baseImgDataUrl, () => {
         textLines = (d.textLines || []).map(l => ({ ...l }));
@@ -2508,6 +3088,9 @@
           ...st,
           points: st.points.map(p => ({ ...p }))
         }));
+        undoStack = [];
+        redoStack = [];
+        updateUndoRedoButtons();
         selectedTarget = null;
         setRating(record.rating || "star");
 
@@ -2517,7 +3100,7 @@
           renderLinesUI();
           renderCanvas(false);
           historyModal.classList.remove("open");
-          showToast("မှတ်တမ်းထဲမှ Project / Draft ကို ပြန်ခေါ်ပြီးပါပြီ — ဆက်လက်ပြင်ဆင်နိုင်ပါသည်");
+          showToast("မှတ်တမ်းထဲမှ Project / Draft ကို ပြန်ခေါ်ပြီးပါပြီ");
         } else {
           let loadedCount = 0;
           savedOverlays.forEach(ovData => {
@@ -2529,7 +3112,7 @@
                 renderLinesUI();
                 renderCanvas(false);
                 historyModal.classList.remove("open");
-                showToast("မှတ်တမ်းထဲမှ Project / Draft ကို ပြန်ခေါ်ပြီးပါပြီ — ဆက်လက်ပြင်ဆင်နိုင်ပါသည်");
+                showToast("မှတ်တမ်းထဲမှ Project / Draft ကို ပြန်ခေါ်ပြီးပါပြီ");
               }
             };
             ovImg.src = ovData.dataUrl;
@@ -2539,13 +3122,14 @@
     }
 
     function renderHistoryModal() {
-      const list = getHistoryList().filter(item => {
+      const fullList = getHistoryList();
+      const list = fullList.filter(item => {
         if (activeHistoryTab === "all") return true;
         return item.rating === activeHistoryTab;
       });
       historyItems.innerHTML = "";
       if (list.length === 0) {
-        historyItems.innerHTML = `<div class="empty-state">${t("noHistory")}</div>`;
+        historyItems.innerHTML = `<div class="empty-state">${escapeHtml(t("noHistory"))}</div>`;
         return;
       }
       list.forEach(item => {
@@ -2558,10 +3142,13 @@
         const meta = document.createElement("div");
         meta.className = "history-meta";
         meta.innerHTML = `
-          <div>${badge} • <b>${item.action}</b> • <span style="color:var(--muted)">${item.timestamp}</span></div>
-          <div style="margin-top:4px;">${item.summary}</div>
+          <div>${badge} • <b>${escapeHtml(item.action)}</b> • <span style="color:var(--muted)">${escapeHtml(item.timestamp)}</span></div>
+          <div style="margin-top:4px;">${escapeHtml(item.summary)}</div>
         `;
         div.appendChild(meta);
+
+        const btnWrap = document.createElement("div");
+        btnWrap.className = "line-btn-group";
 
         if (item.draft) {
           const reopenBtn = document.createElement("button");
@@ -2569,12 +3156,29 @@
           reopenBtn.className = "btn-reopen-draft";
           reopenBtn.textContent = "📂 ပြန်ခေါ်သုံးမည်";
           reopenBtn.addEventListener("click", () => restoreDraftFromHistory(item));
-          div.appendChild(reopenBtn);
+          btnWrap.appendChild(reopenBtn);
         }
 
+        const delItemBtn = document.createElement("button");
+        delItemBtn.type = "button";
+        delItemBtn.className = "mini-danger-btn";
+        delItemBtn.textContent = "🗑️";
+        delItemBtn.addEventListener("click", () => {
+          const next = getHistoryList().filter(h => h.id !== item.id);
+          saveHistoryList(next);
+          renderHistoryModal();
+        });
+        btnWrap.appendChild(delItemBtn);
+
+        div.appendChild(btnWrap);
         historyItems.appendChild(div);
       });
     }
+
+    clearAllHistoryBtn.addEventListener("click", () => {
+      saveHistoryList([]);
+      renderHistoryModal();
+    });
 
     historyOpenBtn.addEventListener("click", () => {
       renderHistoryModal();
@@ -2594,9 +3198,23 @@
       });
     });
 
+    function buildScaledExportDataUrl(mime) {
+      const scale = Number(exportScaleSelect?.value || 1) || 1;
+      if (scale === 1) {
+        return mime === "image/jpeg" ? mainCanvas.toDataURL(mime, 0.92) : mainCanvas.toDataURL(mime);
+      }
+      const expCanvas = document.createElement("canvas");
+      expCanvas.width = Math.round(mainCanvas.width * scale);
+      expCanvas.height = Math.round(mainCanvas.height * scale);
+      const expCtx = expCanvas.getContext("2d");
+      expCtx.drawImage(mainCanvas, 0, 0, expCanvas.width, expCanvas.height);
+      return mime === "image/jpeg" ? expCanvas.toDataURL(mime, 0.92) : expCanvas.toDataURL(mime);
+    }
+
     copyBtn.addEventListener("click", () => {
       if (!baseImg) return;
       selectedTarget = null;
+      snapGuides = { x: null, y: null };
       renderCanvas(true);
       mainCanvas.toBlob(async (blob) => {
         if (!blob) return;
@@ -2614,13 +3232,17 @@
     downloadBtn.addEventListener("click", () => {
       if (!baseImg) return;
       selectedTarget = null;
+      snapGuides = { x: null, y: null };
       renderCanvas(true);
-      const filename = `edited-photo-${Date.now()}.png`;
+      const mime = exportFormatSelect.value || "image/png";
+      const ext = mime === "image/jpeg" ? "jpg" : "png";
+      const scaleLabel = exportScaleSelect?.value && exportScaleSelect.value !== "1" ? `-${exportScaleSelect.value}x` : "";
+      const filename = `edited-photo-${Date.now()}${scaleLabel}.${ext}`;
       const link = document.createElement("a");
       link.download = filename;
-      link.href = mainCanvas.toDataURL("image/png");
+      link.href = buildScaledExportDataUrl(mime);
       link.click();
-      addHistoryRecord("Save");
+      addHistoryRecord(`Save (${ext.toUpperCase()})`);
       showToast(t("savedFile", filename));
     });
 
